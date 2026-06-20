@@ -107,7 +107,6 @@ class MainActivity : HelperBaseActivity() {
             when (item.itemId) {
                 R.id.settings_config -> { requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java)); true }
                 R.id.settings_per_app -> { requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java)); true }
-                R.id.settings_routing -> { requestActivityLauncher.launch(Intent(this, RoutingSettingActivity::class.java)); true }
                 R.id.settings_killswitch -> { requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java)); true }
                 R.id.settings_language -> { startActivity(Intent(this, LanguageActivity::class.java)); true }
                 R.id.settings_not_working -> { startActivity(Intent(this, NotWorkingActivity::class.java)); true }
@@ -134,20 +133,8 @@ class MainActivity : HelperBaseActivity() {
     private fun onImportMenuSelected(item: MenuItem): Boolean = when (item.itemId) {
         R.id.import_qrcode -> { importQRcode(); true }
         R.id.import_clipboard -> { importClipboard(); true }
-        R.id.import_local -> { importConfigLocal(); true }
         R.id.import_manually_vless -> { importManually(EConfigType.VLESS.value); true }
-        R.id.import_manually_trojan -> { importManually(EConfigType.TROJAN.value); true }
-        R.id.import_manually_vmess -> { importManually(EConfigType.VMESS.value); true }
-        R.id.import_manually_ss -> { importManually(EConfigType.SHADOWSOCKS.value); true }
-        R.id.import_manually_socks -> { importManually(EConfigType.SOCKS.value); true }
-        R.id.import_manually_http -> { importManually(EConfigType.HTTP.value); true }
-        R.id.import_manually_wireguard -> { importManually(EConfigType.WIREGUARD.value); true }
-        R.id.import_manually_hysteria2 -> { importManually(EConfigType.HYSTERIA2.value); true }
-        R.id.import_manually_policy_group -> { importManually(EConfigType.POLICYGROUP.value); true }
-        R.id.import_manually_proxy_chain -> { importManually(EConfigType.PROXYCHAIN.value); true }
         R.id.sub_update -> { importConfigViaSub(); true }
-        R.id.export_all -> { exportAll(); true }
-        R.id.del_all_config -> { delAllConfig(); true }
         else -> false
     }
 
