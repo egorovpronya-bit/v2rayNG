@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0A0A12"
+    android:fitsSystemWindows="true">
+
+    <!-- Back -->
+    <TextView
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="← Назад"
+        android:textColor="#6B7280"
+        android:textSize="13sp"
+        android:padding="16dp"
+        android:clickable="true"
+        android:focusable="true" />
+
+    <!-- Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Язык / Language / Тыл"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Выберите язык интерфейса"
+            android:textColor="#6B7280"
+            android:textSize="12sp"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+
+    <!-- Language list -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
+
+        <!-- Russian -->
+        <LinearLayout
+            android:id="@+id/lang_ru"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card_active"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:layout_marginBottom="10dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="🇷🇺" android:textSize="26sp" android:layout_marginEnd="14dp"/>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Русский" android:textColor="#E5E7EB" android:textSize="14sp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Русский" android:textColor="#6B7280" android:textSize="12sp" android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <TextView android:layout_width="20dp" android:layout_height="20dp"
+                android:id="@+id/check_ru"
+                android:text="✓" android:textColor="#FFFFFF" android:textSize="11sp"
+                android:gravity="center" android:background="@drawable/bg_dot_green"/>
+
+        </LinearLayout>
+
+        <!-- English -->
+        <LinearLayout
+            android:id="@+id/lang_en"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card_default"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:layout_marginBottom="10dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="🇬🇧" android:textSize="26sp" android:layout_marginEnd="14dp"/>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="English" android:textColor="#E5E7EB" android:textSize="14sp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="English" android:textColor="#6B7280" android:textSize="12sp" android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <View android:layout_width="20dp" android:layout_height="20dp"
+                android:id="@+id/check_en"
+                android:background="@drawable/bg_card_default"/>
+
+        </LinearLayout>
+
+        <!-- Sakha -->
+        <LinearLayout
+            android:id="@+id/lang_sakha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_card_default"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            android:layout_marginBottom="10dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="🇷🇺" android:textSize="26sp" android:layout_marginEnd="14dp"/>
+
+            <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Якутский (Саха)" android:textColor="#E5E7EB" android:textSize="14sp" android:textStyle="bold"/>
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:text="Саха тыла" android:textColor="#6B7280" android:textSize="12sp" android:layout_marginTop="2dp"/>
+            </LinearLayout>
+
+            <View android:layout_width="20dp" android:layout_height="20dp"
+                android:id="@+id/check_sakha"
+                android:background="@drawable/bg_card_default"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Apply button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="24dp"
+        android:paddingTop="10dp">
+
+        <Button
+            android:id="@+id/btn_apply_lang"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:text="ПРИМЕНИТЬ"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"
+            android:background="@drawable/bg_btn_primary"
+            android:stateListAnimator="@null" />
+
+    </LinearLayout>
+
+</LinearLayout>
