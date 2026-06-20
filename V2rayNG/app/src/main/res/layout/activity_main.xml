@@ -99,7 +99,7 @@
             android:layout_height="wrap_content"
             android:text="Не активен"
             android:textColor="#EF4444"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:textStyle="bold"
             android:layout_marginStart="8dp" />
 
@@ -122,36 +122,36 @@
                 android:layout_height="wrap_content"
                 android:text="Нажмите чтобы включить"
                 android:textColor="#6B7280"
-                android:textSize="13sp"
+                android:textSize="15sp"
                 android:layout_marginBottom="16dp" />
 
             <!-- Power button with glow -->
             <FrameLayout
                 android:id="@+id/btn_power"
-                android:layout_width="174dp"
-                android:layout_height="174dp"
+                android:layout_width="210dp"
+                android:layout_height="210dp"
                 android:clickable="true"
                 android:focusable="true">
 
                 <View
                     android:id="@+id/power_glow"
-                    android:layout_width="174dp"
-                    android:layout_height="174dp"
+                    android:layout_width="210dp"
+                    android:layout_height="210dp"
                     android:layout_gravity="center"
                     android:background="@drawable/bg_power_glow"
                     android:visibility="invisible" />
 
                 <FrameLayout
                     android:id="@+id/power_btn_circle"
-                    android:layout_width="126dp"
-                    android:layout_height="126dp"
+                    android:layout_width="152dp"
+                    android:layout_height="152dp"
                     android:layout_gravity="center"
                     android:background="@drawable/bg_power_btn">
 
                     <ImageView
                         android:id="@+id/iv_power_icon"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_power" />
 
@@ -165,7 +165,7 @@
                 android:layout_height="wrap_content"
                 android:text="Отключён"
                 android:textColor="#4B5563"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:textStyle="bold"
                 android:layout_marginTop="16dp" />
 
@@ -210,7 +210,7 @@
                 android:layout_height="wrap_content"
                 android:text="Нидерланды — Amsterdam"
                 android:textColor="#E5E7EB"
-                android:textSize="13sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -219,7 +219,7 @@
                 android:layout_height="wrap_content"
                 android:text="VLESS REALITY"
                 android:textColor="#6B7280"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 android:layout_marginTop="2dp" />
 
         </LinearLayout>
@@ -230,7 +230,7 @@
             android:layout_height="wrap_content"
             android:text="LIVE"
             android:textColor="#4F6EF7"
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:textStyle="bold"
             android:paddingStart="8dp"
             android:paddingEnd="8dp"
@@ -272,7 +272,7 @@
                     android:layout_height="wrap_content"
                     android:text="↑ ПЕРЕДАНО"
                     android:textColor="#6B7280"
-                    android:textSize="10sp" />
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tv_traffic_upload"
@@ -280,7 +280,7 @@
                     android:layout_height="wrap_content"
                     android:text="—"
                     android:textColor="#E5E7EB"
-                    android:textSize="13sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:layout_marginTop="3dp" />
 
@@ -298,7 +298,7 @@
                     android:layout_height="wrap_content"
                     android:text="↓ ПОЛУЧЕНО"
                     android:textColor="#6B7280"
-                    android:textSize="10sp" />
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tv_traffic_download"
@@ -306,7 +306,7 @@
                     android:layout_height="wrap_content"
                     android:text="—"
                     android:textColor="#E5E7EB"
-                    android:textSize="13sp"
+                    android:textSize="15sp"
                     android:textStyle="bold"
                     android:layout_marginTop="3dp" />
 
@@ -321,7 +321,7 @@
             android:gravity="center"
             android:text="ID: SN-—"
             android:textColor="#374151"
-            android:textSize="11sp"
+            android:textSize="13sp"
             android:layout_marginTop="2dp" />
 
     </LinearLayout>

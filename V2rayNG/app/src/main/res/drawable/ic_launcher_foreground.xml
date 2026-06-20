@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- White shield -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,22 L80,33 L80,59 Q80,76 54,84 Q28,76 28,59 L28,33 Z" />
+
+    <!-- S letter (stroked in brand blue) -->
+    <path
+        android:strokeColor="#4F6EF7"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M47,38 C25,36 23,56 42,54 C61,52 61,68 38,70" />
+
+    <!-- N letter -->
+    <path
+        android:strokeColor="#4F6EF7"
+        android:strokeWidth="4.5"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M52,70 L52,38 L70,70 L70,38" />
+
+</vector>

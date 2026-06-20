@@ -2,8 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/settings_config" android:title="⚙ Конфигурация" />
     <item android:id="@+id/settings_per_app" android:title="📱 Приложения" />
-    <item android:id="@+id/settings_routing" android:title="🔀 Маршрутизация" />
-    <item android:id="@+id/settings_killswitch" android:title="🛡 Kill Switch" />
+<item android:id="@+id/settings_killswitch" android:title="🛡 Kill Switch" />
     <item android:id="@+id/settings_language" android:title="🌐 Язык" />
     <item android:id="@+id/settings_not_working" android:title="❓ Не работает?" />
     <item android:id="@+id/settings_telegram" android:title="✈ Telegram @SAQANet_bot" />
