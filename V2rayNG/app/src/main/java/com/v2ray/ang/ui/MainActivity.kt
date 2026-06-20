@@ -1,6 +1,7 @@
 package com.v2ray.ang.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.net.VpnService
 import android.os.Bundle
 import android.view.KeyEvent
@@ -59,9 +60,7 @@ class MainActivity : HelperBaseActivity() {
 
         binding.btnPower.setOnClickListener { handlePowerClick() }
 
-        binding.btnSettings.setOnClickListener {
-            requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java))
-        }
+        binding.btnSettings.setOnClickListener { showSettingsMenu(it) }
 
         binding.btnAdd.setOnClickListener { showAddMenu(it) }
 
@@ -99,6 +98,30 @@ class MainActivity : HelperBaseActivity() {
         } else {
             startV2Ray()
         }
+    }
+
+    private fun showSettingsMenu(anchor: View) {
+        val popup = PopupMenu(this, anchor)
+        popup.menuInflater.inflate(R.menu.menu_settings_popup, popup.menu)
+        popup.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.settings_config -> { requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java)); true }
+                R.id.settings_per_app -> { requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java)); true }
+                R.id.settings_routing -> { requestActivityLauncher.launch(Intent(this, RoutingSettingActivity::class.java)); true }
+                R.id.settings_killswitch -> { requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java)); true }
+                R.id.settings_language -> { startActivity(Intent(this, LanguageActivity::class.java)); true }
+                R.id.settings_not_working -> { startActivity(Intent(this, NotWorkingActivity::class.java)); true }
+                R.id.settings_telegram -> {
+                    try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=SAQANet_bot"))) }
+                    catch (e: Exception) { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/SAQANet_bot"))) }
+                    true
+                }
+                R.id.settings_about -> { startActivity(Intent(this, AboutActivity::class.java)); true }
+                R.id.settings_subscriptions -> { startActivity(Intent(this, SubscriptionActivity::class.java)); true }
+                else -> false
+            }
+        }
+        popup.show()
     }
 
     private fun showAddMenu(anchor: View) {

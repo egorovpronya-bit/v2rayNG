@@ -169,6 +169,15 @@
         <activity
             android:name=".ui.AboutActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.LanguageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.NotWorkingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.SubscriptionActivity"
+            android:exported="false" />
 
         <service
             android:name=".service.CoreVpnService"

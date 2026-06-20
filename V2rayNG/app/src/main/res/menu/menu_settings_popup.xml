@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/settings_config" android:title="⚙ Конфигурация" />
+    <item android:id="@+id/settings_per_app" android:title="📱 Приложения" />
+    <item android:id="@+id/settings_routing" android:title="🔀 Маршрутизация" />
+    <item android:id="@+id/settings_killswitch" android:title="🛡 Kill Switch" />
+    <item android:id="@+id/settings_language" android:title="🌐 Язык" />
+    <item android:id="@+id/settings_not_working" android:title="❓ Не работает?" />
+    <item android:id="@+id/settings_telegram" android:title="✈ Telegram @SAQANet_bot" />
+    <item android:id="@+id/settings_about" android:title="ℹ О приложении" />
+    <item android:id="@+id/settings_subscriptions" android:title="💳 Тарифы" />
+</menu>
