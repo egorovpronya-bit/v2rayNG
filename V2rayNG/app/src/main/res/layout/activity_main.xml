@@ -108,7 +108,7 @@
     <!-- POWER AREA — фиксированная высота, кнопка всегда на одном месте -->
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="280dp">
+        android:layout_height="330dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -122,29 +122,29 @@
                 android:layout_height="wrap_content"
                 android:text="Нажмите чтобы включить"
                 android:textColor="#6B7280"
-                android:textSize="15sp"
+                android:textSize="17sp"
                 android:layout_marginBottom="16dp" />
 
             <!-- Power button with glow -->
             <FrameLayout
                 android:id="@+id/btn_power"
-                android:layout_width="210dp"
-                android:layout_height="210dp"
+                android:layout_width="226dp"
+                android:layout_height="226dp"
                 android:clickable="true"
                 android:focusable="true">
 
                 <View
                     android:id="@+id/power_glow"
-                    android:layout_width="210dp"
-                    android:layout_height="210dp"
+                    android:layout_width="226dp"
+                    android:layout_height="226dp"
                     android:layout_gravity="center"
                     android:background="@drawable/bg_power_glow"
                     android:visibility="invisible" />
 
                 <FrameLayout
                     android:id="@+id/power_btn_circle"
-                    android:layout_width="152dp"
-                    android:layout_height="152dp"
+                    android:layout_width="168dp"
+                    android:layout_height="168dp"
                     android:layout_gravity="center"
                     android:background="@drawable/bg_power_btn">
 
@@ -165,9 +165,9 @@
                 android:layout_height="wrap_content"
                 android:text="Отключён"
                 android:textColor="#4B5563"
-                android:textSize="17sp"
+                android:textSize="20sp"
                 android:textStyle="bold"
-                android:layout_marginTop="16dp" />
+                android:layout_marginTop="20dp" />
 
         </LinearLayout>
 
@@ -182,6 +182,7 @@
         android:gravity="center_vertical"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginBottom="10dp"
         android:paddingStart="14dp"
         android:paddingEnd="14dp"
