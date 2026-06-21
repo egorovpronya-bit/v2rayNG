@@ -269,10 +269,10 @@ class MainActivity : HelperBaseActivity() {
                             toast(getString(R.string.title_import_config_count, count))
                             mainViewModel.reloadServerList()
                             // Auto-select first profile if nothing selected yet
-                            if (MmkvManager.decodeSettingString(AppConfig.PREF_CURR_CONFIG_GUID).isNullOrEmpty()) {
-                                val guids = MmkvManager.decodeServerList()
+                            if (MmkvManager.getSelectServer().isNullOrEmpty()) {
+                                val guids = MmkvManager.decodeServerList("")
                                 if (guids.isNotEmpty()) {
-                                    MmkvManager.encodeSettings(AppConfig.PREF_CURR_CONFIG_GUID, guids.first())
+                                    MmkvManager.setSelectServer(guids.first())
                                 }
                             }
                         }
