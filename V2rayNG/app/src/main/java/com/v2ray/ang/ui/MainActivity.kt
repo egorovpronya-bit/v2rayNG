@@ -268,6 +268,13 @@ class MainActivity : HelperBaseActivity() {
                         count > 0 -> {
                             toast(getString(R.string.title_import_config_count, count))
                             mainViewModel.reloadServerList()
+                            // Auto-select first profile if nothing selected yet
+                            if (MmkvManager.decodeSettingString(AppConfig.PREF_CURR_CONFIG_GUID).isNullOrEmpty()) {
+                                val guids = MmkvManager.decodeServerList()
+                                if (guids.isNotEmpty()) {
+                                    MmkvManager.encodeSettings(AppConfig.PREF_CURR_CONFIG_GUID, guids.first())
+                                }
+                            }
                         }
                         countSub > 0 -> {}
                         else -> toastError(R.string.toast_failure)
