@@ -175,8 +175,7 @@ class MainActivity : HelperBaseActivity() {
             binding.powerGlow.visibility = View.VISIBLE
             binding.powerBtnCircle.setBackgroundResource(R.drawable.bg_power_btn_active)
             binding.ivPowerIcon.setImageResource(R.drawable.ic_power_active)
-            binding.tvPowerHint.text = getString(R.string.saqanet_connected)
-            binding.tvPowerHint.setTextColor(0xFF4F6EF7.toInt())
+            binding.tvPowerHint.visibility = View.INVISIBLE
             binding.tvConnectionState.text = getString(R.string.saqanet_connected)
             binding.tvConnectionState.setTextColor(0xFF4F6EF7.toInt())
 
@@ -191,6 +190,7 @@ class MainActivity : HelperBaseActivity() {
             binding.powerGlow.visibility = View.INVISIBLE
             binding.powerBtnCircle.setBackgroundResource(R.drawable.bg_power_btn)
             binding.ivPowerIcon.setImageResource(R.drawable.ic_power)
+            binding.tvPowerHint.visibility = View.VISIBLE
             binding.tvPowerHint.text = getString(R.string.saqanet_tap_to_connect)
             binding.tvPowerHint.setTextColor(0xFF6B7280.toInt())
             binding.tvConnectionState.text = getString(R.string.saqanet_disconnected)
@@ -205,7 +205,10 @@ class MainActivity : HelperBaseActivity() {
     private fun updateServerCard() {
         val guid = MmkvManager.getSelectServer() ?: return
         val config = MmkvManager.decodeServerConfig(guid) ?: return
-        binding.tvServerName.text = config.remarks.ifEmpty { config.server ?: "VPN Server" }
+        val rawName = config.remarks.ifEmpty { config.server ?: "SAQANet" }
+        val cleanName = if (rawName.contains("Marz", ignoreCase = true) || rawName.contains("user_"))
+            "SAQANet — Нидерланды" else rawName
+        binding.tvServerName.text = cleanName
         binding.tvServerSub.text = config.configType.name.uppercase()
     }
 
