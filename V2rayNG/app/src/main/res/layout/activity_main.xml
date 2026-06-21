@@ -44,7 +44,7 @@
             android:scaleType="centerInside"
             android:padding="6dp"
             android:layout_marginEnd="10dp"
-            android:contentDescription="@string/saqanet_notifications" />
+            android:contentDescription="@string/saqanet_menu_about" />
 
         <ImageButton
             android:id="@+id/btn_settings"

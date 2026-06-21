@@ -107,7 +107,14 @@ class MainActivity : HelperBaseActivity() {
             when (item.itemId) {
                 R.id.settings_config -> { requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java)); true }
                 R.id.settings_per_app -> { requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java)); true }
-                R.id.settings_killswitch -> { requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java)); true }
+                R.id.settings_killswitch -> {
+                    try {
+                        startActivity(Intent(android.provider.Settings.ACTION_VPN_SETTINGS))
+                    } catch (e: Exception) {
+                        requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java))
+                    }
+                    true
+                }
                 R.id.settings_language -> { startActivity(Intent(this, LanguageActivity::class.java)); true }
                 R.id.settings_not_working -> { startActivity(Intent(this, NotWorkingActivity::class.java)); true }
                 R.id.settings_telegram -> {
