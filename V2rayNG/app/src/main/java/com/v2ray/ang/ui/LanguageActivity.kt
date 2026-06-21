@@ -49,8 +49,7 @@ class LanguageActivity : BaseActivity() {
     private fun applyLanguage() {
         MmkvManager.encodeSettings(AppConfig.PREF_LANGUAGE, selectedLang)
         val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
-        finish()
     }
 }

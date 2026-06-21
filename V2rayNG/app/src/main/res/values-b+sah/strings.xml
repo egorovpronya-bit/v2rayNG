@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SAQANet UI strings — Саха тыла (Якутский) -->
+    <string name="saqanet_vpn_active">Үлэлээтэ</string>
+    <string name="saqanet_vpn_inactive">Үлэлээбэт</string>
+    <string name="saqanet_connected">холбонно</string>
+    <string name="saqanet_disconnected">Арахсыбыт</string>
+    <string name="saqanet_tap_to_connect">холбонорго баттаа</string>
+    <string name="saqanet_notifications">Биллэрии</string>
+    <string name="saqanet_add">Эбэн биэр</string>
+    <string name="saqanet_not_working_title">улэлээбэт боллаҔына кӨмӨ</string>
+    <string name="saqanet_step1">Атын ВПНнары араарарга</string>
+    <string name="saqanet_step2">Сурутуугун бэрэбиэркэлээ Үлэлиир бириэмэтэ бҮтҮӨн син</string>
+    <string name="saqanet_step3">Протоколу уларыт VLESS → Trojan</string>
+    <string name="saqanet_step4">Ботка саҤа кҮлҮүстэ ыл. Бэйэн ID кӨрдӨр</string>
+    <string name="saqanet_step5">Kill Switch холбоо настройкаҔа. Быстарыгар харыстыырга</string>
+    <string name="saqanet_go_to_bot">@SAQANet_bot-ка киир</string>
+    <string name="saqanet_menu_config">⚙ конфигурациялар</string>
+    <string name="saqanet_menu_apps">📱 Приложениялар</string>
+    <string name="saqanet_menu_language">🌐 тыла</string>
+    <string name="saqanet_menu_not_working">❓ Үлэлээбэт?</string>
+    <string name="saqanet_menu_about">ℹ Бырагыраама туҺунан аах</string>
+    <string name="saqanet_menu_tariffs">💳 Тарыыптар</string>
+    <string name="saqanet_select_language">интерфейс тылын тал</string>
+    <string name="saqanet_apply">Маны туҺан</string>
+    <string name="saqanet_back">кэтэх</string>
+    <string name="title_settings">Туруоруулар</string>
+</resources>
