@@ -436,6 +436,7 @@ object SettingsManager {
             Language.ARABIC -> Locale.forLanguageTag("ar")
             Language.BANGLA -> Locale.forLanguageTag("bn")
             Language.BAKHTIARI -> Locale.forLanguageTag("bqi-IR")
+            Language.SAKHA -> Locale.forLanguageTag("sah")
         }
     }
 

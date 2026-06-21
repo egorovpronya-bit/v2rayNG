@@ -26,7 +26,7 @@ class LanguageActivity : BaseActivity() {
 
         binding.langRu.setOnClickListener { selectedLang = Language.RUSSIAN.code; updateSelection() }
         binding.langEn.setOnClickListener { selectedLang = Language.ENGLISH.code; updateSelection() }
-        binding.langSakha.setOnClickListener { selectedLang = Language.AUTO.code; updateSelection() }
+        binding.langSakha.setOnClickListener { selectedLang = Language.SAKHA.code; updateSelection() }
 
         binding.btnApplyLang.setOnClickListener { applyLanguage() }
     }
@@ -39,11 +39,11 @@ class LanguageActivity : BaseActivity() {
             if (selectedLang == Language.ENGLISH.code) R.drawable.bg_card_active else R.drawable.bg_card_default
         )
         binding.langSakha.setBackgroundResource(
-            if (selectedLang == Language.AUTO.code) R.drawable.bg_card_active else R.drawable.bg_card_default
+            if (selectedLang == Language.SAKHA.code) R.drawable.bg_card_active else R.drawable.bg_card_default
         )
         binding.checkRu.visibility = if (selectedLang == Language.RUSSIAN.code) View.VISIBLE else View.INVISIBLE
         binding.checkEn.visibility = if (selectedLang == Language.ENGLISH.code) View.VISIBLE else View.INVISIBLE
-        binding.checkSakha.visibility = if (selectedLang == Language.AUTO.code) View.VISIBLE else View.INVISIBLE
+        binding.checkSakha.visibility = if (selectedLang == Language.SAKHA.code) View.VISIBLE else View.INVISIBLE
     }
 
     private fun applyLanguage() {
