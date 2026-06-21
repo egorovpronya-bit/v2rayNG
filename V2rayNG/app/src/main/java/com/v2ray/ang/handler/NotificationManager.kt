@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -91,9 +92,12 @@ object NotificationManager {
                 ""
             }
 
+        val largeIcon = BitmapFactory.decodeResource(service.resources, R.mipmap.ic_launcher_round)
+
         mBuilder = NotificationCompat.Builder(service, channelId)
-            .setSmallIcon(R.drawable.ic_stat_name)
-            .setContentTitle(currentConfig?.remarks)
+            .setSmallIcon(R.drawable.ic_stat_saqanet)
+            .setLargeIcon(largeIcon)
+            .setContentTitle(sanitizeServerName(currentConfig?.remarks))
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .setOngoing(true)
             .setShowWhen(false)
@@ -166,13 +170,7 @@ object NotificationManager {
      */
     private fun updateNotification(contentText: String?, proxyTraffic: Long, directTraffic: Long) {
         if (mBuilder != null) {
-            if (proxyTraffic < NOTIFICATION_ICON_THRESHOLD && directTraffic < NOTIFICATION_ICON_THRESHOLD) {
-                mBuilder?.setSmallIcon(R.drawable.ic_stat_name)
-            } else if (proxyTraffic > directTraffic) {
-                mBuilder?.setSmallIcon(R.drawable.ic_stat_proxy)
-            } else {
-                mBuilder?.setSmallIcon(R.drawable.ic_stat_direct)
-            }
+            mBuilder?.setSmallIcon(R.drawable.ic_stat_saqanet)
             mBuilder?.setStyle(NotificationCompat.BigTextStyle().bigText(contentText))
             mBuilder?.setContentText(contentText)
             getNotificationManager()?.notify(NOTIFICATION_ID, mBuilder?.build())
@@ -269,6 +267,12 @@ object NotificationManager {
         }
         lastQueryTime = queryTime
         return zeroSpeed
+    }
+
+    private fun sanitizeServerName(name: String?): String {
+        if (name.isNullOrEmpty()) return "SAQANet"
+        return if (name.contains("Marz", ignoreCase = true) || name.contains("user_"))
+            "SAQANet — Нидерланды" else name
     }
 
     /**

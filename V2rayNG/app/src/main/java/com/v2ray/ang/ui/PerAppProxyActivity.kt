@@ -7,6 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.AppConfig
@@ -59,7 +60,10 @@ class PerAppProxyActivity : BaseActivity() {
         binding.switchBypassApps.isChecked = MmkvManager.decodeSettingsBool(AppConfig.PREF_BYPASS_APPS, false)
 
         binding.layoutSwitchBypassAppsTips.setOnClickListener {
-            Toasty.info(this, R.string.summary_pref_per_app_proxy, Toast.LENGTH_LONG, true).show()
+            AlertDialog.Builder(this)
+                .setMessage(R.string.summary_pref_per_app_proxy)
+                .setPositiveButton(android.R.string.ok, null)
+                .show()
         }
     }
 

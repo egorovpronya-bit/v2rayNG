@@ -108,11 +108,18 @@ class MainActivity : HelperBaseActivity() {
                 R.id.settings_config -> { requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java)); true }
                 R.id.settings_per_app -> { requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java)); true }
                 R.id.settings_killswitch -> {
-                    try {
-                        startActivity(Intent(android.provider.Settings.ACTION_VPN_SETTINGS))
-                    } catch (e: Exception) {
-                        requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java))
-                    }
+                    AlertDialog.Builder(this)
+                        .setTitle("Kill Switch")
+                        .setMessage("Kill Switch блокирует весь интернет, если VPN отключился.\n\nAndroid откроет системные настройки VPN. Если появится запрос пароля экрана блокировки — нажмите Отмена. Это требование Android, ваш VPN продолжит работать нормально.\n\nЧтобы включить Kill Switch, установите пароль экрана в настройках телефона, затем вернитесь сюда.")
+                        .setPositiveButton("Открыть настройки") { _, _ ->
+                            try {
+                                startActivity(Intent(android.provider.Settings.ACTION_VPN_SETTINGS))
+                            } catch (e: Exception) {
+                                requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java))
+                            }
+                        }
+                        .setNegativeButton("Закрыть", null)
+                        .show()
                     true
                 }
                 R.id.settings_language -> { startActivity(Intent(this, LanguageActivity::class.java)); true }

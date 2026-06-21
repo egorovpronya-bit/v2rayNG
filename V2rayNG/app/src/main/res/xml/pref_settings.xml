@@ -23,43 +23,12 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/title_vpn_settings">
-
-        <CheckBoxPreference
-            android:key="pref_ipv6_enabled"
-            android:summary="@string/summary_pref_ipv6_enabled"
-            android:title="@string/title_pref_ipv6_enabled" />
-
-        <ListPreference
-            android:defaultValue="1"
-            android:entries="@array/vpn_bypass_lan"
-            android:entryValues="@array/vpn_bypass_lan_value"
-            android:key="pref_vpn_bypass_lan"
-            android:summary="%s"
-            android:title="@string/title_pref_vpn_bypass_lan" />
-
-        <CheckBoxPreference
-            android:defaultValue="true"
-            android:key="pref_use_hev_tunnel_v2"
-            android:summary="@string/summary_pref_use_hev_tunnel"
-            android:title="@string/title_pref_use_hev_tunnel" />
-
-    </PreferenceCategory>
-
     <PreferenceCategory android:title="@string/title_advanced">
 
         <CheckBoxPreference
             android:key="pref_is_booted"
             android:summary="@string/summary_pref_is_booted"
             android:title="@string/title_pref_is_booted" />
-
-        <ListPreference
-            android:defaultValue="VPN"
-            android:entries="@array/mode_entries"
-            android:entryValues="@array/mode_value"
-            android:key="pref_mode"
-            android:summary="%s"
-            android:title="@string/title_mode" />
 
     </PreferenceCategory>
 
