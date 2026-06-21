@@ -175,7 +175,7 @@ class MainActivity : HelperBaseActivity() {
             binding.powerGlow.visibility = View.VISIBLE
             binding.powerBtnCircle.setBackgroundResource(R.drawable.bg_power_btn_active)
             binding.ivPowerIcon.setImageResource(R.drawable.ic_power_active)
-            binding.tvPowerHint.visibility = View.INVISIBLE
+            binding.tvPowerHint.visibility = View.GONE
             binding.tvConnectionState.text = getString(R.string.saqanet_connected)
             binding.tvConnectionState.setTextColor(0xFF4F6EF7.toInt())
 
