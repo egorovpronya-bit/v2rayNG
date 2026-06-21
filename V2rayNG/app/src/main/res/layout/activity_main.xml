@@ -44,7 +44,7 @@
             android:scaleType="centerInside"
             android:padding="6dp"
             android:layout_marginEnd="10dp"
-            android:contentDescription="Уведомления" />
+            android:contentDescription="@string/saqanet_notifications" />
 
         <ImageButton
             android:id="@+id/btn_settings"
@@ -56,7 +56,7 @@
             android:scaleType="centerInside"
             android:padding="6dp"
             android:layout_marginEnd="10dp"
-            android:contentDescription="Настройки" />
+            android:contentDescription="@string/title_settings" />
 
         <ImageButton
             android:id="@+id/btn_add"
@@ -67,7 +67,7 @@
             android:tint="#FFFFFF"
             android:scaleType="centerInside"
             android:padding="6dp"
-            android:contentDescription="Добавить" />
+            android:contentDescription="@string/saqanet_add" />
 
     </LinearLayout>
 

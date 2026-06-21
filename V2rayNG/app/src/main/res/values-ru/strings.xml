@@ -10,6 +10,31 @@
     <string name="migration_fail">Перенос данных не выполнен!</string>
     <string name="pull_down_to_refresh">Потяните вниз для обновления!</string>
 
+    <!-- SAQANet UI strings -->
+    <string name="saqanet_vpn_active">Активен</string>
+    <string name="saqanet_vpn_inactive">Не активен</string>
+    <string name="saqanet_connected">Подключён</string>
+    <string name="saqanet_disconnected">Отключён</string>
+    <string name="saqanet_tap_to_connect">Нажмите чтобы включить</string>
+    <string name="saqanet_notifications">Уведомления</string>
+    <string name="saqanet_add">Добавить</string>
+    <string name="saqanet_not_working_title">Что делать если VPN не работает?</string>
+    <string name="saqanet_step1">Отключите другие VPN-приложения</string>
+    <string name="saqanet_step2">Проверьте подписку в @SAQANet_bot — возможно истёк срок</string>
+    <string name="saqanet_step3">Попробуйте сменить протокол: VLESS → Trojan</string>
+    <string name="saqanet_step4">Получите новый ключ в боте. При обращении укажите ваш ID</string>
+    <string name="saqanet_step5">Включите Kill Switch в настройках для защиты при обрыве</string>
+    <string name="saqanet_go_to_bot">ПЕРЕЙТИ В @SAQANet_bot</string>
+    <string name="saqanet_menu_config">⚙ Конфигурация</string>
+    <string name="saqanet_menu_apps">📱 Приложения</string>
+    <string name="saqanet_menu_language">🌐 Язык</string>
+    <string name="saqanet_menu_not_working">❓ Не работает?</string>
+    <string name="saqanet_menu_about">ℹ О приложении</string>
+    <string name="saqanet_menu_tariffs">💳 Тарифы</string>
+    <string name="saqanet_select_language">Выберите язык интерфейса</string>
+    <string name="saqanet_apply">ПРИМЕНИТЬ</string>
+    <string name="saqanet_back">← Назад</string>
+
     <!-- Notifications -->
     <string name="notification_action_stop_v2ray">Остановить</string>
     <string name="toast_permission_denied">Разрешение не получено</string>

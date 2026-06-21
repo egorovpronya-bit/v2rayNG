@@ -10,7 +10,7 @@
         android:id="@+id/btn_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="← Назад"
+        android:text="@string/saqanet_back"
         android:textColor="#6B7280"
         android:textSize="13sp"
         android:padding="16dp"
@@ -47,7 +47,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Что делать если VPN не работает?"
+                android:text="@string/saqanet_not_working_title"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -63,7 +63,7 @@
                     android:background="@drawable/bg_step_num"/>
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:layout_marginStart="10dp"
-                    android:text="Отключите другие VPN-приложения"
+                    android:text="@string/saqanet_step1"
                     android:textColor="#9CA3AF" android:textSize="12sp" android:lineSpacingMultiplier="1.5"/>
             </LinearLayout>
 
@@ -76,7 +76,7 @@
                     android:background="@drawable/bg_step_num"/>
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:layout_marginStart="10dp"
-                    android:text="Проверьте подписку в @SAQANet_bot — возможно истёк срок"
+                    android:text="@string/saqanet_step2"
                     android:textColor="#9CA3AF" android:textSize="12sp" android:lineSpacingMultiplier="1.5"/>
             </LinearLayout>
 
@@ -89,7 +89,7 @@
                     android:background="@drawable/bg_step_num"/>
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:layout_marginStart="10dp"
-                    android:text="Попробуйте сменить протокол: VLESS → Trojan"
+                    android:text="@string/saqanet_step3"
                     android:textColor="#9CA3AF" android:textSize="12sp" android:lineSpacingMultiplier="1.5"/>
             </LinearLayout>
 
@@ -102,7 +102,7 @@
                     android:background="@drawable/bg_step_num"/>
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:layout_marginStart="10dp"
-                    android:text="Получите новый ключ в боте. При обращении укажите ваш ID"
+                    android:text="@string/saqanet_step4"
                     android:textColor="#9CA3AF" android:textSize="12sp" android:lineSpacingMultiplier="1.5"/>
             </LinearLayout>
 
@@ -115,7 +115,7 @@
                     android:background="@drawable/bg_step_num"/>
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
                     android:layout_weight="1" android:layout_marginStart="10dp"
-                    android:text="Включите Kill Switch в настройках для защиты при обрыве"
+                    android:text="@string/saqanet_step5"
                     android:textColor="#9CA3AF" android:textSize="12sp" android:lineSpacingMultiplier="1.5"/>
             </LinearLayout>
 
@@ -123,7 +123,7 @@
                 android:id="@+id/btn_open_bot"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:text="ПЕРЕЙТИ В @SAQANet_bot"
+                android:text="@string/saqanet_go_to_bot"
                 android:textColor="#FFFFFF"
                 android:textSize="13sp"
                 android:textStyle="bold"
