@@ -322,7 +322,12 @@ object CoreServiceManager {
      * Go side format: tag,direction,value;tag,direction,value;
      */
     fun queryAllOutboundTrafficStats(): List<OutboundTrafficStat> {
-        val payload = coreController.queryAllOutboundTrafficStats()
+        val payload = try {
+            coreController.queryAllOutboundTrafficStats()
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "queryAllOutboundTrafficStats failed: ${e.message}")
+            return emptyList()
+        } ?: return emptyList()
 
         val result = ArrayList<OutboundTrafficStat>()
 

@@ -223,22 +223,26 @@ class MainActivity : HelperBaseActivity() {
         totalDownload = 0L
         trafficJob = lifecycleScope.launch(Dispatchers.IO) {
             while (true) {
-                val stats = CoreServiceManager.queryAllOutboundTrafficStats()
-                var up = 0L
-                var down = 0L
-                for (stat in stats) {
-                    when (stat.direction) {
-                        "uplink" -> up += stat.value
-                        "downlink" -> down += stat.value
+                try {
+                    val stats = CoreServiceManager.queryAllOutboundTrafficStats()
+                    var up = 0L
+                    var down = 0L
+                    for (stat in stats) {
+                        when (stat.direction) {
+                            "uplink" -> up += stat.value
+                            "downlink" -> down += stat.value
+                        }
                     }
-                }
-                totalUpload += up
-                totalDownload += down
-                val upText = formatTrafficBytes(totalUpload)
-                val downText = formatTrafficBytes(totalDownload)
-                withContext(Dispatchers.Main) {
-                    binding.tvTrafficUpload.text = upText
-                    binding.tvTrafficDownload.text = downText
+                    totalUpload += up
+                    totalDownload += down
+                    val upText = formatTrafficBytes(totalUpload)
+                    val downText = formatTrafficBytes(totalDownload)
+                    withContext(Dispatchers.Main) {
+                        binding.tvTrafficUpload.text = upText
+                        binding.tvTrafficDownload.text = downText
+                    }
+                } catch (e: Exception) {
+                    com.v2ray.ang.util.LogUtil.w("SAQANet", "Traffic poll error: ${e.message}")
                 }
                 delay(1000L)
             }

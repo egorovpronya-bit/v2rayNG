@@ -190,7 +190,8 @@ object CoreConfigManager {
         }
 
         applyObservability(v2rayConfig, balancerStrategies)
-        applySpeedDisabled(v2rayConfig)
+        // Guarantee stats are always enabled — required for traffic display
+        if (v2rayConfig.stats == null) v2rayConfig.stats = emptyMap<String, Any>()
         resolveOutboundDomainsToHosts(v2rayConfig)
 
         return v2rayConfig
