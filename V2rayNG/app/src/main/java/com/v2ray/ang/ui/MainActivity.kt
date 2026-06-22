@@ -30,6 +30,7 @@ import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,6 +38,10 @@ import kotlinx.coroutines.withContext
 class MainActivity : HelperBaseActivity() {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+
+    private var trafficJob: Job? = null
+    private var totalUpload = 0L
+    private var totalDownload = 0L
 
     val mainViewModel: MainViewModel by viewModels()
 
@@ -63,6 +68,8 @@ class MainActivity : HelperBaseActivity() {
         binding.btnSettings.setOnClickListener { showSettingsMenu(it) }
 
         binding.btnAdd.setOnClickListener { showAddMenu(it) }
+
+        binding.serverCard.setOnClickListener { showProfileSwitcher() }
 
         binding.btnNotification.setOnClickListener {
             startActivity(Intent(this, AboutActivity::class.java))
@@ -188,7 +195,9 @@ class MainActivity : HelperBaseActivity() {
 
             binding.serverCard.visibility = View.VISIBLE
             updateServerCard()
+            startTrafficPolling()
         } else {
+            stopTrafficPolling()
             binding.shieldBar.setBackgroundResource(R.drawable.bg_shield_inactive)
             binding.shieldDot.setBackgroundResource(R.drawable.bg_dot_red)
             binding.tvShieldStatus.text = getString(R.string.saqanet_vpn_inactive)
@@ -209,6 +218,45 @@ class MainActivity : HelperBaseActivity() {
         }
     }
 
+    private fun startTrafficPolling() {
+        totalUpload = 0L
+        totalDownload = 0L
+        trafficJob = lifecycleScope.launch(Dispatchers.IO) {
+            while (true) {
+                val stats = CoreServiceManager.queryAllOutboundTrafficStats()
+                var up = 0L
+                var down = 0L
+                for (stat in stats) {
+                    when (stat.direction) {
+                        "uplink" -> up += stat.value
+                        "downlink" -> down += stat.value
+                    }
+                }
+                totalUpload += up
+                totalDownload += down
+                val upText = formatTrafficBytes(totalUpload)
+                val downText = formatTrafficBytes(totalDownload)
+                withContext(Dispatchers.Main) {
+                    binding.tvTrafficUpload.text = upText
+                    binding.tvTrafficDownload.text = downText
+                }
+                delay(1000L)
+            }
+        }
+    }
+
+    private fun stopTrafficPolling() {
+        trafficJob?.cancel()
+        trafficJob = null
+    }
+
+    private fun formatTrafficBytes(bytes: Long): String = when {
+        bytes < 1024L -> "$bytes B"
+        bytes < 1024L * 1024 -> "%.1f KB".format(bytes / 1024.0)
+        bytes < 1024L * 1024 * 1024 -> "%.1f MB".format(bytes / (1024.0 * 1024))
+        else -> "%.2f GB".format(bytes / (1024.0 * 1024 * 1024))
+    }
+
     private fun updateServerCard() {
         val guid = MmkvManager.getSelectServer() ?: return
         val config = MmkvManager.decodeServerConfig(guid) ?: return
@@ -217,6 +265,37 @@ class MainActivity : HelperBaseActivity() {
             "SAQANet — Нидерланды" else rawName
         binding.tvServerName.text = cleanName
         binding.tvServerSub.text = config.configType.name.uppercase()
+    }
+
+    private fun showProfileSwitcher() {
+        val cache = mainViewModel.serversCache
+        if (cache.isEmpty()) {
+            toast(R.string.title_file_chooser)
+            return
+        }
+        val currentGuid = MmkvManager.getSelectServer()
+        val names = Array(cache.size) { i ->
+            val p = cache[i].profile
+            val raw = p.remarks.ifEmpty { p.server ?: "SAQANet" }
+            if (raw.contains("Marz", ignoreCase = true) || raw.contains("user_")) "SAQANet — Нидерланды"
+            else raw
+        }
+        val selected = cache.indexOfFirst { it.guid == currentGuid }
+
+        AlertDialog.Builder(this)
+            .setTitle("Выбор сервера")
+            .setSingleChoiceItems(names, selected) { dialog, which ->
+                val newGuid = cache[which].guid
+                MmkvManager.setSelectServer(newGuid)
+                dialog.dismiss()
+                if (mainViewModel.isRunning.value == true) {
+                    restartV2Ray()
+                } else {
+                    updateServerCard()
+                }
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
     }
 
     // Stub kept for GroupServerFragment compatibility
@@ -278,12 +357,10 @@ class MainActivity : HelperBaseActivity() {
                         count > 0 -> {
                             toast(getString(R.string.title_import_config_count, count))
                             mainViewModel.reloadServerList()
-                            // Auto-select first profile if nothing selected yet
-                            if (MmkvManager.getSelectServer().isNullOrEmpty()) {
-                                val guids = MmkvManager.decodeServerList("")
-                                if (guids.isNotEmpty()) {
-                                    MmkvManager.setSelectServer(guids.first())
-                                }
+                            // Always select the newest (last) imported profile
+                            val guids = MmkvManager.decodeServerList("")
+                            if (guids.isNotEmpty()) {
+                                MmkvManager.setSelectServer(guids.last())
                             }
                         }
                         countSub > 0 -> {}
