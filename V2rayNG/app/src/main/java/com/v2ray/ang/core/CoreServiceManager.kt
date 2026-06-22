@@ -324,8 +324,8 @@ object CoreServiceManager {
     fun queryAllOutboundTrafficStats(): List<OutboundTrafficStat> {
         val payload = try {
             coreController.queryAllOutboundTrafficStats()
-        } catch (e: Exception) {
-            LogUtil.w(AppConfig.TAG, "queryAllOutboundTrafficStats failed: ${e.message}")
+        } catch (e: Throwable) {
+            LogUtil.w(AppConfig.TAG, "queryAllOutboundTrafficStats failed: ${e.javaClass.simpleName}: ${e.message}")
             return emptyList()
         } ?: return emptyList()
 
