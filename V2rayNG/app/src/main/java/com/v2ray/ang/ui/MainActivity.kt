@@ -42,6 +42,8 @@ class MainActivity : HelperBaseActivity() {
     private var trafficJob: Job? = null
     private var totalUpload = 0L
     private var totalDownload = 0L
+    private var lastRxBytes = -1L
+    private var lastTxBytes = -1L
 
     val mainViewModel: MainViewModel by viewModels()
 
@@ -221,20 +223,23 @@ class MainActivity : HelperBaseActivity() {
     private fun startTrafficPolling() {
         totalUpload = 0L
         totalDownload = 0L
+        val uid = android.os.Process.myUid()
+        lastRxBytes = android.net.TrafficStats.getUidRxBytes(uid)
+        lastTxBytes = android.net.TrafficStats.getUidTxBytes(uid)
         trafficJob = lifecycleScope.launch(Dispatchers.IO) {
             while (true) {
+                delay(1000L)
                 try {
-                    val stats = CoreServiceManager.queryAllOutboundTrafficStats()
-                    var up = 0L
-                    var down = 0L
-                    for (stat in stats) {
-                        when (stat.direction) {
-                            "uplink" -> up += stat.value
-                            "downlink" -> down += stat.value
-                        }
+                    val rxBytes = android.net.TrafficStats.getUidRxBytes(uid)
+                    val txBytes = android.net.TrafficStats.getUidTxBytes(uid)
+                    if (rxBytes >= 0 && lastRxBytes >= 0) {
+                        val deltaDown = rxBytes - lastRxBytes
+                        val deltaUp = txBytes - lastTxBytes
+                        if (deltaDown >= 0) totalDownload += deltaDown
+                        if (deltaUp >= 0) totalUpload += deltaUp
                     }
-                    totalUpload += up
-                    totalDownload += down
+                    lastRxBytes = rxBytes
+                    lastTxBytes = txBytes
                     val upText = formatTrafficBytes(totalUpload)
                     val downText = formatTrafficBytes(totalDownload)
                     withContext(Dispatchers.Main) {
@@ -242,9 +247,8 @@ class MainActivity : HelperBaseActivity() {
                         binding.tvTrafficDownload.text = downText
                     }
                 } catch (e: Exception) {
-                    com.v2ray.ang.util.LogUtil.w("SAQANet", "Traffic poll error: ${e.message}")
+                    LogUtil.w("SAQANet", "Traffic poll error: ${e.message}")
                 }
-                delay(1000L)
             }
         }
     }
