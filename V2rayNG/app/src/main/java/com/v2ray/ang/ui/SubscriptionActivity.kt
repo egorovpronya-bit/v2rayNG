@@ -24,9 +24,15 @@ class SubscriptionActivity : BaseActivity() {
             }
         }
 
-        binding.plan30.setOnClickListener { openBot() }
-        binding.plan90.setOnClickListener { openBot() }
-        binding.plan180.setOnClickListener { openBot() }
+        // Один
+        binding.planOne30.setOnClickListener { openBot() }
+        binding.planOne90.setOnClickListener { openBot() }
+        binding.planOne180.setOnClickListener { openBot() }
+        // Пара
+        binding.planPair30.setOnClickListener { openBot() }
+        binding.planPair90.setOnClickListener { openBot() }
+        binding.planPair180.setOnClickListener { openBot() }
+        // Семейный
         binding.planFamily30.setOnClickListener { openBot() }
         binding.planFamily90.setOnClickListener { openBot() }
         binding.planFamily180.setOnClickListener { openBot() }
