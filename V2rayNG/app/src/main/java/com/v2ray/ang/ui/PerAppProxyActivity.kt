@@ -216,7 +216,7 @@ class PerAppProxyActivity : BaseActivity() {
     }
 
     private fun exportProxyApp() {
-        var lst = binding.switchBypassApps.isChecked.toString()
+        var lst = "true"  // bypass mode is always enabled
 
         viewModel.getAll().forEach { pkg ->
             lst = lst + System.lineSeparator() + pkg
@@ -243,26 +243,15 @@ class PerAppProxyActivity : BaseActivity() {
 
             viewModel.clear()
 
-            if (binding.switchBypassApps.isChecked) {
-                adapter?.let { adapter ->
-                    adapter.apps.forEach { app ->
-                        val packageName = app.packageName
-                        if (!inProxyApps(proxyApps, packageName, force)) {
-                            viewModel.add(packageName)
-                        }
+            // bypass mode is always enabled: add apps NOT in the proxy list
+            adapter?.let { adapter ->
+                adapter.apps.forEach { app ->
+                    val packageName = app.packageName
+                    if (!inProxyApps(proxyApps, packageName, force)) {
+                        viewModel.add(packageName)
                     }
-                    refreshData()
                 }
-            } else {
-                adapter?.let { adapter ->
-                    adapter.apps.forEach { app ->
-                        val packageName = app.packageName
-                        if (inProxyApps(proxyApps, packageName, force)) {
-                            viewModel.add(packageName)
-                        }
-                    }
-                    refreshData()
-                }
+                refreshData()
             }
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "Error selecting proxy app", e)
