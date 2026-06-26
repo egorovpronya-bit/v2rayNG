@@ -5,9 +5,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.AppConfig
@@ -43,28 +41,15 @@ class PerAppProxyActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //setContentView(binding.root)
-        setContentViewWithToolbar(binding.root, showHomeAsUp = true, title = getString(R.string.per_app_proxy_settings))
+        setContentViewWithToolbar(binding.root, showHomeAsUp = true, title = "Обход VPN")
 
         addCustomDividerToRecyclerView(binding.recyclerView, this, R.drawable.custom_divider)
 
+        // Авто-включаем bypass mode — пользователь просто выбирает приложения
+        MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, true)
+        MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, true)
+
         initList()
-
-        binding.switchPerAppProxy.setOnCheckedChangeListener { _, isChecked ->
-            MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, isChecked)
-        }
-        binding.switchPerAppProxy.isChecked = MmkvManager.decodeSettingsBool(AppConfig.PREF_PER_APP_PROXY, false)
-
-        binding.switchBypassApps.setOnCheckedChangeListener { _, isChecked ->
-            MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, isChecked)
-        }
-        binding.switchBypassApps.isChecked = MmkvManager.decodeSettingsBool(AppConfig.PREF_BYPASS_APPS, false)
-
-        binding.layoutSwitchBypassAppsTips.setOnClickListener {
-            AlertDialog.Builder(this)
-                .setMessage(R.string.summary_pref_per_app_proxy)
-                .setPositiveButton(android.R.string.ok, null)
-                .show()
-        }
     }
 
     private fun initList() {
@@ -241,7 +226,8 @@ class PerAppProxyActivity : BaseActivity() {
     }
 
     private fun allowPerAppProxy() {
-        binding.switchPerAppProxy.isChecked = true
+        MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, true)
+        MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, true)
         SettingsChangeManager.makeRestartService()
     }
 

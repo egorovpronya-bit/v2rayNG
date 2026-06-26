@@ -2,8 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/settings_config" android:title="@string/saqanet_menu_config" />
     <item android:id="@+id/settings_per_app" android:title="@string/saqanet_menu_apps" />
-    <item android:id="@+id/settings_killswitch" android:title="🛡 Kill Switch" />
-    <item android:id="@+id/settings_language" android:title="@string/saqanet_menu_language" />
+<item android:id="@+id/settings_language" android:title="@string/saqanet_menu_language" />
     <item android:id="@+id/settings_not_working" android:title="@string/saqanet_menu_not_working" />
     <item android:id="@+id/settings_telegram" android:title="✈ Telegram @SAQANet_bot" />
     <item android:id="@+id/settings_about" android:title="@string/saqanet_menu_about" />
