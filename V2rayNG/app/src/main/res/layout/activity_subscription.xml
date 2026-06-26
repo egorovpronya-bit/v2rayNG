@@ -258,7 +258,7 @@
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                         android:text="1 месяц" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="30 дней · 5 устройств" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="30 дней · 3 устройства" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="299 ₽" android:textColor="#10B981" android:textSize="15sp" android:textStyle="bold"/>
