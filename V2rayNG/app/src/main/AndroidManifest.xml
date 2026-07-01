@@ -178,6 +178,9 @@
         <activity
             android:name=".ui.SubscriptionActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.ProfilesActivity"
+            android:exported="false" />
 
         <service
             android:name=".service.CoreVpnService"

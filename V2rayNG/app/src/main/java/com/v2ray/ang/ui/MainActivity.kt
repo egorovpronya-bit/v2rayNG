@@ -114,6 +114,7 @@ class MainActivity : HelperBaseActivity() {
         popup.menuInflater.inflate(R.menu.menu_settings_popup, popup.menu)
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
+                R.id.settings_profiles -> { requestActivityLauncher.launch(Intent(this, ProfilesActivity::class.java)); true }
                 R.id.settings_config -> { requestActivityLauncher.launch(Intent(this, SettingsActivity::class.java)); true }
                 R.id.settings_per_app -> { requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java)); true }
 R.id.settings_language -> { startActivity(Intent(this, LanguageActivity::class.java)); true }
