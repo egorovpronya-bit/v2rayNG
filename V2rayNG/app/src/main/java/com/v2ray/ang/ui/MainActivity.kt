@@ -251,21 +251,23 @@ class MainActivity : HelperBaseActivity() {
         val russianApps = mutableSetOf(
             // Банки
             "ru.sberbankmobile", "com.idamob.tinkoff.android", "ru.vtb24.mobilebanking.android",
-            "ru.alfabank.mobile.android", "ru.gazprombank.android", "com.psbank.mobile",
+            "ru.alfabank.mobile.android", "ru.gazprombank.android", "ru.psbank.mobile",
             "ru.mtsbank.android", "ru.ozon.finance", "ru.rosbank.android",
             "ru.open.mobile", "ru.sovcombank.mobile", "ru.raiffeisen.android",
             // Маркетплейсы
-            "ru.wildberries.android", "ru.ozon.app.android", "ru.sbermegamarket.app",
-            "ru.yandex.market", "com.avito.android",
+            "ru.wildberries.android", "com.wildberries.ru",
+            "ru.ozon.app.android", "ru.sbermegamarket.app",
+            "ru.yandex.market", "com.avito.android", "ru.avito",
             // Доставка еды и продуктов
+            "ru.dodopizza.app", "com.dodopizza.app",
             "ru.samokat.app", "com.foodband.eda", "ru.eda",
             "ru.delivery.club", "ru.perekrestok.app", "ru.x5retail.app",
-            "ru.chizhik.chizhik", "ru.vkusvill.android",
+            "ru.chizhik.app", "ru.vkusvill.android",
             // Такси и транспорт
-            "ru.yandex.taximeter", "ru.dublgis.dgismobile",
-            "ru.rzd.passenger", "com.aviasales.app",
+            "ru.yandex.taximeter", "ru.yandex.mobile",
+            "ru.dublgis.dgismobile", "ru.rzd.passenger", "com.aviasales.app",
             // Соцсети и видео
-            "com.vkontakte.android", "ru.ok.android", "ru.rutube.app",
+            "com.vkontakte.android", "com.vk.video", "ru.ok.android", "ru.rutube.app",
             // Госуслуги и официальные
             "ru.gosuslugi.mobile", "ru.nalog.nalogpayer", "ru.russianpost.tracking.pochta",
             // Операторы связи
