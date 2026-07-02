@@ -80,6 +80,7 @@ class MainActivity : HelperBaseActivity() {
         setupViewModel()
         SubscriptionUpdater.sync()
         mainViewModel.reloadServerList()
+        initRussianBypassIfNeeded()
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
 
@@ -216,19 +217,18 @@ class MainActivity : HelperBaseActivity() {
         if (guids.isEmpty()) return
 
         val currentGuid = MmkvManager.getSelectServer()
+        val autoEnabled = MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)
 
-        // Auto card
-        container.addView(buildAutoCard(guids, currentGuid))
+        container.addView(buildAutoCard(autoEnabled))
 
-        // Server cards
         guids.forEach { guid ->
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
             val (flag, city) = getServerMeta(config.remarks, config.server ?: "")
-            val isActive = guid == currentGuid
-            val card = buildServerCard(flag, city, "VLESS", isActive) {
+            val isActive = !autoEnabled && guid == currentGuid
+            container.addView(buildServerCard(flag, city, "VLESS", isActive) {
+                MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, false)
                 selectServer(guid)
-            }
-            container.addView(card)
+            })
         }
     }
 
@@ -236,6 +236,48 @@ class MainActivity : HelperBaseActivity() {
         MmkvManager.setSelectServer(guid)
         if (mainViewModel.isRunning.value == true) restartV2Ray()
         loadServerList()
+    }
+
+    private fun enableAutoMode() {
+        MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
+        val guids = MmkvManager.decodeAllServerList()
+        if (guids.isNotEmpty()) MmkvManager.setSelectServer(guids[0])
+        if (mainViewModel.isRunning.value == true) restartV2Ray()
+        loadServerList()
+    }
+
+    private fun initRussianBypassIfNeeded() {
+        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_RUSSIAN_BYPASS_INITIALIZED)) return
+        val russianApps = mutableSetOf(
+            // Банки
+            "ru.sberbankmobile", "com.idamob.tinkoff.android", "ru.vtb24.mobilebanking.android",
+            "ru.alfabank.mobile.android", "ru.gazprombank.android", "com.psbank.mobile",
+            "ru.mtsbank.android", "ru.ozon.finance", "ru.rosbank.android",
+            "ru.open.mobile", "ru.sovcombank.mobile", "ru.raiffeisen.android",
+            // Маркетплейсы
+            "ru.wildberries.android", "ru.ozon.app.android", "ru.sbermegamarket.app",
+            "ru.yandex.market", "com.avito.android",
+            // Доставка еды и продуктов
+            "ru.samokat.app", "com.foodband.eda", "ru.eda",
+            "ru.delivery.club", "ru.perekrestok.app", "ru.x5retail.app",
+            "ru.chizhik.chizhik", "ru.vkusvill.android",
+            // Такси и транспорт
+            "ru.yandex.taximeter", "ru.dublgis.dgismobile",
+            "ru.rzd.passenger", "com.aviasales.app",
+            // Соцсети и видео
+            "com.vkontakte.android", "ru.ok.android", "ru.rutube.app",
+            // Госуслуги и официальные
+            "ru.gosuslugi.mobile", "ru.nalog.nalogpayer", "ru.russianpost.tracking.pochta",
+            // Операторы связи
+            "ru.mts.selfservice", "com.mts.android", "ru.megafon.selfservice",
+            "ru.beeline.services", "ru.tele2.android",
+            // Другие
+            "ru.kinopoisk.android", "com.yandex.browser", "ru.yandex.music",
+            "ru.taxsee.taxi", "ru.citypoint.carsharing"
+        )
+        MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, true)
+        MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY_SET, russianApps)
+        MmkvManager.encodeSettings(AppConfig.PREF_RUSSIAN_BYPASS_INITIALIZED, true)
     }
 
     private fun getServerMeta(remarks: String, host: String): Pair<String, String> {
@@ -248,13 +290,13 @@ class MainActivity : HelperBaseActivity() {
         }
     }
 
-    private fun buildAutoCard(guids: List<String>, currentGuid: String?): View {
+    private fun buildAutoCard(isActive: Boolean): View {
         val dp = { v: Int -> (v * resources.displayMetrics.density + 0.5f).toInt() }
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp(14), dp(12), dp(14), dp(12))
-            setBackgroundResource(R.drawable.bg_server_card)
+            setBackgroundResource(if (isActive) R.drawable.bg_server_card_active else R.drawable.bg_server_card)
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
@@ -277,21 +319,25 @@ class MainActivity : HelperBaseActivity() {
             setTextColor(0xFFE5E7EB.toInt()); info.addView(this)
         }
         TextView(this).apply {
-            text = "Лучший по скорости"; textSize = 12f
+            text = "Лучший сервер по скорости"; textSize = 12f
             setTextColor(0xFF6B7280.toInt())
             val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             lp.topMargin = (2 * resources.displayMetrics.density).toInt(); layoutParams = lp
             info.addView(this)
         }
         val badge = TextView(this).apply {
-            text = "LIVE"; textSize = 11f; setTypeface(null, Typeface.BOLD)
-            setTextColor(0xFF4F6EF7.toInt())
+            text = if (isActive) "LIVE" else "Выбрать"
+            textSize = 11f; setTypeface(null, Typeface.BOLD)
+            setTextColor(if (isActive) 0xFF4F6EF7.toInt() else 0xFF9CA3AF.toInt())
             setPadding(dp(8), dp(3), dp(8), dp(3))
-            setBackgroundResource(R.drawable.bg_badge_blue)
+            setBackgroundResource(if (isActive) R.drawable.bg_badge_blue else R.drawable.bg_badge_grey)
         }
 
         row.addView(icon); row.addView(info); row.addView(badge)
-        row.setOnClickListener { toast("Авто: выбирается лучший сервер по пингу") }
+        row.setOnClickListener {
+            if (isActive) toast("Авто уже активен")
+            else enableAutoMode()
+        }
         return row
     }
 
