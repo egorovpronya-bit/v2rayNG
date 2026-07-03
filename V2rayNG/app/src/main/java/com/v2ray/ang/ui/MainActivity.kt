@@ -289,25 +289,32 @@ class MainActivity : HelperBaseActivity() {
         // TCP-ping each server (fast, ~1s each)
         var bestGuid = currentGuid
         var bestPing = Long.MAX_VALUE
+        var currentPing = Long.MAX_VALUE
         for (guid in guids) {
             val config = MmkvManager.decodeServerConfig(guid) ?: continue
             val host = config.server ?: continue
             val port = config.serverPort?.toIntOrNull() ?: 443
             val ping = SpeedtestManager.tcping(host, port)
-            if (ping > 0 && ping < bestPing) { bestPing = ping; bestGuid = guid }
+            if (ping > 0) {
+                if (guid == currentGuid) currentPing = ping
+                if (ping < bestPing) { bestPing = ping; bestGuid = guid }
+            }
         }
 
-        val shouldSwitch = bestGuid != currentGuid || tunnelDead
+        // Only switch if tunnel is dead OR other server is faster by >50ms
+        val shouldSwitch = tunnelDead || (bestGuid != currentGuid && bestPing < currentPing - 50)
         if (shouldSwitch) {
-            val targetGuid = if (bestGuid != currentGuid) bestGuid
-                             else guids.firstOrNull { it != currentGuid } ?: bestGuid
-            LogUtil.i(AppConfig.TAG, "Auto-switch: tunnelDead=$tunnelDead delay=${tunnelDelay}ms → $targetGuid")
+            val targetGuid = if (tunnelDead && bestGuid == currentGuid)
+                                 guids.firstOrNull { it != currentGuid } ?: bestGuid
+                             else bestGuid
+            LogUtil.i(AppConfig.TAG, "Auto-switch: tunnelDead=$tunnelDead currentPing=${currentPing}ms bestPing=${bestPing}ms → $targetGuid")
             withContext(Dispatchers.Main) {
                 MmkvManager.setSelectServer(targetGuid)
                 if (mainViewModel.isRunning.value == true) restartV2Ray()
                 loadServerList()
             }
         } else {
+            LogUtil.i(AppConfig.TAG, "Auto-switch: no switch needed currentPing=${currentPing}ms bestPing=${bestPing}ms tunnelDead=$tunnelDead")
             withContext(Dispatchers.Main) { loadServerList() }
         }
     }
