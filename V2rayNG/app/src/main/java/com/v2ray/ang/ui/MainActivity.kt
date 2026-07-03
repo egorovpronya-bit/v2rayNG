@@ -39,6 +39,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 
 class MainActivity : HelperBaseActivity() {
 
@@ -277,11 +278,15 @@ class MainActivity : HelperBaseActivity() {
         if (guids.size < 2) return
         val currentGuid = MmkvManager.getSelectServer() ?: guids[0]
 
-        // Check if the current tunnel actually works (through xray core, not just TCP ping)
-        val tunnelDelay = CoreServiceManager.measureTunnelDelay()
+        // Tunnel health check with 5s timeout — runs on IO, doesn't block user traffic
+        val tunnelDelay = withTimeoutOrNull(5_000L) {
+            kotlinx.coroutines.withContext(Dispatchers.IO) {
+                CoreServiceManager.measureTunnelDelay()
+            }
+        } ?: -1L
         val tunnelDead = tunnelDelay < 0
 
-        // TCP-ping each server to find the fastest reachable one
+        // TCP-ping each server (fast, ~1s each)
         var bestGuid = currentGuid
         var bestPing = Long.MAX_VALUE
         for (guid in guids) {
@@ -294,7 +299,6 @@ class MainActivity : HelperBaseActivity() {
 
         val shouldSwitch = bestGuid != currentGuid || tunnelDead
         if (shouldSwitch) {
-            // If tunnel is dead but tcping sees current as best, pick any other server
             val targetGuid = if (bestGuid != currentGuid) bestGuid
                              else guids.firstOrNull { it != currentGuid } ?: bestGuid
             LogUtil.i(AppConfig.TAG, "Auto-switch: tunnelDead=$tunnelDead delay=${tunnelDelay}ms → $targetGuid")
