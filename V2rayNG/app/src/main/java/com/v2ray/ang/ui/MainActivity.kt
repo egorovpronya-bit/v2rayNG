@@ -29,6 +29,7 @@ import com.v2ray.ang.handler.AngConfigManager
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.handler.SettingsManager
+import com.v2ray.ang.handler.SpeedtestManager
 import com.v2ray.ang.handler.SubscriptionUpdater
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
@@ -44,6 +45,7 @@ class MainActivity : HelperBaseActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     private var trafficJob: Job? = null
+    private var autoSwitchJob: Job? = null
     private var totalUpload = 0L
     private var totalDownload = 0L
     private var lastRxBytes = -1L
@@ -185,7 +187,9 @@ class MainActivity : HelperBaseActivity() {
             binding.tvConnectionState.text = getString(R.string.saqanet_connected)
             binding.tvConnectionState.setTextColor(0xFF4F6EF7.toInt())
             startTrafficPolling()
+            if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) startAutoSwitching()
         } else {
+            stopAutoSwitching()
             stopTrafficPolling()
             binding.shieldBar.setBackgroundResource(R.drawable.bg_shield_inactive)
             binding.shieldDot.setBackgroundResource(R.drawable.bg_dot_red)
@@ -219,7 +223,12 @@ class MainActivity : HelperBaseActivity() {
         val currentGuid = MmkvManager.getSelectServer()
         val autoEnabled = MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)
 
-        container.addView(buildAutoCard(autoEnabled))
+        var autoFlag = ""; var autoCity = ""
+        if (autoEnabled && currentGuid != null) {
+            val cfg = MmkvManager.decodeServerConfig(currentGuid)
+            if (cfg != null) { val (f, c) = getServerMeta(cfg.remarks, cfg.server ?: ""); autoFlag = f; autoCity = c }
+        }
+        container.addView(buildAutoCard(autoEnabled, autoFlag, autoCity))
 
         guids.forEach { guid ->
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
@@ -241,9 +250,49 @@ class MainActivity : HelperBaseActivity() {
     private fun enableAutoMode() {
         MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
         val guids = MmkvManager.decodeAllServerList()
-        if (guids.isNotEmpty()) MmkvManager.setSelectServer(guids[0])
+        if (guids.isEmpty()) { loadServerList(); return }
+        // Start optimistically on first server while pinging in background
+        MmkvManager.setSelectServer(guids[0])
         if (mainViewModel.isRunning.value == true) restartV2Ray()
         loadServerList()
+        lifecycleScope.launch(Dispatchers.IO) { runPingAndSwitchIfBetter() }
+    }
+
+    private fun startAutoSwitching() {
+        autoSwitchJob?.cancel()
+        autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
+            while (true) {
+                delay(5 * 60 * 1000L)
+                if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
+                runPingAndSwitchIfBetter()
+            }
+        }
+    }
+
+    private fun stopAutoSwitching() { autoSwitchJob?.cancel(); autoSwitchJob = null }
+
+    private suspend fun runPingAndSwitchIfBetter() {
+        val guids = MmkvManager.decodeAllServerList()
+        if (guids.size < 2) return
+        var bestGuid = MmkvManager.getSelectServer() ?: guids[0]
+        var bestPing = Long.MAX_VALUE
+        for (guid in guids) {
+            val config = MmkvManager.decodeServerConfig(guid) ?: continue
+            val host = config.server ?: continue
+            val port = config.serverPort?.toIntOrNull() ?: 443
+            val ping = SpeedtestManager.tcping(host, port)
+            if (ping > 0 && ping < bestPing) { bestPing = ping; bestGuid = guid }
+        }
+        val currentGuid = MmkvManager.getSelectServer()
+        if (bestGuid != currentGuid) {
+            withContext(Dispatchers.Main) {
+                MmkvManager.setSelectServer(bestGuid)
+                if (mainViewModel.isRunning.value == true) restartV2Ray()
+                loadServerList()
+            }
+        } else {
+            withContext(Dispatchers.Main) { loadServerList() }
+        }
     }
 
     private fun initRussianBypassIfNeeded() {
@@ -292,7 +341,7 @@ class MainActivity : HelperBaseActivity() {
         }
     }
 
-    private fun buildAutoCard(isActive: Boolean): View {
+    private fun buildAutoCard(isActive: Boolean, currentFlag: String = "", currentCity: String = ""): View {
         val dp = { v: Int -> (v * resources.displayMetrics.density + 0.5f).toInt() }
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -321,8 +370,9 @@ class MainActivity : HelperBaseActivity() {
             setTextColor(0xFFE5E7EB.toInt()); info.addView(this)
         }
         TextView(this).apply {
-            text = "Лучший сервер по скорости"; textSize = 12f
-            setTextColor(0xFF6B7280.toInt())
+            text = if (isActive && currentCity.isNotEmpty()) "$currentFlag $currentCity" else "Лучший сервер по скорости"
+            textSize = 12f
+            setTextColor(if (isActive && currentCity.isNotEmpty()) 0xFF9CA3AF.toInt() else 0xFF6B7280.toInt())
             val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             lp.topMargin = (2 * resources.displayMetrics.density).toInt(); layoutParams = lp
             info.addView(this)
