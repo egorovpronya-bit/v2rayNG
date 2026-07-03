@@ -79,6 +79,7 @@ class MainActivity : HelperBaseActivity() {
             startActivity(Intent(this, AboutActivity::class.java))
         }
 
+        cleanupRealityConfigs()
         setupViewModel()
         SubscriptionUpdater.sync()
         mainViewModel.reloadServerList()
@@ -304,6 +305,17 @@ class MainActivity : HelperBaseActivity() {
             }
         } else {
             withContext(Dispatchers.Main) { loadServerList() }
+        }
+    }
+
+    private fun cleanupRealityConfigs() {
+        val guids = MmkvManager.decodeAllServerList()
+        guids.forEach { guid ->
+            val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
+            if (config.security.equals("reality", ignoreCase = true)) {
+                MmkvManager.removeServer(guid)
+                LogUtil.i(AppConfig.TAG, "Removed Reality config: ${config.remarks}")
+            }
         }
     }
 
