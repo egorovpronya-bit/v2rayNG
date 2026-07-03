@@ -262,7 +262,7 @@ class MainActivity : HelperBaseActivity() {
         autoSwitchJob?.cancel()
         autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
             while (true) {
-                delay(5 * 60 * 1000L)
+                delay(60_000L)
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
                 runPingAndSwitchIfBetter()
             }
@@ -274,7 +274,14 @@ class MainActivity : HelperBaseActivity() {
     private suspend fun runPingAndSwitchIfBetter() {
         val guids = MmkvManager.decodeAllServerList()
         if (guids.size < 2) return
-        var bestGuid = MmkvManager.getSelectServer() ?: guids[0]
+        val currentGuid = MmkvManager.getSelectServer() ?: guids[0]
+
+        // Check if the current tunnel actually works (through xray core, not just TCP ping)
+        val tunnelDelay = CoreServiceManager.measureTunnelDelay()
+        val tunnelDead = tunnelDelay < 0
+
+        // TCP-ping each server to find the fastest reachable one
+        var bestGuid = currentGuid
         var bestPing = Long.MAX_VALUE
         for (guid in guids) {
             val config = MmkvManager.decodeServerConfig(guid) ?: continue
@@ -283,10 +290,15 @@ class MainActivity : HelperBaseActivity() {
             val ping = SpeedtestManager.tcping(host, port)
             if (ping > 0 && ping < bestPing) { bestPing = ping; bestGuid = guid }
         }
-        val currentGuid = MmkvManager.getSelectServer()
-        if (bestGuid != currentGuid) {
+
+        val shouldSwitch = bestGuid != currentGuid || tunnelDead
+        if (shouldSwitch) {
+            // If tunnel is dead but tcping sees current as best, pick any other server
+            val targetGuid = if (bestGuid != currentGuid) bestGuid
+                             else guids.firstOrNull { it != currentGuid } ?: bestGuid
+            LogUtil.i(AppConfig.TAG, "Auto-switch: tunnelDead=$tunnelDead delay=${tunnelDelay}ms → $targetGuid")
             withContext(Dispatchers.Main) {
-                MmkvManager.setSelectServer(bestGuid)
+                MmkvManager.setSelectServer(targetGuid)
                 if (mainViewModel.isRunning.value == true) restartV2Ray()
                 loadServerList()
             }
