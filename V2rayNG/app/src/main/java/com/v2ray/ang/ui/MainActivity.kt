@@ -39,7 +39,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 
 class MainActivity : HelperBaseActivity() {
 
@@ -290,21 +289,20 @@ class MainActivity : HelperBaseActivity() {
         if (guids.size < 2) return
         val currentGuid = MmkvManager.getSelectServer() ?: guids[0]
 
-        // Tunnel health check with 5s timeout
-        val tunnelDelay = withTimeoutOrNull(5_000L) {
-            kotlinx.coroutines.withContext(Dispatchers.IO) {
-                CoreServiceManager.measureTunnelDelay()
-            }
-        } ?: -1L
+        // TCP-ping current server directly — reliable check that doesn't go through xray
+        val currentConfig = MmkvManager.decodeServerConfig(currentGuid)
+        val currentHost = currentConfig?.server
+        val currentPort = currentConfig?.serverPort?.toIntOrNull() ?: 443
+        val currentPing = if (currentHost != null) avgTcping(currentHost, currentPort) else -1L
 
-        if (tunnelDelay >= 0) {
-            // Tunnel is alive — do not switch, do not restart
-            LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel OK ${tunnelDelay}ms, staying on current server")
+        if (currentPing > 0) {
+            // Current server reachable — stay, don't touch VPN
+            LogUtil.i(AppConfig.TAG, "Auto-switch: current server OK ${currentPing}ms, no switch")
             withContext(Dispatchers.Main) { loadServerList() }
             return
         }
 
-        // Tunnel is dead — find best available server by TCP ping
+        // Current server unreachable — find best alternative by TCP ping
         var bestGuid = guids.firstOrNull { it != currentGuid } ?: currentGuid
         var bestPing = Long.MAX_VALUE
         for (guid in guids) {
@@ -316,7 +314,7 @@ class MainActivity : HelperBaseActivity() {
             if (ping > 0 && ping < bestPing) { bestPing = ping; bestGuid = guid }
         }
 
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel DEAD, switching to $bestGuid (ping ${bestPing}ms)")
+        LogUtil.i(AppConfig.TAG, "Auto-switch: current server DOWN, switching to $bestGuid (ping ${bestPing}ms)")
         withContext(Dispatchers.Main) {
             MmkvManager.setSelectServer(bestGuid)
             if (mainViewModel.isRunning.value == true) restartV2Ray()
