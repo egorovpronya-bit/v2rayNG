@@ -273,6 +273,18 @@ class MainActivity : HelperBaseActivity() {
 
     private fun stopAutoSwitching() { autoSwitchJob?.cancel(); autoSwitchJob = null }
 
+    private suspend fun avgTcping(host: String, port: Int): Long {
+        val p1 = SpeedtestManager.tcping(host, port)
+        delay(300L)
+        val p2 = SpeedtestManager.tcping(host, port)
+        return when {
+            p1 > 0 && p2 > 0 -> (p1 + p2) / 2
+            p1 > 0 -> p1
+            p2 > 0 -> p2
+            else -> -1L
+        }
+    }
+
     private suspend fun runPingAndSwitchIfBetter() {
         val guids = MmkvManager.decodeAllServerList()
         if (guids.size < 2) return
@@ -286,7 +298,7 @@ class MainActivity : HelperBaseActivity() {
         } ?: -1L
         val tunnelDead = tunnelDelay < 0
 
-        // TCP-ping each server (fast, ~1s each)
+        // Average 2 TCP pings per server to smooth out jitter
         var bestGuid = currentGuid
         var bestPing = Long.MAX_VALUE
         var currentPing = Long.MAX_VALUE
@@ -294,15 +306,15 @@ class MainActivity : HelperBaseActivity() {
             val config = MmkvManager.decodeServerConfig(guid) ?: continue
             val host = config.server ?: continue
             val port = config.serverPort?.toIntOrNull() ?: 443
-            val ping = SpeedtestManager.tcping(host, port)
+            val ping = avgTcping(host, port)
             if (ping > 0) {
                 if (guid == currentGuid) currentPing = ping
                 if (ping < bestPing) { bestPing = ping; bestGuid = guid }
             }
         }
 
-        // Only switch if tunnel is dead OR other server is faster by >50ms
-        val shouldSwitch = tunnelDead || (bestGuid != currentGuid && bestPing < currentPing - 50)
+        // Only switch if tunnel is dead OR other server is faster by >80ms
+        val shouldSwitch = tunnelDead || (bestGuid != currentGuid && bestPing < currentPing - 80)
         if (shouldSwitch) {
             val targetGuid = if (tunnelDead && bestGuid == currentGuid)
                                  guids.firstOrNull { it != currentGuid } ?: bestGuid
@@ -310,7 +322,8 @@ class MainActivity : HelperBaseActivity() {
             LogUtil.i(AppConfig.TAG, "Auto-switch: tunnelDead=$tunnelDead currentPing=${currentPing}ms bestPing=${bestPing}ms → $targetGuid")
             withContext(Dispatchers.Main) {
                 MmkvManager.setSelectServer(targetGuid)
-                if (mainViewModel.isRunning.value == true) restartV2Ray()
+                // Restart VPN only if tunnel is dead; if alive, xray picks up new server on next reconnect
+                if (tunnelDead && mainViewModel.isRunning.value == true) restartV2Ray()
                 loadServerList()
             }
         } else {
