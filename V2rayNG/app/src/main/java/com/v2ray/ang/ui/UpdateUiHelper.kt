@@ -11,6 +11,8 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
@@ -53,6 +55,9 @@ object UpdateUiHelper {
                 withContext(Dispatchers.Main) { showResult(activity, info) }
             } catch (e: Exception) {
                 LogUtil.w("SAQANet", "Update check failed: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    activity.toast(activity.getString(R.string.update_check_failed) + ": " + (e.message?.take(40) ?: "?"))
+                }
             }
         }
     }
@@ -74,6 +79,14 @@ object UpdateUiHelper {
     }
 
     fun showResult(activity: AppCompatActivity, info: SaqaNetUpdateInfo) {
+        activity.findViewById<TextView>(R.id.tv_update_banner)?.let { banner ->
+            banner.text = activity.getString(R.string.update_banner_available, info.version)
+            banner.visibility = View.VISIBLE
+            banner.setOnClickListener {
+                if (info.isForced) showForcedDialog(activity, info)
+                else showOptionalDialog(activity, info)
+            }
+        }
         if (info.isForced) showForcedDialog(activity, info)
         else {
             showNotification(activity, info)

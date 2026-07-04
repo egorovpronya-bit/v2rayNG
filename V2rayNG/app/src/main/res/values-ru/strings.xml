@@ -414,6 +414,7 @@
     <string name="update_check_failed">Не удалось проверить обновления</string>
     <string name="title_check_update">Проверить обновления</string>
     <string name="summary_check_update">Текущая версия: %s</string>
+    <string name="update_banner_available">⬆ Доступно обновление: %s</string>
     <string name="update_check_pre_release">Искать предварительный выпуск</string>
     <string name="update_checking_for_update">Проверка обновления…</string>
 
