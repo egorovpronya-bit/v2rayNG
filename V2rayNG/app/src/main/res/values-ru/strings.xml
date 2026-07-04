@@ -409,6 +409,11 @@
     <string name="update_required_message">Для работы SAQANet необходима версия %s. Пожалуйста, обновите приложение.</string>
     <string name="update_optional_message">Доступна новая версия SAQANet с улучшениями.</string>
     <string name="update_downloading">Загрузка обновления…</string>
+    <string name="update_checking">Проверяем обновления…</string>
+    <string name="update_latest">У вас последняя версия</string>
+    <string name="update_check_failed">Не удалось проверить обновления</string>
+    <string name="title_check_update">Проверить обновления</string>
+    <string name="summary_check_update">Текущая версия: %s</string>
     <string name="update_check_pre_release">Искать предварительный выпуск</string>
     <string name="update_checking_for_update">Проверка обновления…</string>
 

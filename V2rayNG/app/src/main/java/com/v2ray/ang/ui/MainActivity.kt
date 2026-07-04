@@ -1,18 +1,13 @@
 package com.v2ray.ang.ui
 
-import android.app.DownloadManager
-import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.graphics.Typeface
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
-import android.os.Environment
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MenuItem
@@ -30,7 +25,6 @@ import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.databinding.ActivityMainBinding
-import com.v2ray.ang.dto.SaqaNetUpdateInfo
 import com.v2ray.ang.enums.EConfigType
 import com.v2ray.ang.enums.PermissionType
 import com.v2ray.ang.extension.toast
@@ -41,22 +35,17 @@ import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.handler.SpeedtestManager
 import com.v2ray.ang.handler.SubscriptionUpdater
-import com.v2ray.ang.handler.UpdateCheckerManager
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : HelperBaseActivity() {
 
     companion object {
         const val EXTRA_UPDATE_URL = "extra_update_url"
-        private const val NOTIF_CHANNEL_ID = "saqanet_update"
-        private const val NOTIF_UPDATE_ID = 1001
     }
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -102,7 +91,7 @@ class MainActivity : HelperBaseActivity() {
         mainViewModel.reloadServerList()
         initRussianBypassIfNeeded()
 
-        createUpdateNotificationChannel()
+        UpdateUiHelper.initChannel(this)
         handleUpdateIntent(intent)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         checkForUpdatesOnStartup()
@@ -125,8 +114,8 @@ class MainActivity : HelperBaseActivity() {
     private fun handleUpdateIntent(intent: Intent) {
         val url = intent.getStringExtra(EXTRA_UPDATE_URL) ?: return
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.cancel(NOTIF_UPDATE_ID)
-        downloadAndInstallApk(url)
+        nm.cancel(UpdateUiHelper.NOTIF_UPDATE_ID)
+        UpdateUiHelper.downloadAndInstall(this, url)
     }
 
     private fun setupViewModel() {
@@ -593,92 +582,9 @@ class MainActivity : HelperBaseActivity() {
     // ── Auto-update ────────────────────────────────────────────────────────────
 
     private fun checkForUpdatesOnStartup() {
-        lifecycleScope.launch {
-            try {
-                val info = UpdateCheckerManager.checkSaqaNetUpdate()
-                if (!info.hasUpdate) return@launch
-                withContext(Dispatchers.Main) {
-                    if (info.isForced) showForcedUpdateDialog(info)
-                    else showOptionalUpdateDialog(info)
-                }
-            } catch (e: Exception) {
-                LogUtil.w(AppConfig.TAG, "Update check failed: ${e.message}")
-            }
-        }
+        UpdateUiHelper.checkAndShow(this, lifecycleScope)
     }
 
-    private fun showForcedUpdateDialog(info: SaqaNetUpdateInfo) {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle(getString(R.string.update_required_title))
-            .setMessage(getString(R.string.update_required_message, info.version) +
-                if (info.notes.isNotEmpty()) "\n\n${info.notes}" else "")
-            .setCancelable(false)
-            .setPositiveButton(getString(R.string.update_now)) { _, _ ->
-                downloadAndInstallApk(info.apkUrl)
-            }
-            .create()
-        dialog.show()
-        // prevent back button dismissal
-        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() { /* block */ }
-        })
-    }
-
-    private fun showOptionalUpdateDialog(info: SaqaNetUpdateInfo) {
-        AlertDialog.Builder(this)
-            .setTitle(getString(R.string.update_new_version_found, info.version))
-            .setMessage(getString(R.string.update_optional_message))
-            .setPositiveButton(getString(R.string.update_now)) { _, _ ->
-                downloadAndInstallApk(info.apkUrl)
-            }
-            .setNegativeButton(getString(R.string.update_later), null)
-            .show()
-    }
-
-    private fun createUpdateNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val ch = NotificationChannel(
-                NOTIF_CHANNEL_ID,
-                "Обновления SAQANet",
-                NotificationManager.IMPORTANCE_DEFAULT
-            ).apply { description = "Уведомления о новых версиях приложения" }
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-                .createNotificationChannel(ch)
-        }
-    }
-
-    private fun downloadAndInstallApk(apkUrl: String) {
-        toast(R.string.update_downloading)
-        val request = DownloadManager.Request(Uri.parse(apkUrl))
-            .setTitle("SAQANet")
-            .setDescription(getString(R.string.update_downloading))
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, "saqanet_update.apk")
-            .setMimeType("application/vnd.android.package-archive")
-
-        val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-        val downloadId = dm.enqueue(request)
-
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(ctx: Context, intent: Intent) {
-                val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                if (id != downloadId) return
-                ctx.unregisterReceiver(this)
-                val uri = dm.getUriForDownloadedFile(downloadId) ?: return
-                val install = Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(uri, "application/vnd.android.package-archive")
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                }
-                startActivity(install)
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            @Suppress("UnspecifiedRegisterReceiverFlag")
-            registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
-        }
-    }
 
     // Stub kept for GroupServerFragment compatibility
     fun refreshGroupTabTitles(refreshAll: Boolean = false) {}
