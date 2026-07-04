@@ -4,10 +4,8 @@ import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -140,7 +138,6 @@ object UpdateUiHelper {
     }
 
     fun downloadAndInstall(activity: AppCompatActivity, apkUrl: String) {
-        activity.toast(R.string.update_downloading)
         val request = DownloadManager.Request(Uri.parse(apkUrl))
             .setTitle("SAQANet")
             .setDescription(activity.getString(R.string.update_downloading))
@@ -150,29 +147,50 @@ object UpdateUiHelper {
 
         val dm = activity.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val downloadId = dm.enqueue(request)
+        val banner = activity.findViewById<TextView>(R.id.tv_update_banner)
 
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(ctx: Context, intent: Intent) {
-                val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
-                if (id != downloadId) return
-                ctx.unregisterReceiver(this)
-                val uri = dm.getUriForDownloadedFile(downloadId) ?: return
-                val install = Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(uri, "application/vnd.android.package-archive")
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+        activity.lifecycleScope.launch {
+            while (true) {
+                kotlinx.coroutines.delay(600)
+                val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
+                if (!cursor.moveToFirst()) { cursor.close(); continue }
+                val status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                val downloaded = cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+                val total = cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                cursor.close()
+
+                withContext(Dispatchers.Main) {
+                    when (status) {
+                        DownloadManager.STATUS_PENDING, DownloadManager.STATUS_RUNNING -> {
+                            banner?.visibility = View.VISIBLE
+                            banner?.text = if (total > 0) {
+                                val dlMb = downloaded / 1048576
+                                val totMb = total / 1048576
+                                val pct = (downloaded * 100 / total).toInt()
+                                "⬇ $dlMb МБ / $totMb МБ ($pct%)"
+                            } else {
+                                "⬇ Загрузка: ${downloaded / 1048576} МБ..."
+                            }
+                        }
+                        DownloadManager.STATUS_SUCCESSFUL -> {
+                            banner?.text = "✓ Готово, открываем установщик..."
+                            val uri = dm.getUriForDownloadedFile(downloadId)
+                            if (uri != null) {
+                                val install = Intent(Intent.ACTION_VIEW).apply {
+                                    setDataAndType(uri, "application/vnd.android.package-archive")
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                }
+                                activity.startActivity(install)
+                            }
+                            return@launch
+                        }
+                        DownloadManager.STATUS_FAILED -> {
+                            banner?.text = "⚠ Ошибка загрузки, попробуй ещё раз"
+                            return@launch
+                        }
+                    }
                 }
-                activity.startActivity(install)
             }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            activity.registerReceiver(
-                receiver,
-                IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE),
-                Context.RECEIVER_NOT_EXPORTED
-            )
-        } else {
-            @Suppress("UnspecifiedRegisterReceiverFlag")
-            activity.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         }
     }
 }
