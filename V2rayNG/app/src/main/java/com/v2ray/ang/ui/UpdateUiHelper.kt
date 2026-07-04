@@ -30,6 +30,11 @@ object UpdateUiHelper {
     private const val NOTIF_CHANNEL_ID = "saqanet_update_v2"
     const val NOTIF_UPDATE_ID = 1001
 
+    var activeDownloadId: Long? = null
+        private set
+
+    fun isDownloading(): Boolean = activeDownloadId != null
+
     fun initChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val ch = NotificationChannel(
@@ -139,6 +144,10 @@ object UpdateUiHelper {
     }
 
     fun downloadAndInstall(activity: AppCompatActivity, apkUrl: String) {
+        if (activeDownloadId != null) {
+            activity.toast("Загрузка уже идёт...")
+            return
+        }
         val request = DownloadManager.Request(Uri.parse(apkUrl))
             .setTitle("SAQANet")
             .setDescription(activity.getString(R.string.update_downloading))
@@ -148,6 +157,7 @@ object UpdateUiHelper {
 
         val dm = activity.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val downloadId = dm.enqueue(request)
+        activeDownloadId = downloadId
         val banner = activity.findViewById<TextView>(R.id.tv_update_banner)
 
         activity.lifecycleScope.launch {
@@ -174,6 +184,7 @@ object UpdateUiHelper {
                             }
                         }
                         DownloadManager.STATUS_SUCCESSFUL -> {
+                            activeDownloadId = null
                             banner?.text = "✓ Готово, открываем установщик..."
                             val uri = dm.getUriForDownloadedFile(downloadId)
                             if (uri != null) {
@@ -186,6 +197,7 @@ object UpdateUiHelper {
                             return@launch
                         }
                         DownloadManager.STATUS_FAILED -> {
+                            activeDownloadId = null
                             banner?.text = "⚠ Ошибка загрузки, попробуй ещё раз"
                             return@launch
                         }

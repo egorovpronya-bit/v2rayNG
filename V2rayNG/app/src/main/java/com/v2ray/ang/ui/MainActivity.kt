@@ -211,7 +211,7 @@ class MainActivity : HelperBaseActivity() {
             binding.tvConnectionState.setTextColor(0xFF4F6EF7.toInt())
             startTrafficPolling()
             if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) startAutoSwitching()
-            lifecycleScope.launch { delay(3000L); UpdateUiHelper.checkAndShow(this@MainActivity, lifecycleScope) }
+            lifecycleScope.launch { delay(3000L); if (!UpdateUiHelper.isDownloading()) UpdateUiHelper.checkAndShow(this@MainActivity, lifecycleScope) }
         } else {
             stopAutoSwitching()
             stopTrafficPolling()
@@ -231,7 +231,7 @@ class MainActivity : HelperBaseActivity() {
 
             binding.tvTrafficUpload.text = "—"
             binding.tvTrafficDownload.text = "—"
-            binding.tvUpdateBanner.visibility = View.GONE
+            if (!UpdateUiHelper.isDownloading()) binding.tvUpdateBanner.visibility = View.GONE
         }
         loadServerList()
     }
