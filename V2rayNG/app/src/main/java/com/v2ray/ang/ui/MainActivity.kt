@@ -58,7 +58,6 @@ class MainActivity : HelperBaseActivity() {
     private var totalDownload = 0L
     private var lastRxBytes = -1L
     private var lastTxBytes = -1L
-    private var updateCheckedThisSession = false
 
     val mainViewModel: MainViewModel by viewModels()
 
@@ -212,10 +211,7 @@ class MainActivity : HelperBaseActivity() {
             binding.tvConnectionState.setTextColor(0xFF4F6EF7.toInt())
             startTrafficPolling()
             if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) startAutoSwitching()
-            if (!updateCheckedThisSession) {
-                updateCheckedThisSession = true
-                UpdateUiHelper.checkAndShow(this, lifecycleScope)
-            }
+            lifecycleScope.launch { delay(3000L); UpdateUiHelper.checkAndShow(this@MainActivity, lifecycleScope) }
         } else {
             stopAutoSwitching()
             stopTrafficPolling()
