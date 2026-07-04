@@ -161,7 +161,8 @@ object UpdateUiHelper {
         val banner = activity.findViewById<TextView>(R.id.tv_update_banner)
 
         activity.lifecycleScope.launch {
-            while (true) {
+            var done = false
+            while (!done) {
                 kotlinx.coroutines.delay(600)
                 val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
                 if (!cursor.moveToFirst()) { cursor.close(); continue }
@@ -185,6 +186,7 @@ object UpdateUiHelper {
                         }
                         DownloadManager.STATUS_SUCCESSFUL -> {
                             activeDownloadId = null
+                            done = true
                             banner?.text = "✓ Готово, открываем установщик..."
                             val uri = dm.getUriForDownloadedFile(downloadId)
                             if (uri != null) {
@@ -194,12 +196,11 @@ object UpdateUiHelper {
                                 }
                                 activity.startActivity(install)
                             }
-                            return@launch
                         }
                         DownloadManager.STATUS_FAILED -> {
                             activeDownloadId = null
+                            done = true
                             banner?.text = "⚠ Ошибка загрузки, попробуй ещё раз"
-                            return@launch
                         }
                     }
                 }
