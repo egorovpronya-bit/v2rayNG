@@ -3,7 +3,6 @@ package com.v2ray.ang.ui
 import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -25,7 +24,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.AppConfig
@@ -106,9 +104,8 @@ class MainActivity : HelperBaseActivity() {
 
         createUpdateNotificationChannel()
         handleUpdateIntent(intent)
-        checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
-            checkForUpdatesOnStartup()
-        }
+        checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
+        checkForUpdatesOnStartup()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { moveTaskToBack(false) }
@@ -628,25 +625,14 @@ class MainActivity : HelperBaseActivity() {
     }
 
     private fun showOptionalUpdateDialog(info: SaqaNetUpdateInfo) {
-        val tapIntent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-            putExtra(EXTRA_UPDATE_URL, info.apkUrl)
-        }
-        val pi = PendingIntent.getActivity(
-            this, NOTIF_UPDATE_ID, tapIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val notif = androidx.core.app.NotificationCompat.Builder(this, NOTIF_CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_stat_name)
-            .setContentTitle(getString(R.string.update_new_version_found, info.version))
-            .setContentText(getString(R.string.update_optional_message))
-            .setAutoCancel(true)
-            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pi)
-            .addAction(0, getString(R.string.update_now), pi)
-            .build()
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        nm.notify(NOTIF_UPDATE_ID, notif)
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.update_new_version_found, info.version))
+            .setMessage(getString(R.string.update_optional_message))
+            .setPositiveButton(getString(R.string.update_now)) { _, _ ->
+                downloadAndInstallApk(info.apkUrl)
+            }
+            .setNegativeButton(getString(R.string.update_later), null)
+            .show()
     }
 
     private fun createUpdateNotificationChannel() {
