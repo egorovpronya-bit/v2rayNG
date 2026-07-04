@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.LifecycleCoroutineScope
+import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.R
 import com.v2ray.ang.dto.SaqaNetUpdateInfo
 import com.v2ray.ang.extension.toast
