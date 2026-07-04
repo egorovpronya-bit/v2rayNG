@@ -58,6 +58,7 @@ class MainActivity : HelperBaseActivity() {
     private var totalDownload = 0L
     private var lastRxBytes = -1L
     private var lastTxBytes = -1L
+    private var updateCheckedThisSession = false
 
     val mainViewModel: MainViewModel by viewModels()
 
@@ -96,7 +97,6 @@ class MainActivity : HelperBaseActivity() {
         UpdateUiHelper.initChannel(this)
         handleUpdateIntent(intent)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
-        checkForUpdatesOnStartup()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { moveTaskToBack(false) }
@@ -212,6 +212,10 @@ class MainActivity : HelperBaseActivity() {
             binding.tvConnectionState.setTextColor(0xFF4F6EF7.toInt())
             startTrafficPolling()
             if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) startAutoSwitching()
+            if (!updateCheckedThisSession) {
+                updateCheckedThisSession = true
+                UpdateUiHelper.checkAndShow(this, lifecycleScope)
+            }
         } else {
             stopAutoSwitching()
             stopTrafficPolling()
@@ -581,13 +585,6 @@ class MainActivity : HelperBaseActivity() {
             .setNegativeButton("Отмена", null)
             .show()
     }
-
-    // ── Auto-update ────────────────────────────────────────────────────────────
-
-    private fun checkForUpdatesOnStartup() {
-        UpdateUiHelper.checkAndShow(this, lifecycleScope)
-    }
-
 
     // Stub kept for GroupServerFragment compatibility
     fun refreshGroupTabTitles(refreshAll: Boolean = false) {}
