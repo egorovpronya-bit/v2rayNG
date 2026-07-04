@@ -48,19 +48,13 @@ object UpdateUiHelper {
     }
 
     fun checkAndShow(activity: AppCompatActivity, scope: LifecycleCoroutineScope) {
-        activity.toast("SAQANet: проверяем обновления...")
         scope.launch {
             try {
                 val info = UpdateCheckerManager.checkSaqaNetUpdate()
-                withContext(Dispatchers.Main) {
-                    if (info.hasUpdate) showResult(activity, info)
-                    else activity.toast("SAQANet актуален (${com.v2ray.ang.BuildConfig.VERSION_NAME})")
-                }
+                if (!info.hasUpdate) return@launch
+                withContext(Dispatchers.Main) { showResult(activity, info) }
             } catch (e: Exception) {
                 LogUtil.w("SAQANet", "Update check failed: ${e.message}")
-                withContext(Dispatchers.Main) {
-                    activity.toast("Ошибка: ${e.message?.take(60) ?: "?"}")
-                }
             }
         }
     }

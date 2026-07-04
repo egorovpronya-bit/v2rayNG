@@ -231,6 +231,7 @@ class MainActivity : HelperBaseActivity() {
 
             binding.tvTrafficUpload.text = "—"
             binding.tvTrafficDownload.text = "—"
+            binding.tvUpdateBanner.visibility = View.GONE
         }
         loadServerList()
     }
