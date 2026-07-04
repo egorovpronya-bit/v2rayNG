@@ -13,6 +13,11 @@ import com.v2ray.ang.util.JsonUtil
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.net.InetSocketAddress
+import java.net.Proxy
+import java.util.concurrent.TimeUnit
 
 object UpdateCheckerManager {
     suspend fun checkForUpdate(includePreRelease: Boolean = false): CheckUpdateResult = withContext(Dispatchers.IO) {
@@ -88,16 +93,31 @@ object UpdateCheckerManager {
         return 0
     }
 
+    private fun fetchViaSocks5(url: String, socksPort: Int): String? {
+        return try {
+            val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
+            val client = OkHttpClient.Builder()
+                .proxy(proxy)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build()
+            val req = Request.Builder().url(url).get().build()
+            client.newCall(req).execute().use { resp ->
+                if (resp.isSuccessful) resp.body?.string() else null
+            }
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "SAQANet update via SOCKS5 failed: ${e.message}")
+            null
+        }
+    }
+
     suspend fun checkSaqaNetUpdate(): SaqaNetUpdateInfo = withContext(Dispatchers.IO) {
         val url = "${AppConfig.APP_URL}/version.json"
+        // Try direct first; if blocked (e.g. ТСПУ), retry via xray SOCKS5 proxy
         var response = HttpUtil.getUrlContent(UrlContentRequest(url = url, timeout = 10000))
         if (response == null) {
-            val httpPort = SettingsManager.getHttpPort()
-            response = HttpUtil.getUrlContent(
-                UrlContentRequest(url = url, timeout = 10000, httpPort = httpPort,
-                    proxyUsername = SettingsManager.getSocksUsername(),
-                    proxyPassword = SettingsManager.getSocksPassword())
-            )
+            val socksPort = SettingsManager.getSocksPort()
+            response = fetchViaSocks5(url, socksPort)
         }
         response ?: throw java.io.IOException("Нет ответа от $url")
 
