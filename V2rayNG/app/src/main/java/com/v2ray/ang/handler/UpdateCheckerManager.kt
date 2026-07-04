@@ -90,19 +90,11 @@ object UpdateCheckerManager {
 
     suspend fun checkSaqaNetUpdate(): SaqaNetUpdateInfo = withContext(Dispatchers.IO) {
         val url = "${AppConfig.APP_URL}/version.json"
-        val response = HttpUtil.getUrlContent(UrlContentRequest(url = url, timeout = 5000))
-            ?: return@withContext SaqaNetUpdateInfo(
-                version = BuildConfig.VERSION_NAME,
-                minVersion = BuildConfig.VERSION_NAME,
-                apkUrl = ""
-            )
+        val response = HttpUtil.getUrlContent(UrlContentRequest(url = url, timeout = 10000))
+            ?: throw java.io.IOException("Нет ответа от $url")
 
         val info = JsonUtil.fromJsonSafe(response, SaqaNetUpdateInfo::class.java)
-            ?: return@withContext SaqaNetUpdateInfo(
-                version = BuildConfig.VERSION_NAME,
-                minVersion = BuildConfig.VERSION_NAME,
-                apkUrl = ""
-            )
+            ?: throw java.io.IOException("Ошибка разбора JSON: $response")
 
         val isForced = compareVersions(BuildConfig.VERSION_NAME, info.minVersion) < 0
         val hasUpdate = compareVersions(BuildConfig.VERSION_NAME, info.version) < 0
