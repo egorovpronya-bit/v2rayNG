@@ -104,10 +104,11 @@ class MainActivity : HelperBaseActivity() {
         mainViewModel.reloadServerList()
         initRussianBypassIfNeeded()
 
-        checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
         createUpdateNotificationChannel()
         handleUpdateIntent(intent)
-        checkForUpdatesOnStartup()
+        checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {
+            checkForUpdatesOnStartup()
+        }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { moveTaskToBack(false) }
