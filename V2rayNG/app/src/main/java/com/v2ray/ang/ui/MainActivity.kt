@@ -535,13 +535,6 @@ class MainActivity : HelperBaseActivity() {
     }
 
     private fun updateServerCard() {
-        val guid = MmkvManager.getSelectServer() ?: return
-        val config = MmkvManager.decodeServerConfig(guid) ?: return
-        val rawName = config.remarks.ifEmpty { config.server ?: "SAQANet" }
-        val cleanName = if (rawName.contains("Marz", ignoreCase = true) || rawName.contains("user_"))
-            "SAQANet — Нидерланды" else rawName
-        binding.tvServerName.text = cleanName
-        binding.tvServerSub.text = config.configType.name.uppercase()
     }
 
     private fun showProfileSwitcher() {
