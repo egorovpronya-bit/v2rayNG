@@ -5,6 +5,7 @@ import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.dto.CheckUpdateResult
 import com.v2ray.ang.dto.GitHubRelease
+import com.v2ray.ang.dto.SaqaNetUpdateInfo
 import com.v2ray.ang.dto.UrlContentRequest
 import com.v2ray.ang.extension.concatUrl
 import com.v2ray.ang.util.HttpUtil
@@ -85,6 +86,28 @@ object UpdateCheckerManager {
             if (num1 != num2) return num1 - num2
         }
         return 0
+    }
+
+    suspend fun checkSaqaNetUpdate(): SaqaNetUpdateInfo = withContext(Dispatchers.IO) {
+        val url = "${AppConfig.APP_URL}/version.json"
+        val response = HttpUtil.getUrlContent(UrlContentRequest(url = url, timeout = 5000))
+            ?: return@withContext SaqaNetUpdateInfo(
+                version = BuildConfig.VERSION_NAME,
+                minVersion = BuildConfig.VERSION_NAME,
+                apkUrl = ""
+            )
+
+        val info = JsonUtil.fromJsonSafe(response, SaqaNetUpdateInfo::class.java)
+            ?: return@withContext SaqaNetUpdateInfo(
+                version = BuildConfig.VERSION_NAME,
+                minVersion = BuildConfig.VERSION_NAME,
+                apkUrl = ""
+            )
+
+        val isForced = compareVersions(BuildConfig.VERSION_NAME, info.minVersion) < 0
+        val hasUpdate = compareVersions(BuildConfig.VERSION_NAME, info.version) < 0
+        LogUtil.i(AppConfig.TAG, "SAQANet update check: current=${BuildConfig.VERSION_NAME} latest=${info.version} min=${info.minVersion} forced=$isForced")
+        info.copy(hasUpdate = hasUpdate || isForced, isForced = isForced)
     }
 
     private fun getDownloadUrl(release: GitHubRelease, abi: String): String {

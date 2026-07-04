@@ -407,6 +407,11 @@
     <string name="update_already_latest_version">Already on the latest version</string>
     <string name="update_new_version_found">New version found: %s</string>
     <string name="update_now">Update now</string>
+    <string name="update_later">Later</string>
+    <string name="update_required_title">Update required</string>
+    <string name="update_required_message">Version %s is required to continue using SAQANet VPN. Please update the app.</string>
+    <string name="update_optional_message">A new version of SAQANet is available. Update to get the latest improvements.</string>
+    <string name="update_downloading">Downloading update…</string>
     <string name="update_check_pre_release">Check Pre-release</string>
     <string name="update_checking_for_update">Checking for update…</string>
 

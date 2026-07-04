@@ -1,10 +1,16 @@
 package com.v2ray.ang.ui
 
+import android.app.DownloadManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Typeface
 import android.net.Uri
 import android.net.VpnService
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MenuItem
@@ -16,11 +22,13 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.AppConfig
 import com.v2ray.ang.R
 import com.v2ray.ang.core.CoreServiceManager
 import com.v2ray.ang.databinding.ActivityMainBinding
+import com.v2ray.ang.dto.SaqaNetUpdateInfo
 import com.v2ray.ang.enums.EConfigType
 import com.v2ray.ang.enums.PermissionType
 import com.v2ray.ang.extension.toast
@@ -31,6 +39,7 @@ import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.handler.SpeedtestManager
 import com.v2ray.ang.handler.SubscriptionUpdater
+import com.v2ray.ang.handler.UpdateCheckerManager
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
@@ -86,6 +95,7 @@ class MainActivity : HelperBaseActivity() {
         initRussianBypassIfNeeded()
 
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
+        checkForUpdatesOnStartup()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { moveTaskToBack(false) }
@@ -522,6 +532,126 @@ class MainActivity : HelperBaseActivity() {
         bytes < 1024L * 1024 -> "%.1f KB".format(bytes / 1024.0)
         bytes < 1024L * 1024 * 1024 -> "%.1f MB".format(bytes / (1024.0 * 1024))
         else -> "%.2f GB".format(bytes / (1024.0 * 1024 * 1024))
+    }
+
+    private fun updateServerCard() {
+        val guid = MmkvManager.getSelectServer() ?: return
+        val config = MmkvManager.decodeServerConfig(guid) ?: return
+        val rawName = config.remarks.ifEmpty { config.server ?: "SAQANet" }
+        val cleanName = if (rawName.contains("Marz", ignoreCase = true) || rawName.contains("user_"))
+            "SAQANet — Нидерланды" else rawName
+        binding.tvServerName.text = cleanName
+        binding.tvServerSub.text = config.configType.name.uppercase()
+    }
+
+    private fun showProfileSwitcher() {
+        val cache = mainViewModel.serversCache
+        if (cache.isEmpty()) {
+            toast(R.string.title_file_chooser)
+            return
+        }
+        val currentGuid = MmkvManager.getSelectServer()
+        val names = Array(cache.size) { i ->
+            val p = cache[i].profile
+            val raw = p.remarks.ifEmpty { p.server ?: "SAQANet" }
+            if (raw.contains("Marz", ignoreCase = true) || raw.contains("user_")) "SAQANet — Нидерланды"
+            else raw
+        }
+        val selected = cache.indexOfFirst { it.guid == currentGuid }
+
+        AlertDialog.Builder(this)
+            .setTitle("Выбор сервера")
+            .setSingleChoiceItems(names, selected) { dialog, which ->
+                val newGuid = cache[which].guid
+                MmkvManager.setSelectServer(newGuid)
+                dialog.dismiss()
+                if (mainViewModel.isRunning.value == true) {
+                    restartV2Ray()
+                } else {
+                    updateServerCard()
+                }
+            }
+            .setNegativeButton("Отмена", null)
+            .show()
+    }
+
+    // ── Auto-update ────────────────────────────────────────────────────────────
+
+    private fun checkForUpdatesOnStartup() {
+        lifecycleScope.launch {
+            try {
+                val info = UpdateCheckerManager.checkSaqaNetUpdate()
+                if (!info.hasUpdate) return@launch
+                withContext(Dispatchers.Main) {
+                    if (info.isForced) showForcedUpdateDialog(info)
+                    else showOptionalUpdateDialog(info)
+                }
+            } catch (e: Exception) {
+                LogUtil.w(AppConfig.TAG, "Update check failed: ${e.message}")
+            }
+        }
+    }
+
+    private fun showForcedUpdateDialog(info: SaqaNetUpdateInfo) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.update_required_title))
+            .setMessage(getString(R.string.update_required_message, info.version) +
+                if (info.notes.isNotEmpty()) "\n\n${info.notes}" else "")
+            .setCancelable(false)
+            .setPositiveButton(getString(R.string.update_now)) { _, _ ->
+                downloadAndInstallApk(info.apkUrl)
+            }
+            .create()
+        dialog.show()
+        // prevent back button dismissal
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() { /* block */ }
+        })
+    }
+
+    private fun showOptionalUpdateDialog(info: SaqaNetUpdateInfo) {
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.update_new_version_found, info.version))
+            .setMessage(getString(R.string.update_optional_message) +
+                if (info.notes.isNotEmpty()) "\n\n${info.notes}" else "")
+            .setPositiveButton(getString(R.string.update_now)) { _, _ ->
+                downloadAndInstallApk(info.apkUrl)
+            }
+            .setNegativeButton(getString(R.string.update_later), null)
+            .show()
+    }
+
+    private fun downloadAndInstallApk(apkUrl: String) {
+        toast(R.string.update_downloading)
+        val request = DownloadManager.Request(Uri.parse(apkUrl))
+            .setTitle("SAQANet")
+            .setDescription(getString(R.string.update_downloading))
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, "saqanet_update.apk")
+            .setMimeType("application/vnd.android.package-archive")
+
+        val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+        val downloadId = dm.enqueue(request)
+
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context, intent: Intent) {
+                val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+                if (id != downloadId) return
+                ctx.unregisterReceiver(this)
+                val uri = dm.getUriForDownloadedFile(downloadId) ?: return
+                val install = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/vnd.android.package-archive")
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                }
+                startActivity(install)
+            }
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED)
+        } else {
+            @Suppress("UnspecifiedRegisterReceiverFlag")
+            registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        }
     }
 
     // Stub kept for GroupServerFragment compatibility
