@@ -90,8 +90,16 @@ object UpdateCheckerManager {
 
     suspend fun checkSaqaNetUpdate(): SaqaNetUpdateInfo = withContext(Dispatchers.IO) {
         val url = "${AppConfig.APP_URL}/version.json"
-        val response = HttpUtil.getUrlContent(UrlContentRequest(url = url, timeout = 10000))
-            ?: throw java.io.IOException("Нет ответа от $url")
+        var response = HttpUtil.getUrlContent(UrlContentRequest(url = url, timeout = 10000))
+        if (response == null) {
+            val httpPort = SettingsManager.getHttpPort()
+            response = HttpUtil.getUrlContent(
+                UrlContentRequest(url = url, timeout = 10000, httpPort = httpPort,
+                    proxyUsername = SettingsManager.getSocksUsername(),
+                    proxyPassword = SettingsManager.getSocksPassword())
+            )
+        }
+        response ?: throw java.io.IOException("Нет ответа от $url")
 
         val info = JsonUtil.fromJsonSafe(response, SaqaNetUpdateInfo::class.java)
             ?: throw java.io.IOException("Ошибка разбора JSON: $response")
