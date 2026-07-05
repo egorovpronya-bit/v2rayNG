@@ -628,14 +628,7 @@ class MainActivity : HelperBaseActivity() {
                             com.v2ray.ang.dto.UrlContentRequest(url = server)
                         )
                         val decoded = Utils.decode(raw)
-                        if (decoded.contains("vless://") || decoded.contains("vmess://")) {
-                            // Keep only WS/TLS servers — Reality keys cause xray crashes when sId is empty
-                            decoded.split("\n")
-                                .filter { line -> !line.contains("security=reality", ignoreCase = true) }
-                                .joinToString("\n")
-                                .takeIf { it.contains("vless://") || it.contains("vmess://") }
-                                ?: decoded
-                        } else raw
+                        if (decoded.contains("vless://") || decoded.contains("vmess://")) decoded else raw
                     } catch (e: Exception) {
                         LogUtil.e(AppConfig.TAG, "Failed to fetch subscription URL", e)
                         server
