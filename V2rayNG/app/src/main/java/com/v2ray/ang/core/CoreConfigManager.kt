@@ -739,7 +739,8 @@ object CoreConfigManager {
             servers = servers,
             hosts = hosts,
             tag = AppConfig.TAG_DNS,
-            enableParallelQuery = if ((domesticDns.size + remoteDns.size) > 2) true else null
+            enableParallelQuery = if ((domesticDns.size + remoteDns.size) > 2) true else null,
+            queryStrategy = "UseIPv4"
         )
 
         // DNS routing
