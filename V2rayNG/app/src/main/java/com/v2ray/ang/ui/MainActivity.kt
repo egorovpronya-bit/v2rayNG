@@ -35,6 +35,8 @@ import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.handler.SpeedtestManager
 import com.v2ray.ang.handler.SubscriptionUpdater
+import com.v2ray.ang.dto.UrlContentRequest
+import com.v2ray.ang.util.HttpUtil
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
@@ -296,15 +298,21 @@ class MainActivity : HelperBaseActivity() {
 
     private fun stopAutoSwitching() { autoSwitchJob?.cancel(); autoSwitchJob = null }
 
-    private suspend fun avgTcping(host: String, port: Int): Long {
-        val p1 = SpeedtestManager.tcping(host, port)
-        delay(300L)
-        val p2 = SpeedtestManager.tcping(host, port)
-        return when {
-            p1 > 0 && p2 > 0 -> (p1 + p2) / 2
-            p1 > 0 -> p1
-            p2 > 0 -> p2
-            else -> -1L
+    private suspend fun isTunnelAlive(): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                val httpPort = SettingsManager.getHttpPort()
+                if (httpPort == 0) return@withContext true
+                HttpUtil.getUrlContent(
+                    UrlContentRequest(
+                        url = "http://cp.cloudflare.com/",
+                        timeout = 5000,
+                        httpPort = httpPort
+                    )
+                ) != null
+            } catch (e: Exception) {
+                false
+            }
         }
     }
 
@@ -313,40 +321,24 @@ class MainActivity : HelperBaseActivity() {
         if (guids.size < 2) return
         val currentGuid = MmkvManager.getSelectServer() ?: guids[0]
 
-        // TCP-ping current server directly — reliable check that doesn't go through xray
-        val currentConfig = MmkvManager.decodeServerConfig(currentGuid)
-        val currentHost = currentConfig?.server
-        val currentPort = currentConfig?.serverPort?.toIntOrNull() ?: 443
-        val currentPing = if (currentHost != null) avgTcping(currentHost, currentPort) else -1L
-
-        if (currentPing > 0) {
-            // Current server reachable — stay, don't touch VPN
-            LogUtil.i(AppConfig.TAG, "Auto-switch: current server OK ${currentPing}ms, no switch")
+        if (isTunnelAlive()) {
+            LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel alive, no switch needed")
             withContext(Dispatchers.Main) { loadServerList() }
             return
         }
 
-        // Current server unreachable — find best alternative by TCP ping
-        var bestGuid = guids.firstOrNull { it != currentGuid } ?: currentGuid
-        var bestPing = Long.MAX_VALUE
-        for (guid in guids) {
-            if (guid == currentGuid) continue
-            val config = MmkvManager.decodeServerConfig(guid) ?: continue
-            val host = config.server ?: continue
-            val port = config.serverPort?.toIntOrNull() ?: 443
-            val ping = avgTcping(host, port)
-            if (ping > 0 && ping < bestPing) { bestPing = ping; bestGuid = guid }
-        }
-
-        LogUtil.i(AppConfig.TAG, "Auto-switch: current server DOWN, switching to $bestGuid (ping ${bestPing}ms)")
+        // Tunnel dead — switch to next server
+        val nextGuid = guids.firstOrNull { it != currentGuid } ?: currentGuid
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead, switching to $nextGuid")
         withContext(Dispatchers.Main) {
-            MmkvManager.setSelectServer(bestGuid)
+            MmkvManager.setSelectServer(nextGuid)
             if (mainViewModel.isRunning.value == true) restartV2Ray()
             loadServerList()
         }
     }
 
     private fun cleanupRealityConfigs() {
+        if (MmkvManager.decodeSettingsBool("reality_cleanup_v1_done")) return
         val guids = MmkvManager.decodeAllServerList()
         guids.forEach { guid ->
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
@@ -355,6 +347,7 @@ class MainActivity : HelperBaseActivity() {
                 LogUtil.i(AppConfig.TAG, "Removed Reality config: ${config.remarks}")
             }
         }
+        MmkvManager.encodeSettings("reality_cleanup_v1_done", true)
     }
 
     private fun initRussianBypassIfNeeded() {
