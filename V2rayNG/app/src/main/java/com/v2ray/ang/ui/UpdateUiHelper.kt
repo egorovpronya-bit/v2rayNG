@@ -1,5 +1,6 @@
 package com.v2ray.ang.ui
 
+import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -7,12 +8,12 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
-import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.R
@@ -21,25 +22,19 @@ import com.v2ray.ang.extension.toast
 import com.v2ray.ang.handler.UpdateCheckerManager
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.v2ray.ang.handler.SettingsManager
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.io.File
-import java.net.InetSocketAddress
-import java.net.Proxy
-import java.util.concurrent.TimeUnit
 
 object UpdateUiHelper {
 
     private const val NOTIF_CHANNEL_ID = "saqanet_update_v2"
     const val NOTIF_UPDATE_ID = 1001
 
-    @Volatile
-    private var isDownloadActive = false
+    var activeDownloadId: Long? = null
+        private set
 
-    fun isDownloading(): Boolean = isDownloadActive
+    fun isDownloading(): Boolean = activeDownloadId != null
 
     fun initChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -150,82 +145,87 @@ object UpdateUiHelper {
     }
 
     fun downloadAndInstall(activity: AppCompatActivity, apkUrl: String) {
-        if (isDownloadActive) {
+        if (activeDownloadId != null) {
             activity.toast("Загрузка уже идёт...")
             return
         }
-        isDownloadActive = true
 
+        val dm = activity.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val banner = activity.findViewById<TextView>(R.id.tv_update_banner)
-        val destFile = File(activity.cacheDir, "saqanet_update.apk")
 
         banner?.visibility = View.VISIBLE
-        banner?.text = "⬇ Подключение..."
+        banner?.text = "⬇ Запуск загрузки..."
+
+        // DownloadManager runs as com.android.providers.downloads — goes through VPN TUN
+        val request = DownloadManager.Request(Uri.parse(apkUrl))
+            .setTitle("SAQANet")
+            .setDescription(activity.getString(R.string.update_downloading))
+            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            .setDestinationInExternalFilesDir(activity, Environment.DIRECTORY_DOWNLOADS, "saqanet_update.apk")
+            .setMimeType("application/vnd.android.package-archive")
+            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+            .setAllowedOverMetered(true)
+            .setAllowedOverRoaming(true)
+
+        val downloadId = dm.enqueue(request)
+        activeDownloadId = downloadId
 
         activity.lifecycleScope.launch {
-            try {
-                withContext(Dispatchers.IO) {
-                    // VPN app excludes itself from its own tunnel — must route through xray SOCKS5
-                    val socksPort = SettingsManager.getSocksPort()
-                    val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
-                    val client = OkHttpClient.Builder()
-                        .proxy(proxy)
-                        .connectTimeout(30, TimeUnit.SECONDS)
-                        .readTimeout(120, TimeUnit.SECONDS)
-                        .build()
-                    val request = Request.Builder().url(apkUrl).build()
-                    withContext(Dispatchers.Main) { banner?.text = "⬇ Загрузка..." }
-                    val response = client.newCall(request).execute()
-                    if (!response.isSuccessful) throw Exception("HTTP ${response.code}")
+            var done = false
+            while (!done) {
+                delay(600)
+                val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
+                if (!cursor.moveToFirst()) { cursor.close(); continue }
+                val status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
+                val downloaded = cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
+                val total = cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
+                val reason = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
+                cursor.close()
 
-                    val body = response.body ?: throw Exception("Пустой ответ")
-                    val total = body.contentLength()
-                    val inputStream = body.byteStream()
-                    val outputStream = destFile.outputStream()
-
-                    val buf = ByteArray(8192)
-                    var downloaded = 0L
-                    var read: Int
-                    while (inputStream.read(buf).also { read = it } != -1) {
-                        outputStream.write(buf, 0, read)
-                        downloaded += read
-                        if (total > 0) {
-                            val dlMb = downloaded / 1048576
-                            val totMb = total / 1048576
-                            val pct = (downloaded * 100 / total).toInt()
-                            val text = "⬇ $dlMb МБ / $totMb МБ ($pct%)"
-                            withContext(Dispatchers.Main) {
-                                banner?.visibility = View.VISIBLE
-                                banner?.text = text
+                withContext(Dispatchers.Main) {
+                    when (status) {
+                        DownloadManager.STATUS_PENDING -> {
+                            banner?.visibility = View.VISIBLE
+                            banner?.text = "⬇ Подготовка..."
+                        }
+                        DownloadManager.STATUS_RUNNING -> {
+                            banner?.visibility = View.VISIBLE
+                            banner?.text = if (total > 0) {
+                                "⬇ ${downloaded / 1048576} МБ / ${total / 1048576} МБ (${(downloaded * 100 / total).toInt()}%)"
+                            } else {
+                                "⬇ ${downloaded / 1048576} МБ..."
                             }
                         }
+                        DownloadManager.STATUS_PAUSED -> {
+                            val reasonText = when (reason) {
+                                DownloadManager.PAUSED_QUEUED_FOR_WIFI -> "ожидание WiFi"
+                                DownloadManager.PAUSED_WAITING_FOR_NETWORK -> "ожидание сети"
+                                DownloadManager.PAUSED_WAITING_TO_RETRY -> "повторная попытка..."
+                                else -> "пауза ($reason)"
+                            }
+                            banner?.visibility = View.VISIBLE
+                            banner?.text = "⏸ $reasonText"
+                        }
+                        DownloadManager.STATUS_SUCCESSFUL -> {
+                            activeDownloadId = null
+                            done = true
+                            banner?.text = "✓ Готово, открываем установщик..."
+                            val uri = dm.getUriForDownloadedFile(downloadId)
+                            if (uri != null) {
+                                val install = Intent(Intent.ACTION_VIEW).apply {
+                                    setDataAndType(uri, "application/vnd.android.package-archive")
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                                }
+                                activity.startActivity(install)
+                            }
+                        }
+                        DownloadManager.STATUS_FAILED -> {
+                            activeDownloadId = null
+                            done = true
+                            banner?.text = "⚠ Ошибка загрузки (код $reason)"
+                        }
                     }
-                    outputStream.flush()
-                    outputStream.close()
-                    inputStream.close()
                 }
-
-                withContext(Dispatchers.Main) {
-                    banner?.text = "✓ Готово, открываем установщик..."
-                    val uri = FileProvider.getUriForFile(
-                        activity,
-                        "${activity.packageName}.cache",
-                        destFile
-                    )
-                    val install = Intent(Intent.ACTION_VIEW).apply {
-                        setDataAndType(uri, "application/vnd.android.package-archive")
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                    }
-                    activity.startActivity(install)
-                }
-            } catch (e: Exception) {
-                LogUtil.w("SAQANet", "Download failed: ${e.message}")
-                withContext(Dispatchers.Main) {
-                    banner?.text = "⚠ Ошибка загрузки: ${e.message}"
-                    activity.toast("Ошибка загрузки, попробуй ещё раз")
-                }
-            } finally {
-                isDownloadActive = false
             }
         }
     }
