@@ -159,6 +159,9 @@ object UpdateUiHelper {
         val banner = activity.findViewById<TextView>(R.id.tv_update_banner)
         val destFile = File(activity.cacheDir, "saqanet_update.apk")
 
+        banner?.visibility = View.VISIBLE
+        banner?.text = "⬇ Подключение..."
+
         activity.lifecycleScope.launch {
             try {
                 withContext(Dispatchers.IO) {
@@ -171,6 +174,7 @@ object UpdateUiHelper {
                         .readTimeout(120, TimeUnit.SECONDS)
                         .build()
                     val request = Request.Builder().url(apkUrl).build()
+                    withContext(Dispatchers.Main) { banner?.text = "⬇ Загрузка..." }
                     val response = client.newCall(request).execute()
                     if (!response.isSuccessful) throw Exception("HTTP ${response.code}")
 
