@@ -23,9 +23,12 @@ import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.v2ray.ang.handler.SettingsManager
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
+import java.net.InetSocketAddress
+import java.net.Proxy
 import java.util.concurrent.TimeUnit
 
 object UpdateUiHelper {
@@ -159,7 +162,11 @@ object UpdateUiHelper {
         activity.lifecycleScope.launch {
             try {
                 withContext(Dispatchers.IO) {
+                    // VPN app excludes itself from its own tunnel — must route through xray SOCKS5
+                    val socksPort = SettingsManager.getSocksPort()
+                    val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
                     val client = OkHttpClient.Builder()
+                        .proxy(proxy)
                         .connectTimeout(30, TimeUnit.SECONDS)
                         .readTimeout(120, TimeUnit.SECONDS)
                         .build()
