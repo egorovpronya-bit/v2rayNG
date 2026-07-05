@@ -94,7 +94,6 @@ class MainActivity : HelperBaseActivity() {
             startActivity(Intent(this, AboutActivity::class.java))
         }
 
-        cleanupRealityConfigs()
         setupViewModel()
         SubscriptionUpdater.sync()
         mainViewModel.reloadServerList()
@@ -311,10 +310,10 @@ class MainActivity : HelperBaseActivity() {
                 val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
                 val client = OkHttpClient.Builder()
                     .proxy(proxy)
-                    .connectTimeout(5, TimeUnit.SECONDS)
-                    .readTimeout(5, TimeUnit.SECONDS)
+                    .connectTimeout(15, TimeUnit.SECONDS)
+                    .readTimeout(15, TimeUnit.SECONDS)
                     .build()
-                val req = Request.Builder().url("http://cp.cloudflare.com/").build()
+                val req = Request.Builder().url("http://cp.cloudflare.com/").head().build()
                 client.newCall(req).execute().use { true }
             } catch (e: Exception) {
                 false
@@ -341,19 +340,6 @@ class MainActivity : HelperBaseActivity() {
             if (mainViewModel.isRunning.value == true) restartV2Ray()
             loadServerList()
         }
-    }
-
-    private fun cleanupRealityConfigs() {
-        if (MmkvManager.decodeSettingsBool("reality_cleanup_v1_done")) return
-        val guids = MmkvManager.decodeAllServerList()
-        guids.forEach { guid ->
-            val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
-            if (config.security.equals("reality", ignoreCase = true)) {
-                MmkvManager.removeServer(guid)
-                LogUtil.i(AppConfig.TAG, "Removed Reality config: ${config.remarks}")
-            }
-        }
-        MmkvManager.encodeSettings("reality_cleanup_v1_done", true)
     }
 
     private fun initRussianBypassIfNeeded() {
