@@ -38,6 +38,11 @@ import com.v2ray.ang.handler.SubscriptionUpdater
 import com.v2ray.ang.dto.UrlContentRequest
 import com.v2ray.ang.util.HttpUtil
 import com.v2ray.ang.util.LogUtil
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.net.InetSocketAddress
+import java.net.Proxy
+import java.util.concurrent.TimeUnit
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
 import kotlinx.coroutines.Dispatchers
@@ -301,15 +306,16 @@ class MainActivity : HelperBaseActivity() {
     private suspend fun isTunnelAlive(): Boolean {
         return withContext(Dispatchers.IO) {
             try {
-                val httpPort = SettingsManager.getHttpPort()
-                if (httpPort == 0) return@withContext true
-                HttpUtil.getUrlContent(
-                    UrlContentRequest(
-                        url = "http://cp.cloudflare.com/",
-                        timeout = 5000,
-                        httpPort = httpPort
-                    )
-                ) != null
+                val socksPort = SettingsManager.getSocksPort()
+                if (socksPort == 0) return@withContext true
+                val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
+                val client = OkHttpClient.Builder()
+                    .proxy(proxy)
+                    .connectTimeout(5, TimeUnit.SECONDS)
+                    .readTimeout(5, TimeUnit.SECONDS)
+                    .build()
+                val req = Request.Builder().url("http://cp.cloudflare.com/").build()
+                client.newCall(req).execute().use { true }
             } catch (e: Exception) {
                 false
             }
