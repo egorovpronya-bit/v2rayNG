@@ -343,9 +343,12 @@ class MainActivity : HelperBaseActivity() {
 
     private fun initRussianBypassIfNeeded() {
         if (MmkvManager.decodeSettingsBool(AppConfig.PREF_RUSSIAN_BYPASS_INITIALIZED)) {
-            // Migration: existing installs may be missing PREF_PER_APP_PROXY=true
             if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_PER_APP_PROXY)) {
                 MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, true)
+            }
+            // BYPASS_APPS must be true — without it, only Russian apps route through VPN (proxy-only mode)
+            if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_BYPASS_APPS)) {
+                MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, true)
             }
             return
         }
