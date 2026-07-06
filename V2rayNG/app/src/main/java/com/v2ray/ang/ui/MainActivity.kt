@@ -343,7 +343,13 @@ class MainActivity : HelperBaseActivity() {
     }
 
     private fun initRussianBypassIfNeeded() {
-        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_RUSSIAN_BYPASS_INITIALIZED)) return
+        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_RUSSIAN_BYPASS_INITIALIZED)) {
+            // Migration: existing installs may be missing PREF_PER_APP_PROXY=true
+            if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_PER_APP_PROXY)) {
+                MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, true)
+            }
+            return
+        }
         val russianApps = mutableSetOf(
             // Банки
             "ru.sberbankmobile", "com.idamob.tinkoff.android", "ru.vtb24.mobilebanking.android",
@@ -373,6 +379,7 @@ class MainActivity : HelperBaseActivity() {
             "ru.kinopoisk.android", "com.yandex.browser", "ru.yandex.music",
             "ru.taxsee.taxi", "ru.citypoint.carsharing"
         )
+        MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, true)
         MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, true)
         MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY_SET, russianApps)
         MmkvManager.encodeSettings(AppConfig.PREF_RUSSIAN_BYPASS_INITIALIZED, true)
