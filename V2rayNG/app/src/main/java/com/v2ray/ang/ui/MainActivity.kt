@@ -61,6 +61,7 @@ class MainActivity : HelperBaseActivity() {
 
     private var trafficJob: Job? = null
     private var autoSwitchJob: Job? = null
+    private var tunnelFailCount = 0
     private var totalUpload = 0L
     private var totalDownload = 0L
     private var lastRxBytes = -1L
@@ -100,6 +101,7 @@ class MainActivity : HelperBaseActivity() {
         initRussianBypassIfNeeded()
 
         UpdateUiHelper.initChannel(this)
+        UpdateUiHelper.checkAndShow(this, lifecycleScope)
         handleUpdateIntent(intent)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
 
@@ -281,14 +283,13 @@ class MainActivity : HelperBaseActivity() {
         MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
         val guids = MmkvManager.decodeAllServerList()
         if (guids.isEmpty()) { loadServerList(); return }
-        // Start optimistically on first server while pinging in background
         MmkvManager.setSelectServer(guids[0])
         if (mainViewModel.isRunning.value == true) restartV2Ray()
         loadServerList()
-        lifecycleScope.launch(Dispatchers.IO) { runPingAndSwitchIfBetter() }
     }
 
     private fun startAutoSwitching() {
+        tunnelFailCount = 0
         autoSwitchJob?.cancel()
         autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
             while (true) {
@@ -326,14 +327,20 @@ class MainActivity : HelperBaseActivity() {
         val currentGuid = MmkvManager.getSelectServer() ?: guids[0]
 
         if (isTunnelAlive()) {
+            tunnelFailCount = 0
             LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel alive, no switch needed")
             withContext(Dispatchers.Main) { loadServerList() }
             return
         }
 
-        // Tunnel dead — switch to next server
+        tunnelFailCount++
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/3)")
+        if (tunnelFailCount < 3) return
+
+        // 3 consecutive failures — switch to next server
+        tunnelFailCount = 0
         val nextGuid = guids.firstOrNull { it != currentGuid } ?: currentGuid
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead, switching to $nextGuid")
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead x3, switching to $nextGuid")
         withContext(Dispatchers.Main) {
             MmkvManager.setSelectServer(nextGuid)
             if (mainViewModel.isRunning.value == true) restartV2Ray()
