@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
+<menu xmlns:android="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/import_qrcode"
-        android:title="📷 Сканировать QR-код"
+        android:title="Сканировать QR-код"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/import_clipboard"
-        android:title="📋 Вставить из буфера"
+        android:title="Вставить из буфера"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/import_manually_vless"
-        android:title="✏ Ввести VLESS вручную"
+        android:title="Ввести VLESS вручную"
         app:showAsAction="never" />
 
 </menu>
