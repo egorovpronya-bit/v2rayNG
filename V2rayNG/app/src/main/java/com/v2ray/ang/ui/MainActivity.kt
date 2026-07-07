@@ -161,6 +161,8 @@ class MainActivity : HelperBaseActivity() {
                     catch (e: Exception) { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/SAQANet_bot"))) }
                     true
                 }
+                R.id.settings_sub_update -> { importConfigViaSub(); true }
+                R.id.settings_check_update -> { UpdateUiHelper.checkAndShow(this, lifecycleScope); true }
                 R.id.settings_about -> { startActivity(Intent(this, AboutActivity::class.java)); true }
                 R.id.settings_subscriptions -> { startActivity(Intent(this, SubscriptionActivity::class.java)); true }
                 else -> false

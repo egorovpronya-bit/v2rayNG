@@ -6,6 +6,8 @@
 <item android:id="@+id/settings_language" android:title="@string/saqanet_menu_language" />
     <item android:id="@+id/settings_not_working" android:title="@string/saqanet_menu_not_working" />
     <item android:id="@+id/settings_telegram" android:title="✈ Telegram @SAQANet_bot" />
+    <item android:id="@+id/settings_sub_update" android:title="🔄 Обновить подписку" />
+    <item android:id="@+id/settings_check_update" android:title="⬆ Проверить обновление" />
     <item android:id="@+id/settings_about" android:title="@string/saqanet_menu_about" />
     <item android:id="@+id/settings_subscriptions" android:title="@string/saqanet_menu_tariffs" />
 </menu>
