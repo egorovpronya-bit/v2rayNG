@@ -162,7 +162,7 @@ class MainActivity : HelperBaseActivity() {
                     true
                 }
                 R.id.settings_sub_update -> { importConfigViaSub(); true }
-                R.id.settings_check_update -> { UpdateUiHelper.checkAndShow(this, lifecycleScope); true }
+                R.id.settings_check_update -> { UpdateUiHelper.checkAndShowManual(this, lifecycleScope); true }
                 R.id.settings_about -> { startActivity(Intent(this, AboutActivity::class.java)); true }
                 R.id.settings_subscriptions -> { startActivity(Intent(this, SubscriptionActivity::class.java)); true }
                 else -> false
