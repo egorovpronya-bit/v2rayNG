@@ -92,9 +92,6 @@ class MainActivity : HelperBaseActivity() {
         binding.btnPower.setOnClickListener { handlePowerClick() }
         binding.btnSettings.setOnClickListener { showSettingsMenu(it) }
         binding.btnAdd.setOnClickListener { showAddMenu(it) }
-        binding.btnNotification.setOnClickListener {
-            startActivity(Intent(this, AboutActivity::class.java))
-        }
 
         setupViewModel()
         SubscriptionUpdater.sync()

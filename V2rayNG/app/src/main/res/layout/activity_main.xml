@@ -35,18 +35,6 @@
             android:layout_marginStart="9dp" />
 
         <ImageButton
-            android:id="@+id/btn_notification"
-            android:layout_width="35dp"
-            android:layout_height="35dp"
-            android:background="@drawable/bg_topbar_icon"
-            android:src="@android:drawable/ic_dialog_info"
-            android:tint="#9CA3AF"
-            android:scaleType="centerInside"
-            android:padding="6dp"
-            android:layout_marginEnd="11dp"
-            android:contentDescription="@string/saqanet_menu_about" />
-
-        <ImageButton
             android:id="@+id/btn_settings"
             android:layout_width="35dp"
             android:layout_height="35dp"
