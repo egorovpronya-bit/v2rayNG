@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- SAQANet UI strings — Саха тыла (Якутский) -->
+    <!-- SAQANet UI strings — Саха тыла (Якутский) + русский fallback -->
+
+    <!-- Основной UI -->
     <string name="saqanet_vpn_active">Үлэлээтэ</string>
     <string name="saqanet_vpn_inactive">Үлэлээбэт</string>
     <string name="saqanet_connected">холбонно</string>
@@ -8,21 +10,48 @@
     <string name="saqanet_tap_to_connect">холбонорго баттаа</string>
     <string name="saqanet_notifications">Биллэрии</string>
     <string name="saqanet_add">Эбэн биэр</string>
-    <string name="saqanet_not_working_title">улэлээбэт боллаҔына кӨмӨ</string>
-    <string name="saqanet_step1">Атын ВПНнары араарарга</string>
-    <string name="saqanet_step2">Сурутуугун бэрэбиэркэлээ Үлэлиир бириэмэтэ бҮтҮӨн син</string>
-    <string name="saqanet_step3">Протоколу уларыт VLESS → Trojan</string>
-    <string name="saqanet_step4">Ботка саҤа кҮлҮүстэ ыл. Бэйэн ID кӨрдӨр</string>
-    <string name="saqanet_step5">Kill Switch холбоо настройкаҔа. Быстарыгар харыстыырга</string>
-    <string name="saqanet_go_to_bot">@SAQANet_bot-ка киир</string>
-    <string name="saqanet_menu_config">⚙ конфигурациялар</string>
-    <string name="saqanet_menu_apps">📱 Приложениялар</string>
-    <string name="saqanet_menu_language">🌐 тыла</string>
-    <string name="saqanet_menu_not_working">❓ Үлэлээбэт?</string>
-    <string name="saqanet_menu_about">ℹ Бырагыраама туҺунан аах</string>
-    <string name="saqanet_menu_tariffs">💳 Тарыыптар</string>
-    <string name="saqanet_select_language">интерфейс тылын тал</string>
-    <string name="saqanet_apply">Маны туҺан</string>
-    <string name="saqanet_back">кэтэх</string>
     <string name="title_settings">Туруоруулар</string>
+
+    <!-- Меню настроек (русский fallback) -->
+    <string name="saqanet_menu_config">Конфигурация</string>
+    <string name="saqanet_menu_apps">Приложения</string>
+    <string name="saqanet_menu_language">Язык</string>
+    <string name="saqanet_menu_not_working">Не работает?</string>
+    <string name="saqanet_menu_about">О приложении</string>
+    <string name="saqanet_menu_tariffs">Тарифы</string>
+
+    <!-- Язык -->
+    <string name="saqanet_select_language">Выберите язык интерфейса</string>
+    <string name="saqanet_apply">ПРИМЕНИТЬ</string>
+    <string name="saqanet_back">← Назад</string>
+
+    <!-- Не работает -->
+    <string name="saqanet_not_working_title">Что делать если VPN не работает?</string>
+    <string name="saqanet_step1">Отключите другие VPN-приложения</string>
+    <string name="saqanet_step2">Проверьте подписку в @SAQANet_bot — возможно истёк срок</string>
+    <string name="saqanet_step3">Попробуйте сменить протокол: VLESS → Trojan</string>
+    <string name="saqanet_step4">Получите новый ключ в боте. При обращении укажите ваш ID</string>
+    <string name="saqanet_step5">Включите Kill Switch в настройках для защиты при обрыве</string>
+    <string name="saqanet_go_to_bot">ПЕРЕЙТИ В @SAQANet_bot</string>
+
+    <!-- Обновления (русский fallback) -->
+    <string name="title_pref_auto_update_subscription">Автоматически обновлять подписки</string>
+    <string name="summary_pref_auto_update_subscription">Автоматическое обновление подписок в фоновом режиме с указанным интервалом.</string>
+    <string name="title_update_config_count">Обновлено профилей: %d</string>
+    <string name="title_update_subscription_result">Обновлено профилей: %1$d (успешно: %2$d, ошибки: %3$d, пропущено: %4$d)</string>
+    <string name="title_update_subscription_no_subscription">Нет подписок</string>
+
+    <!-- Обновление приложения (русский fallback) -->
+    <string name="update_check_for_update">Проверить обновление</string>
+    <string name="update_already_latest_version">Уже последняя версия</string>
+    <string name="update_new_version_found">Доступна новая версия: %s</string>
+    <string name="update_now">Обновить</string>
+    <string name="update_checking">Проверка обновления…</string>
+    <string name="update_check_failed">Ошибка проверки обновления</string>
+    <string name="update_banner_available">Доступно обновление: v%s</string>
+    <string name="update_required_title">Требуется обновление</string>
+    <string name="update_required_message">Доступна версия %s. Необходимо обновление.</string>
+    <string name="update_optional_message">Доступна новая версия приложения. Обновить?</string>
+    <string name="update_later">Позже</string>
+    <string name="update_downloading">Загрузка обновления</string>
 </resources>
