@@ -5,6 +5,7 @@ import com.v2ray.ang.AppConfig
 import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.dto.CheckUpdateResult
 import com.v2ray.ang.dto.GitHubRelease
+import com.v2ray.ang.dto.SaqaNetUpdateInfo
 import com.v2ray.ang.dto.UrlContentRequest
 import com.v2ray.ang.extension.concatUrl
 import com.v2ray.ang.util.HttpUtil
@@ -12,6 +13,11 @@ import com.v2ray.ang.util.JsonUtil
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.net.InetSocketAddress
+import java.net.Proxy
+import java.util.concurrent.TimeUnit
 
 object UpdateCheckerManager {
     suspend fun checkForUpdate(includePreRelease: Boolean = false): CheckUpdateResult = withContext(Dispatchers.IO) {
@@ -85,6 +91,43 @@ object UpdateCheckerManager {
             if (num1 != num2) return num1 - num2
         }
         return 0
+    }
+
+    private fun fetchViaSocks5(url: String, socksPort: Int): String? {
+        return try {
+            val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
+            val client = OkHttpClient.Builder()
+                .proxy(proxy)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .build()
+            val req = Request.Builder().url(url).get().build()
+            client.newCall(req).execute().use { resp ->
+                if (resp.isSuccessful) resp.body?.string() else null
+            }
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "SAQANet update via SOCKS5 failed: ${e.message}")
+            null
+        }
+    }
+
+    suspend fun checkSaqaNetUpdate(): SaqaNetUpdateInfo = withContext(Dispatchers.IO) {
+        val url = "${AppConfig.APP_URL}/version.json"
+        // Try direct first; if blocked (e.g. ТСПУ), retry via xray SOCKS5 proxy
+        var response = HttpUtil.getUrlContent(UrlContentRequest(url = url, timeout = 10000))
+        if (response == null) {
+            val socksPort = SettingsManager.getSocksPort()
+            response = fetchViaSocks5(url, socksPort)
+        }
+        response ?: throw java.io.IOException("Нет ответа от $url")
+
+        val info = JsonUtil.fromJsonSafe(response, SaqaNetUpdateInfo::class.java)
+            ?: throw java.io.IOException("Ошибка разбора JSON: $response")
+
+        val isForced = compareVersions(BuildConfig.VERSION_NAME, info.minVersion) < 0
+        val hasUpdate = compareVersions(BuildConfig.VERSION_NAME, info.version) < 0
+        LogUtil.i(AppConfig.TAG, "SAQANet update check: current=${BuildConfig.VERSION_NAME} latest=${info.version} min=${info.minVersion} forced=$isForced")
+        info.copy(hasUpdate = hasUpdate || isForced, isForced = isForced)
     }
 
     private fun getDownloadUrl(release: GitHubRelease, abi: String): String {
