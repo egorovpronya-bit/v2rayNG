@@ -61,6 +61,7 @@ class MainActivity : HelperBaseActivity() {
 
     private var trafficJob: Job? = null
     private var autoSwitchJob: Job? = null
+    private var updateCheckJob: Job? = null
     private var tunnelFailCount = 0
     private var totalUpload = 0L
     private var totalDownload = 0L
@@ -101,7 +102,6 @@ class MainActivity : HelperBaseActivity() {
         initRussianBypassIfNeeded()
 
         UpdateUiHelper.initChannel(this)
-        UpdateUiHelper.checkAndShow(this, lifecycleScope)
         handleUpdateIntent(intent)
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
 
@@ -220,9 +220,16 @@ class MainActivity : HelperBaseActivity() {
             binding.tvConnectionState.setTextColor(0xFF4F6EF7.toInt())
             startTrafficPolling()
             if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) startAutoSwitching()
+            // Delayed update check — runs 30s after VPN connects, doesn't interfere with tunnel startup
+            updateCheckJob?.cancel()
+            updateCheckJob = lifecycleScope.launch {
+                delay(30_000L)
+                UpdateUiHelper.checkAndShow(this@MainActivity, lifecycleScope)
+            }
         } else {
             stopAutoSwitching()
             stopTrafficPolling()
+            updateCheckJob?.cancel()
             binding.shieldBar.setBackgroundResource(R.drawable.bg_shield_inactive)
             binding.shieldDot.setBackgroundResource(R.drawable.bg_dot_red)
             binding.tvShieldStatus.text = getString(R.string.saqanet_vpn_inactive)
