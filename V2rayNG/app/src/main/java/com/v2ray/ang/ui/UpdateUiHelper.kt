@@ -159,7 +159,7 @@ object UpdateUiHelper {
         // DownloadManager runs as com.android.providers.downloads — goes through VPN TUN
         val request = DownloadManager.Request(Uri.parse(apkUrl))
             .setTitle("SAQANet")
-            .setDescription(activity.getString(R.string.update_downloading))
+            .setDescription("Загрузка обновления")
             .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             .setDestinationInExternalFilesDir(activity, Environment.DIRECTORY_DOWNLOADS, "saqanet_update.apk")
             .setMimeType("application/vnd.android.package-archive")
