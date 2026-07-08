@@ -138,7 +138,7 @@ object CoreConfigManager {
         val primaryResolvedOutbound = configContext.resolvedOutbounds.first()
 
         val v2rayConfig = initV2rayConfig(configContext)
-        v2rayConfig.log.loglevel = "debug"
+        v2rayConfig.log.loglevel = MmkvManager.decodeSettingsString(AppConfig.PREF_LOGLEVEL) ?: "warning"
         v2rayConfig.remarks = primaryResolvedOutbound.profile.remarks
 
         configureInbounds(v2rayConfig)
