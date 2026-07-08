@@ -32,14 +32,4 @@
 
     </PreferenceCategory>
 
-
-    <PreferenceCategory android:title="@string/title_about">
-
-        <Preference
-            android:key="pref_check_update"
-            android:title="@string/title_check_update"
-            android:summary="@string/summary_check_update" />
-
-    </PreferenceCategory>
-
 </PreferenceScreen>

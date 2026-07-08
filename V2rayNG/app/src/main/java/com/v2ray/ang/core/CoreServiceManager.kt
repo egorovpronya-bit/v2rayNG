@@ -281,20 +281,6 @@ object CoreServiceManager {
     }
 
     /**
-     * Measures actual tunnel latency through the xray core.
-     * Returns delay in ms (>=0) if tunnel is working, -1 if broken or not running.
-     */
-    fun measureTunnelDelay(): Long {
-        if (!coreController.isRunning) return -1L
-        return try {
-            coreController.measureDelay("https://1.1.1.1/generate_204")
-        } catch (e: Exception) {
-            LogUtil.w(AppConfig.TAG, "Tunnel health check failed: ${e.message}")
-            -1L
-        }
-    }
-
-    /**
      * Stops the V2Ray core service.
      * Unregisters broadcast receivers, stops notifications, and shuts down plugins.
      * @return True if the core was stopped successfully, false otherwise.

@@ -233,8 +233,8 @@ class CoreVpnService : VpnService(), ServiceControl {
             builder.addRoute("0.0.0.0", 0)
         }
 
-        // Configure IPv6 — enabled by default so IPv6 traffic routes through VPN
-        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_IPV6_ENABLED, true)) {
+        // Configure IPv6 if enabled
+        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_IPV6_ENABLED) == true) {
             builder.addAddress(vpnConfig.ipv6Client, 126)
             if (bypassLan) {
                 builder.addRoute("2000::", 3) // Currently only 1/8 of total IPv6 is in use

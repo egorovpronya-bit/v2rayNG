@@ -739,24 +739,10 @@ object CoreConfigManager {
             servers = servers,
             hosts = hosts,
             tag = AppConfig.TAG_DNS,
-            enableParallelQuery = if ((domesticDns.size + remoteDns.size) > 2) true else null,
-            queryStrategy = "UseIPv4"
+            enableParallelQuery = if ((domesticDns.size + remoteDns.size) > 2) true else null
         )
 
-        // DNS routing — intercept DNS queries (port 53) from SOCKS5 inbound
-        // and route through xray DNS module (without this, DNS queries are proxied
-        // directly to the destination which may fail on restricted networks)
-        if (SettingsManager.isVpnMode()) {
-            v2rayConfig.routing.rules.add(
-                0,
-                V2rayConfig.RoutingBean.RulesBean(
-                    inboundTag = arrayListOf(EConfigType.SOCKS.name.lowercase()),
-                    port = "53",
-                    outboundTag = AppConfig.TAG_DNS,
-                )
-            )
-        }
-
+        // DNS routing
         v2rayConfig.routing.rules.add(
             V2rayConfig.RoutingBean.RulesBean(
                 outboundTag = AppConfig.TAG_DIRECT,
