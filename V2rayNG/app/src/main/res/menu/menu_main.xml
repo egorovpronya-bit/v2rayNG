@@ -4,17 +4,17 @@
 
     <item
         android:id="@+id/import_qrcode"
-        android:title="Сканировать QR-код"
+        android:title="@string/saqanet_menu_scan_qr"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/import_clipboard"
-        android:title="Вставить из буфера"
+        android:title="@string/saqanet_menu_paste_clipboard"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/import_manually_vless"
-        android:title="Ввести VLESS вручную"
+        android:title="@string/saqanet_menu_add_vless"
         app:showAsAction="never" />
 
 </menu>

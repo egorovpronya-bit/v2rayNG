@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/settings_profiles" android:title="Профили" android:icon="@null" />
+    <item android:id="@+id/settings_profiles" android:title="@string/saqanet_menu_profiles" android:icon="@null" />
     <item android:id="@+id/settings_config" android:title="@string/saqanet_menu_config" android:icon="@null" />
     <item android:id="@+id/settings_per_app" android:title="@string/saqanet_menu_apps" android:icon="@null" />
     <item android:id="@+id/settings_language" android:title="@string/saqanet_menu_language" android:icon="@null" />
     <item android:id="@+id/settings_not_working" android:title="@string/saqanet_menu_not_working" android:icon="@null" />
-    <item android:id="@+id/settings_telegram" android:title="Telegram @SAQANet_bot" android:icon="@null" />
-    <item android:id="@+id/settings_check_update" android:title="Проверить обновление" android:icon="@null" />
+    <item android:id="@+id/settings_telegram" android:title="@string/saqanet_menu_telegram" android:icon="@null" />
+    <item android:id="@+id/settings_check_update" android:title="@string/saqanet_menu_check_update" android:icon="@null" />
     <item android:id="@+id/settings_about" android:title="@string/saqanet_menu_about" android:icon="@null" />
     <item android:id="@+id/settings_subscriptions" android:title="@string/saqanet_menu_tariffs" android:icon="@null" />
 </menu>

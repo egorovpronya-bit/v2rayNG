@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- SAQANet UI strings -->
+    <string name="saqanet_vpn_active">Active</string>
+    <string name="saqanet_vpn_inactive">Inactive</string>
+    <string name="saqanet_connected">Connected</string>
+    <string name="saqanet_disconnected">Disconnected</string>
+    <string name="saqanet_tap_to_connect">Tap to connect</string>
+    <string name="saqanet_notifications">Notifications</string>
+    <string name="saqanet_add">Add</string>
+    <string name="saqanet_not_working_title">What to do if VPN is not working?</string>
+    <string name="saqanet_step1">Disable other VPN apps</string>
+    <string name="saqanet_step2">Check your subscription in @SAQANet_bot — it may have expired</string>
+    <string name="saqanet_step3">Try switching protocol: VLESS → Trojan</string>
+    <string name="saqanet_step4">Get a new key from the bot. Please provide your ID when contacting</string>
+    <string name="saqanet_step5">Enable Kill Switch in settings for protection when disconnected</string>
+    <string name="saqanet_go_to_bot">GO TO @SAQANet_bot</string>
+    <string name="saqanet_menu_config">Configuration</string>
+    <string name="saqanet_menu_apps">Applications</string>
+    <string name="saqanet_menu_language">Language</string>
+    <string name="saqanet_menu_not_working">Not working?</string>
+    <string name="saqanet_menu_about">About</string>
+    <string name="saqanet_menu_tariffs">Tariffs</string>
+    <string name="saqanet_select_language">Select interface language</string>
+    <string name="saqanet_apply">APPLY</string>
+    <string name="saqanet_back">← Back</string>
+
+    <!-- Main page -->
+    <string name="saqanet_traffic_upload">↑ UPLOADED</string>
+    <string name="saqanet_traffic_download">↓ DOWNLOADED</string>
+    <string name="saqanet_auto_server">Auto</string>
+    <string name="saqanet_live">LIVE</string>
+    <string name="saqanet_server_select">Select</string>
+
+    <!-- Profiles page -->
+    <string name="saqanet_profile_title">Profiles</string>
+    <string name="saqanet_profile_empty">No profiles. Add a key via + on the main screen.</string>
+    <string name="saqanet_profile_select">Select</string>
+    <string name="saqanet_profile_active">Active</string>
+    <string name="saqanet_profile_delete">Delete</string>
+    <string name="saqanet_profile_delete_confirm">Delete profile?</string>
+    <string name="saqanet_profile_deleted">Deleted</string>
+    <string name="saqanet_profile_selected">Selected: %s</string>
+    <string name="saqanet_profile_cancel">Cancel</string>
+
+    <!-- About page -->
+    <string name="saqanet_about_subtitle">Privacy protection service\nand secure connection</string>
+    <string name="saqanet_about_site">Website</string>
+    <string name="saqanet_about_protocols">Protocols</string>
+    <string name="saqanet_about_privacy">Privacy</string>
+    <string name="saqanet_about_licenses">Licenses</string>
+    <string name="saqanet_about_feedback">REPORT A PROBLEM</string>
+    <string name="saqanet_oss_licenses_title">Open source licenses</string>
+
+    <!-- Subscription page -->
+    <string name="saqanet_sub_title">Choose a plan</string>
+    <string name="saqanet_sub_subtitle">Select a plan and period</string>
+    <string name="saqanet_sub_plan_one">👤 SINGLE — 1 DEVICE</string>
+    <string name="saqanet_sub_plan_pair">👫 PAIR — 2 DEVICES</string>
+    <string name="saqanet_sub_plan_family">👨‍👩‍👧 FAMILY — 5 DEVICES</string>
+    <string name="saqanet_sub_beneficial">BEST VALUE</string>
+    <string name="saqanet_sub_1month">1 month</string>
+    <string name="saqanet_sub_3months">3 months</string>
+    <string name="saqanet_sub_6months">6 months</string>
+    <string name="saqanet_sub_30days_unlimited">30 days · unlimited traffic</string>
+    <string name="saqanet_sub_90days_single">90 days · ~92 ₽/mo</string>
+    <string name="saqanet_sub_180days_single">180 days · ~92 ₽/mo</string>
+    <string name="saqanet_sub_30days_pair">30 days · 2 devices</string>
+    <string name="saqanet_sub_90days_pair">90 days · ~186 ₽/mo</string>
+    <string name="saqanet_sub_180days_pair">180 days · ~186 ₽/mo</string>
+    <string name="saqanet_sub_30days_family">30 days · 3 devices</string>
+    <string name="saqanet_sub_90days_family">90 days · ~279 ₽/mo</string>
+    <string name="saqanet_sub_180days_family">180 days · ~279 ₽/mo</string>
+    <string name="saqanet_sub_pay">PAY IN @SAQANet_bot</string>
+
+    <!-- Server list -->
+    <string name="saqanet_server_germany">Germany</string>
+    <string name="saqanet_server_amsterdam_cf">Amsterdam CF</string>
+    <string name="saqanet_server_amsterdam">Amsterdam</string>
+    <string name="saqanet_auto_mode">Auto</string>
+    <string name="saqanet_best_server">Best server by speed</string>
+    <string name="saqanet_auto_active">Auto already active</string>
+    <string name="saqanet_select_server">Select server</string>
+    <string name="saqanet_cancel">Cancel</string>
+    <string name="saqanet_notification_channel">SAQANet updates</string>
+    <string name="saqanet_notification_channel_desc">Notifications about new app versions</string>
+    <string name="saqanet_loading">Download already in progress…</string>
+    <string name="saqanet_wifi_waiting">waiting for WiFi</string>
+    <string name="saqanet_network_waiting">waiting for network</string>
+    <string name="saqanet_retrying">retrying…</string>
+    <string name="saqanet_paused">paused (%s)</string>
+    <string name="saqanet_bypass_vpn">Bypass VPN</string>
+    <string name="saqanet_import_config">Import configuration</string>
+    <string name="saqanet_import_config_confirm">Add configuration to SAQANet?</string>
+    <string name="saqanet_import_config_add">Add</string>
+
+    <!-- Menu -->
+    <string name="saqanet_menu_scan_qr">Scan QR code</string>
+    <string name="saqanet_menu_paste_clipboard">Paste from clipboard</string>
+    <string name="saqanet_menu_add_vless">Add VLESS manually</string>
+    <string name="saqanet_menu_profiles">Profiles</string>
+    <string name="saqanet_menu_telegram">Telegram @SAQANet_bot</string>
+    <string name="saqanet_menu_check_update">Check for updates</string>
+    <string name="saqanet_default_profile_name">SAQANet — Netherlands</string>
+    <string name="saqanet_download_start">⬇ Starting download…</string>
+    <string name="saqanet_download_progress">⬇ %1$d MB / %2$d MB (%3$d%%)</string>
+    <string name="saqanet_download_progress_unknown">⬇ %1$d MB…</string>
+    <string name="saqanet_download_done">✓ Done, opening installer…</string>
+    <string name="saqanet_download_error">⚠ Download error (code %d)</string>
+
+    <!-- Bypass list -->
+    <string name="saqanet_bypass_description">Apps in this list work without VPN</string>
+
+    <!-- Language selection -->
+    <string name="saqanet_language_title">Language</string>
+    <string name="saqanet_lang_ru_name">Русский</string>
+    <string name="saqanet_lang_ru_desc">Русский</string>
+    <string name="saqanet_lang_sah_name">Якутский (Саха)</string>
+    <string name="saqanet_lang_sah_desc">Саха тыла</string>
+    <string name="saqanet_lang_en_name">English</string>
+    <string name="saqanet_lang_en_desc">English</string>
+
+    <!-- Notifications -->
+    <string name="notification_action_stop_v2ray">Stop</string>
+    <string name="toast_permission_denied">Unable to obtain the permission</string>
+    <string name="toast_permission_denied_notification">Unable to obtain the notification permission</string>
+    <string name="notification_action_more">Click for more</string>
+    <string name="toast_services_start">Start Services</string>
+    <string name="toast_services_stop">Stop Services</string>
+    <string name="toast_services_success">Start Services Success</string>
+    <string name="toast_services_failure">Start Services Failure</string>
+    <string name="title_settings">Settings</string>
+    <string name="title_about">About</string>
+    <string name="title_source_code">Source code</string>
+    <string name="title_oss_license">Open Source licenses</string>
+    <string name="title_tg_channel">Telegram channel</string>
+    <string name="title_privacy_policy">Privacy policy</string>
+    <string name="title_language">Language</string>
+    <string name="title_mode">Mode</string>
+    <string name="title_filter_config">Filter config</string>
+    <string name="filter_config_all">All</string>
+    <string name="connection_test_testing">Testing…</string>
+    <string name="connection_test_available">Success: Connection took %dms</string>
+    <string name="connection_test_fail">Internet Unavailable</string>
+    <string name="connection_connected">Connected, tap to check connection</string>
+    <string name="connection_not_connected">Not connected</string>
+    <string name="title_update_config_count">Update %d configs</string>
+    <string name="title_server">Config</string>
+    <string name="title_del_all_config">Delete config</string>
+    <string name="title_ping_all_server">Tcping config</string>
+    <string name="title_export_all">Export configs to clipboard</string>
+    <string name="title_sub_update">Update subscription</string>
+    <string name="title_filter_config">Filter config</string>
+    <string name="title_locate_selected_config">Locate the selected config</string>
+    <string name="title_ui_settings">UI settings</string>
+    <string name="title_pref_ui_mode_night">UI mode settings</string>
+    <string name="title_logcat">Logcat</string>
+    <string name="title_core_loglevel">Log Level</string>
+    <string name="title_service_restart">Service restart</string>
+    <string name="title_del_duplicate_config">Delete duplicate config</string>
+    <string name="title_del_invalid_config">Delete invalid config</string>
+    <string name="title_configuration_backup_restore">Backup &amp; Restore</string>
+    <string name="title_configuration_backup">Backup config</string>
+    <string name="title_configuration_restore">Restore config</string>
+    <string name="title_configuration_share">Share config</string>
+    <string name="title_vpn_settings">VPN Settings</string>
+    <string name="title_pref_per_app_proxy">Per-app proxy</string>
+    <string name="title_pref_is_booted">Auto connect at startup</string>
+    <string name="title_pref_local_dns_enabled">Enable local DNS</string>
+    <string name="title_pref_sniffing_enabled">Enable Sniffing</string>
+    <string name="title_pref_ipv6_enabled">Enable IPv6</string>
+    <string name="title_pref_proxy_sharing_enabled">Allow connections from the LAN</string>
+    <string name="title_pref_mux_enabled">Enable Mux</string>
+    <string name="title_mode">Mode</string>
+    <string name="title_check_update">Check for updates</string>
+    <string name="title_pref_auto_update_subscription">Automatic update subscriptions</string>
+    <string name="title_sub_setting">Subscription group setting</string>
+    <string name="title_user_asset_setting">Asset files</string>
+    <string name="title_routing">Routing Settings</string>
+    <string name="title_pref_feedback">Feedback</string>
+    <string name="title_advanced">Advanced Settings</string>
+</resources>

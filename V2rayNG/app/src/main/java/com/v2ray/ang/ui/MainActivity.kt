@@ -400,9 +400,9 @@ class MainActivity : HelperBaseActivity() {
         val r = remarks.uppercase()
         val h = host.lowercase()
         return when {
-            r.contains("-DE") || h.contains("de1") || h.contains(".de.") -> "🇩🇪" to "Германия"
-            r.contains("-CF") || (h.contains("saqanet.ru") && !h.contains("nl2")) -> "☁️" to "Амстердам CF"
-            else -> "🇳🇱" to "Амстердам"
+            r.contains("-DE") || h.contains("de1") || h.contains(".de.") -> "🇩🇪" to getString(R.string.saqanet_server_germany)
+            r.contains("-CF") || (h.contains("saqanet.ru") && !h.contains("nl2")) -> "☁️" to getString(R.string.saqanet_server_amsterdam_cf)
+            else -> "🇳🇱" to getString(R.string.saqanet_server_amsterdam)
         }
     }
 
@@ -431,11 +431,11 @@ class MainActivity : HelperBaseActivity() {
             layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         }
         TextView(this).apply {
-            text = "Авто"; textSize = 15f; setTypeface(null, Typeface.BOLD)
+            text = getString(R.string.saqanet_auto_mode); textSize = 15f; setTypeface(null, Typeface.BOLD)
             setTextColor(0xFFE5E7EB.toInt()); info.addView(this)
         }
         TextView(this).apply {
-            text = if (isActive && currentCity.isNotEmpty()) "$currentFlag $currentCity" else "Лучший сервер по скорости"
+            text = if (isActive && currentCity.isNotEmpty()) "$currentFlag $currentCity" else getString(R.string.saqanet_best_server)
             textSize = 12f
             setTextColor(if (isActive && currentCity.isNotEmpty()) 0xFF9CA3AF.toInt() else 0xFF6B7280.toInt())
             val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -443,7 +443,7 @@ class MainActivity : HelperBaseActivity() {
             info.addView(this)
         }
         val badge = TextView(this).apply {
-            text = if (isActive) "LIVE" else "Выбрать"
+            text = if (isActive) getString(R.string.saqanet_live) else getString(R.string.saqanet_server_select)
             textSize = 11f; setTypeface(null, Typeface.BOLD)
             setTextColor(if (isActive) 0xFF4F6EF7.toInt() else 0xFF9CA3AF.toInt())
             setPadding(dp(8), dp(3), dp(8), dp(3))
@@ -452,7 +452,7 @@ class MainActivity : HelperBaseActivity() {
 
         row.addView(icon); row.addView(info); row.addView(badge)
         row.setOnClickListener {
-            if (isActive) toast("Авто уже активен")
+            if (isActive) toast(getString(R.string.saqanet_auto_active))
             else enableAutoMode()
         }
         return row
@@ -497,14 +497,14 @@ class MainActivity : HelperBaseActivity() {
         }
         val right = if (isActive) {
             TextView(this).apply {
-                text = "LIVE"; textSize = 11f; setTypeface(null, Typeface.BOLD)
+                text = getString(R.string.saqanet_live); textSize = 11f; setTypeface(null, Typeface.BOLD)
                 setTextColor(0xFF4F6EF7.toInt())
                 setPadding(dp(8), dp(3), dp(8), dp(3))
                 setBackgroundResource(R.drawable.bg_badge_blue)
             }
         } else {
             TextView(this).apply {
-                text = "Выбрать"; textSize = 13f
+                text = getString(R.string.saqanet_server_select); textSize = 13f
                 setTextColor(0xFF4F6EF7.toInt())
             }
         }
@@ -570,7 +570,7 @@ class MainActivity : HelperBaseActivity() {
         val selected = cache.indexOfFirst { it.guid == currentGuid }
 
         AlertDialog.Builder(this)
-            .setTitle("Выбор сервера")
+            .setTitle(R.string.saqanet_select_server)
             .setSingleChoiceItems(names, selected) { dialog, which ->
                 val newGuid = cache[which].guid
                 MmkvManager.setSelectServer(newGuid)
@@ -581,7 +581,7 @@ class MainActivity : HelperBaseActivity() {
                     updateServerCard()
                 }
             }
-            .setNegativeButton("Отмена", null)
+            .setNegativeButton(R.string.saqanet_cancel, null)
             .show()
     }
 

@@ -17,15 +17,110 @@
     <string name="saqanet_step4">Получите новый ключ в боте. При обращении укажите ваш ID</string>
     <string name="saqanet_step5">Включите Kill Switch в настройках для защиты при обрыве</string>
     <string name="saqanet_go_to_bot">ПЕРЕЙТИ В @SAQANet_bot</string>
-    <string name="saqanet_menu_config">Configuration</string>
-    <string name="saqanet_menu_apps">Applications</string>
-    <string name="saqanet_menu_language">Language</string>
-    <string name="saqanet_menu_not_working">Not working?</string>
-    <string name="saqanet_menu_about">About</string>
-    <string name="saqanet_menu_tariffs">Tariffs</string>
+    <string name="saqanet_menu_config">Конфигурация</string>
+    <string name="saqanet_menu_apps">Приложения</string>
+    <string name="saqanet_menu_language">Язык</string>
+    <string name="saqanet_menu_not_working">Не работает?</string>
+    <string name="saqanet_menu_about">О приложении</string>
+    <string name="saqanet_menu_tariffs">Тарифы</string>
     <string name="saqanet_select_language">Выберите язык интерфейса</string>
     <string name="saqanet_apply">ПРИМЕНИТЬ</string>
     <string name="saqanet_back">← Назад</string>
+
+    <!-- Main page -->
+    <string name="saqanet_traffic_upload">↑ ПЕРЕДАНО</string>
+    <string name="saqanet_traffic_download">↓ ПОЛУЧЕНО</string>
+    <string name="saqanet_auto_server">Авто</string>
+    <string name="saqanet_live">LIVE</string>
+    <string name="saqanet_server_select">Выбрать</string>
+
+    <!-- Profiles page -->
+    <string name="saqanet_profile_title">Профили</string>
+    <string name="saqanet_profile_empty">Профилей нет. Добавь ключ через + на главном экране.</string>
+    <string name="saqanet_profile_select">Выбрать</string>
+    <string name="saqanet_profile_active">Активен</string>
+    <string name="saqanet_profile_delete">Удалить</string>
+    <string name="saqanet_profile_delete_confirm">Удалить профиль?</string>
+    <string name="saqanet_profile_deleted">Удалено</string>
+    <string name="saqanet_profile_selected">Выбран: %s</string>
+    <string name="saqanet_profile_cancel">Отмена</string>
+
+    <!-- About page -->
+    <string name="saqanet_about_subtitle">Сервис защиты приватности\nи безопасного соединения</string>
+    <string name="saqanet_about_site">Сайт</string>
+    <string name="saqanet_about_protocols">Протоколы</string>
+    <string name="saqanet_about_privacy">Конфиденциальность</string>
+    <string name="saqanet_about_licenses">Лицензии</string>
+    <string name="saqanet_about_feedback">СООБЩИТЬ О ПРОБЛЕМЕ</string>
+    <string name="saqanet_oss_licenses_title">Open source licenses</string>
+
+    <!-- Subscription page -->
+    <string name="saqanet_sub_title">Выбор подписки</string>
+    <string name="saqanet_sub_subtitle">Выберите тариф и период</string>
+    <string name="saqanet_sub_plan_one">👤 ОДИН — 1 УСТРОЙСТВО</string>
+    <string name="saqanet_sub_plan_pair">👫 ПАРА — 2 УСТРОЙСТВА</string>
+    <string name="saqanet_sub_plan_family">👨‍👩‍👧 СЕМЕЙНЫЙ — 5 УСТРОЙСТВ</string>
+    <string name="saqanet_sub_beneficial">ВЫГОДНО</string>
+    <string name="saqanet_sub_1month">1 месяц</string>
+    <string name="saqanet_sub_3months">3 месяца</string>
+    <string name="saqanet_sub_6months">6 месяцев</string>
+    <string name="saqanet_sub_30days_unlimited">30 дней · безлимитный трафик</string>
+    <string name="saqanet_sub_90days_single">90 дней · ~92 ₽/мес</string>
+    <string name="saqanet_sub_180days_single">180 дней · ~92 ₽/мес</string>
+    <string name="saqanet_sub_30days_pair">30 дней · 2 устройства</string>
+    <string name="saqanet_sub_90days_pair">90 дней · ~186 ₽/мес</string>
+    <string name="saqanet_sub_180days_pair">180 дней · ~186 ₽/мес</string>
+    <string name="saqanet_sub_30days_family">30 дней · 3 устройства</string>
+    <string name="saqanet_sub_90days_family">90 дней · ~279 ₽/мес</string>
+    <string name="saqanet_sub_180days_family">180 дней · ~279 ₽/мес</string>
+    <string name="saqanet_sub_pay">ОПЛАТИТЬ В @SAQANet_bot</string>
+
+    <!-- Server list -->
+    <string name="saqanet_server_germany">Германия</string>
+    <string name="saqanet_server_amsterdam_cf">Амстердам CF</string>
+    <string name="saqanet_server_amsterdam">Амстердам</string>
+    <string name="saqanet_auto_mode">Авто</string>
+    <string name="saqanet_best_server">Лучший сервер по скорости</string>
+    <string name="saqanet_auto_active">Авто уже активен</string>
+    <string name="saqanet_select_server">Выбор сервера</string>
+    <string name="saqanet_cancel">Отмена</string>
+    <string name="saqanet_notification_channel">Обновления SAQANet</string>
+    <string name="saqanet_notification_channel_desc">Уведомления о новых версиях приложения</string>
+    <string name="saqanet_loading">Загрузка уже идёт…</string>
+    <string name="saqanet_wifi_waiting">ожидание WiFi</string>
+    <string name="saqanet_network_waiting">ожидание сети</string>
+    <string name="saqanet_retrying">повторная попытка…</string>
+    <string name="saqanet_paused">пауза (%s)</string>
+    <string name="saqanet_bypass_vpn">Обход VPN</string>
+    <string name="saqanet_import_config">Импорт конфигурации</string>
+    <string name="saqanet_import_config_confirm">Добавить конфигурацию в SAQANet?</string>
+    <string name="saqanet_import_config_add">Добавить</string>
+
+    <!-- Menu -->
+    <string name="saqanet_menu_scan_qr">Сканировать QR-код</string>
+    <string name="saqanet_menu_paste_clipboard">Вставить из буфера</string>
+    <string name="saqanet_menu_add_vless">Ввести VLESS вручную</string>
+    <string name="saqanet_menu_profiles">Профили</string>
+    <string name="saqanet_menu_telegram">Telegram @SAQANet_bot</string>
+    <string name="saqanet_menu_check_update">Проверить обновление</string>
+    <string name="saqanet_default_profile_name">SAQANet — Нидерланды</string>
+    <string name="saqanet_download_start">⬇ Запуск загрузки…</string>
+    <string name="saqanet_download_progress">⬇ %1$d МБ / %2$d МБ (%3$d%%)</string>
+    <string name="saqanet_download_progress_unknown">⬇ %1$d МБ…</string>
+    <string name="saqanet_download_done">✓ Готово, открываем установщик…</string>
+    <string name="saqanet_download_error">⚠ Ошибка загрузки (код %d)</string>
+
+    <!-- Bypass list -->
+    <string name="saqanet_bypass_description">Приложения из этого списка работают без VPN</string>
+
+    <!-- Language selection -->
+    <string name="saqanet_language_title">Язык / Language / Тыл</string>
+    <string name="saqanet_lang_ru_name">Русский</string>
+    <string name="saqanet_lang_ru_desc">Русский</string>
+    <string name="saqanet_lang_sah_name">Якутский (Саха)</string>
+    <string name="saqanet_lang_sah_desc">Саха тыла</string>
+    <string name="saqanet_lang_en_name">English</string>
+    <string name="saqanet_lang_en_desc">English</string>
     <string name="app_widget_name">Switch</string>
     <string name="app_tile_name">Switch</string>
     <string name="app_tile_first_use">First use of this feature, please use the app to add server</string>

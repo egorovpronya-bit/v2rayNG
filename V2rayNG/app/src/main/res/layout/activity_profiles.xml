@@ -23,13 +23,13 @@
             android:tint="#E5E7EB"
             android:scaleType="centerInside"
             android:padding="12dp"
-            android:contentDescription="Назад" />
+            android:contentDescription="@string/saqanet_back" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Профили"
+            android:text="@string/saqanet_profile_title"
             android:textColor="#FFFFFF"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -41,7 +41,7 @@
         android:id="@+id/tv_empty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Профилей нет. Добавь ключ через + на главном экране."
+        android:text="@string/saqanet_profile_empty"
         android:textColor="#6B7280"
         android:textSize="15sp"
         android:gravity="center"

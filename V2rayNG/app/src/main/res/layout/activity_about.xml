@@ -60,7 +60,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Сервис защиты приватности\nи безопасного соединения"
+                android:text="@string/saqanet_about_subtitle"
                 android:textColor="#6B7280"
                 android:textSize="11sp"
                 android:gravity="center"
@@ -97,7 +97,7 @@
                 android:paddingStart="16dp" android:paddingEnd="16dp"
                 android:paddingTop="11dp" android:paddingBottom="11dp">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:text="Сайт"
+                    android:layout_weight="1" android:text="@string/saqanet_about_site"
                     android:textColor="#6B7280" android:textSize="12sp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:id="@+id/layout_soure_ccode"
@@ -112,7 +112,7 @@
                 android:paddingStart="16dp" android:paddingEnd="16dp"
                 android:paddingTop="11dp" android:paddingBottom="11dp">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:text="Протоколы"
+                    android:layout_weight="1" android:text="@string/saqanet_about_protocols"
                     android:textColor="#6B7280" android:textSize="12sp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="VLESS · Trojan" android:textColor="#E5E7EB" android:textSize="12sp"/>
@@ -125,11 +125,11 @@
                 android:paddingStart="16dp" android:paddingEnd="16dp"
                 android:paddingTop="11dp" android:paddingBottom="11dp">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-                    android:layout_weight="1" android:text="Конфиденциальность"
+                    android:layout_weight="1" android:text="@string/saqanet_about_privacy"
                     android:textColor="#6B7280" android:textSize="12sp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:id="@+id/layout_privacy_policy"
-                    android:text="Политика" android:textColor="#4F6EF7" android:textSize="12sp"
+                    android:text="@string/title_privacy_policy" android:textColor="#4F6EF7" android:textSize="12sp"
                     android:clickable="true" android:focusable="true"/>
             </LinearLayout>
 
@@ -144,7 +144,7 @@
                     android:textColor="#6B7280" android:textSize="12sp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:id="@+id/layout_oss_licenses"
-                    android:text="Лицензии" android:textColor="#4F6EF7" android:textSize="12sp"
+                    android:text="@string/saqanet_about_licenses" android:textColor="#4F6EF7" android:textSize="12sp"
                     android:clickable="true" android:focusable="true"/>
             </LinearLayout>
 
@@ -154,7 +154,7 @@
             android:id="@+id/layout_feedback"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:text="СООБЩИТЬ О ПРОБЛЕМЕ"
+            android:text="@string/saqanet_about_feedback"
             android:textColor="#FFFFFF"
             android:textSize="13sp"
             android:textStyle="bold"

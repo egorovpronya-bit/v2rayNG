@@ -1,6 +1,7 @@
 package com.v2ray.ang.ui
 
 import android.app.DownloadManager
+import com.v2ray.ang.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -40,10 +41,10 @@ object UpdateUiHelper {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val ch = NotificationChannel(
                 NOTIF_CHANNEL_ID,
-                "Обновления SAQANet",
+                context.getString(R.string.saqanet_notification_channel),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Уведомления о новых версиях приложения"
+                description = context.getString(R.string.saqanet_notification_channel_desc)
                 enableVibration(false)
                 setSound(null, null)
             }
@@ -146,7 +147,7 @@ object UpdateUiHelper {
 
     fun downloadAndInstall(activity: AppCompatActivity, apkUrl: String) {
         if (activeDownloadId != null) {
-            activity.toast("Загрузка уже идёт...")
+            activity.toast(activity.getString(R.string.saqanet_loading))
             return
         }
 
@@ -154,7 +155,7 @@ object UpdateUiHelper {
         val banner = activity.findViewById<TextView>(R.id.tv_update_banner)
 
         banner?.visibility = View.VISIBLE
-        banner?.text = "⬇ Запуск загрузки..."
+        banner?.text = activity.getString(R.string.saqanet_download_start)
 
         // DownloadManager runs as com.android.providers.downloads — goes through VPN TUN
         val request = DownloadManager.Request(Uri.parse(apkUrl))
@@ -191,17 +192,17 @@ object UpdateUiHelper {
                         DownloadManager.STATUS_RUNNING -> {
                             banner?.visibility = View.VISIBLE
                             banner?.text = if (total > 0) {
-                                "⬇ ${downloaded / 1048576} МБ / ${total / 1048576} МБ (${(downloaded * 100 / total).toInt()}%)"
+                                activity.getString(R.string.saqanet_download_progress, downloaded / 1048576, total / 1048576, (downloaded * 100 / total).toInt())
                             } else {
-                                "⬇ ${downloaded / 1048576} МБ..."
+                                activity.getString(R.string.saqanet_download_progress_unknown, downloaded / 1048576)
                             }
                         }
                         DownloadManager.STATUS_PAUSED -> {
                             val reasonText = when (reason) {
-                                DownloadManager.PAUSED_QUEUED_FOR_WIFI -> "ожидание WiFi"
-                                DownloadManager.PAUSED_WAITING_FOR_NETWORK -> "ожидание сети"
-                                DownloadManager.PAUSED_WAITING_TO_RETRY -> "повторная попытка..."
-                                else -> "пауза ($reason)"
+                                DownloadManager.PAUSED_QUEUED_FOR_WIFI -> activity.getString(R.string.saqanet_wifi_waiting)
+                                DownloadManager.PAUSED_WAITING_FOR_NETWORK -> activity.getString(R.string.saqanet_network_waiting)
+                                DownloadManager.PAUSED_WAITING_TO_RETRY -> activity.getString(R.string.saqanet_retrying)
+                                else -> activity.getString(R.string.saqanet_paused, reason.toString())
                             }
                             banner?.visibility = View.VISIBLE
                             banner?.text = "⏸ $reasonText"
@@ -209,7 +210,7 @@ object UpdateUiHelper {
                         DownloadManager.STATUS_SUCCESSFUL -> {
                             activeDownloadId = null
                             done = true
-                            banner?.text = "✓ Готово, открываем установщик..."
+                            banner?.text = activity.getString(R.string.saqanet_download_done)
                             val uri = dm.getUriForDownloadedFile(downloadId)
                             if (uri != null) {
                                 val install = Intent(Intent.ACTION_VIEW).apply {
@@ -222,7 +223,7 @@ object UpdateUiHelper {
                         DownloadManager.STATUS_FAILED -> {
                             activeDownloadId = null
                             done = true
-                            banner?.text = "⚠ Ошибка загрузки (код $reason)"
+                            banner?.text = activity.getString(R.string.saqanet_download_error, reason)
                         }
                     }
                 }

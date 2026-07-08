@@ -29,7 +29,7 @@ class AboutActivity : BaseActivity() {
             val webView = android.webkit.WebView(this)
             webView.loadUrl("file:///android_asset/open_source_licenses.html")
             android.app.AlertDialog.Builder(this)
-                .setTitle("Open source licenses")
+                .setTitle(R.string.saqanet_oss_licenses_title)
                 .setView(webView)
                 .setPositiveButton("OK") { dialog, _ -> dialog.dismiss() }
                 .show()

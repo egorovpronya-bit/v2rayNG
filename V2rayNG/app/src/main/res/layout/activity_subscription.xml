@@ -31,7 +31,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Выбор подписки"
+            android:text="@string/saqanet_sub_title"
             android:textColor="#E5E7EB"
             android:textSize="14sp"
             android:textStyle="bold"
@@ -44,7 +44,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Выберите тариф и период"
+        android:text="@string/saqanet_sub_subtitle"
         android:textColor="#6B7280"
         android:textSize="11sp"
         android:paddingStart="14dp"
@@ -67,7 +67,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="👤 ОДИН — 1 УСТРОЙСТВО"
+                android:text="@string/saqanet_sub_plan_one"
                 android:textColor="#4B5563"
                 android:textSize="10sp"
                 android:letterSpacing="0.2"
@@ -88,9 +88,9 @@
                 android:clickable="true" android:focusable="true">
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="1 месяц" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
+                        android:text="@string/saqanet_sub_1month" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="30 дней · безлимитный трафик" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="@string/saqanet_sub_30days_unlimited" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="99 ₽" android:textColor="#4F6EF7" android:textSize="15sp" android:textStyle="bold"/>
@@ -109,9 +109,9 @@
                 android:clickable="true" android:focusable="true">
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="3 месяца" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
+                        android:text="@string/saqanet_sub_3months" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="90 дней · ~92 ₽/мес" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="@string/saqanet_sub_90days_single" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="277 ₽" android:textColor="#4F6EF7" android:textSize="15sp" android:textStyle="bold"/>
@@ -130,9 +130,9 @@
                 android:clickable="true" android:focusable="true">
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="6 месяцев" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
+                        android:text="@string/saqanet_sub_6months" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="180 дней · ~92 ₽/мес" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="@string/saqanet_sub_180days_single" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="554 ₽" android:textColor="#4F6EF7" android:textSize="15sp" android:textStyle="bold"/>
@@ -142,7 +142,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="👫 ПАРА — 2 УСТРОЙСТВА"
+                android:text="@string/saqanet_sub_plan_pair"
                 android:textColor="#4B5563"
                 android:textSize="10sp"
                 android:letterSpacing="0.2"
@@ -163,9 +163,9 @@
                 android:clickable="true" android:focusable="true">
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="1 месяц" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
+                        android:text="@string/saqanet_sub_1month" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="30 дней · 2 устройства" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="@string/saqanet_sub_30days_pair" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="199 ₽" android:textColor="#8B5CF6" android:textSize="15sp" android:textStyle="bold"/>
@@ -184,9 +184,9 @@
                 android:clickable="true" android:focusable="true">
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="3 месяца" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
+                        android:text="@string/saqanet_sub_3months" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="90 дней · ~186 ₽/мес" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="@string/saqanet_sub_90days_pair" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="557 ₽" android:textColor="#8B5CF6" android:textSize="15sp" android:textStyle="bold"/>
@@ -205,9 +205,9 @@
                 android:clickable="true" android:focusable="true">
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="6 месяцев" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
+                        android:text="@string/saqanet_sub_6months" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="180 дней · ~186 ₽/мес" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="@string/saqanet_sub_180days_pair" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="1 114 ₽" android:textColor="#8B5CF6" android:textSize="15sp" android:textStyle="bold"/>
@@ -223,7 +223,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="👨‍👩‍👧 СЕМЕЙНЫЙ — 5 УСТРОЙСТВ"
+                    android:text="@string/saqanet_sub_plan_family"
                     android:textColor="#4B5563"
                     android:textSize="10sp"
                     android:letterSpacing="0.2"
@@ -234,7 +234,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=" ВЫГОДНО"
+                    android:text=" @string/saqanet_sub_beneficial"
                     android:textColor="#10B981"
                     android:textSize="9sp"
                     android:textStyle="bold"
@@ -256,9 +256,9 @@
                 android:clickable="true" android:focusable="true">
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="1 месяц" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
+                        android:text="@string/saqanet_sub_1month" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="30 дней · 3 устройства" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="@string/saqanet_sub_30days_family" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="299 ₽" android:textColor="#10B981" android:textSize="15sp" android:textStyle="bold"/>
@@ -277,9 +277,9 @@
                 android:clickable="true" android:focusable="true">
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="3 месяца" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
+                        android:text="@string/saqanet_sub_3months" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="90 дней · ~279 ₽/мес" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="@string/saqanet_sub_90days_family" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="837 ₽" android:textColor="#10B981" android:textSize="15sp" android:textStyle="bold"/>
@@ -298,9 +298,9 @@
                 android:clickable="true" android:focusable="true">
                 <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="6 месяцев" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
+                        android:text="@string/saqanet_sub_6months" android:textColor="#E5E7EB" android:textSize="13sp" android:textStyle="bold"/>
                     <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                        android:text="180 дней · ~279 ₽/мес" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
+                        android:text="@string/saqanet_sub_180days_family" android:textColor="#6B7280" android:textSize="11sp" android:layout_marginTop="2dp"/>
                 </LinearLayout>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="1 674 ₽" android:textColor="#10B981" android:textSize="15sp" android:textStyle="bold"/>
@@ -323,7 +323,7 @@
             android:id="@+id/btn_pay"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:text="ОПЛАТИТЬ В @SAQANet_bot"
+            android:text="@string/saqanet_sub_pay"
             android:textColor="#FFFFFF"
             android:textSize="13sp"
             android:textStyle="bold"

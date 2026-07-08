@@ -44,7 +44,7 @@ class ProfilesActivity : AppCompatActivity() {
             val profile = MmkvManager.decodeServerConfig(guid) ?: return@forEach
             val rawName = profile.remarks.ifEmpty { profile.server ?: guid }
             val displayName = if (rawName.contains("Marz", ignoreCase = true) || rawName.contains("user_"))
-                "SAQANet — Нидерланды" else rawName
+                getString(R.string.saqanet_default_profile_name) else rawName
             val isSelected = guid == currentGuid
 
             // Row card
@@ -84,7 +84,7 @@ class ProfilesActivity : AppCompatActivity() {
 
             // Select button (only for non-active)
             val btnSelect = Button(this).apply {
-                text = if (isSelected) "Активен" else "Выбрать"
+                text = if (isSelected) getString(R.string.saqanet_profile_active) else getString(R.string.saqanet_profile_select)
                 textSize = 13f
                 isEnabled = !isSelected
                 setTextColor(if (isSelected) 0xFF10B981.toInt() else 0xFF4F6EF7.toInt())
@@ -96,7 +96,7 @@ class ProfilesActivity : AppCompatActivity() {
 
             // Delete button
             val btnDelete = Button(this).apply {
-                text = "Удалить"
+                text = getString(R.string.saqanet_profile_delete)
                 textSize = 13f
                 setTextColor(0xFFEF4444.toInt())
                 setBackgroundColor(0x00000000)
@@ -108,21 +108,21 @@ class ProfilesActivity : AppCompatActivity() {
             btnSelect.setOnClickListener {
                 MmkvManager.setSelectServer(guid)
                 setResult(Activity.RESULT_OK)
-                Toast.makeText(this, "Выбран: $displayName", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.saqanet_profile_selected, displayName), Toast.LENGTH_SHORT).show()
                 loadProfiles()
             }
 
             btnDelete.setOnClickListener {
                 AlertDialog.Builder(this)
-                    .setTitle("Удалить профиль?")
+                    .setTitle(R.string.saqanet_profile_delete_confirm)
                     .setMessage(displayName)
-                    .setPositiveButton("Удалить") { _, _ ->
+                    .setPositiveButton(R.string.saqanet_profile_delete) { _, _ ->
                         MmkvManager.removeServer(guid)
                         setResult(Activity.RESULT_OK)
-                        Toast.makeText(this, "Удалено", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, R.string.saqanet_profile_deleted, Toast.LENGTH_SHORT).show()
                         loadProfiles()
                     }
-                    .setNegativeButton("Отмена", null)
+                    .setNegativeButton(R.string.saqanet_profile_cancel, null)
                     .show()
             }
 

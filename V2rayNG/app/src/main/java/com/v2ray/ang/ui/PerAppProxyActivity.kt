@@ -41,7 +41,7 @@ class PerAppProxyActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //setContentView(binding.root)
-        setContentViewWithToolbar(binding.root, showHomeAsUp = true, title = "Обход VPN")
+        setContentViewWithToolbar(binding.root, showHomeAsUp = true, title = getString(R.string.saqanet_bypass_vpn))
 
         addCustomDividerToRecyclerView(binding.recyclerView, this, R.drawable.custom_divider)
 

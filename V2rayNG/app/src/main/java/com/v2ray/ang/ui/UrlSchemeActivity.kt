@@ -63,14 +63,14 @@ class UrlSchemeActivity : BaseActivity() {
             return
         }
         AlertDialog.Builder(this)
-            .setTitle("Импорт конфигурации")
-            .setMessage("Добавить конфигурацию в SAQANet?")
-            .setPositiveButton("Добавить") { _, _ ->
+            .setTitle(R.string.saqanet_import_config)
+            .setMessage(R.string.saqanet_import_config_confirm)
+            .setPositiveButton(R.string.saqanet_import_config_add) { _, _ ->
                 parseUri(uriString, fragment)
                 startActivity(Intent(this, MainActivity::class.java))
                 finish()
             }
-            .setNegativeButton("Отмена") { _, _ -> finish() }
+            .setNegativeButton(R.string.saqanet_cancel) { _, _ -> finish() }
             .setOnCancelListener { finish() }
             .show()
     }
