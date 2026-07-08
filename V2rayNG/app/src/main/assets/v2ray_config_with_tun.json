@@ -31,8 +31,7 @@
       "destOverride": [
         "http",
         "tls",
-		"quic",
-		"dns"
+		"quic"
       ]
     }
   },
@@ -49,8 +48,7 @@
       "destOverride": [
         "http",
         "tls",
-		"quic",
-		"dns"
+		"quic"
       ]
     }
   }
