@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- SAQANet UI strings — Саха тыла (Якутский) + русский fallback -->
+    <!-- SAQANet — Саха тыла (Якутский) + русский fallback для системных строк -->
 
-    <!-- Основной UI -->
+    <!-- ===== Основной UI ===== -->
     <string name="saqanet_vpn_active">Үлэлээтэ</string>
     <string name="saqanet_vpn_inactive">Үлэлээбэт</string>
     <string name="saqanet_connected">холбонно</string>
@@ -12,36 +12,50 @@
     <string name="saqanet_add">Эбэн биэр</string>
     <string name="title_settings">Туруоруулар</string>
 
-    <!-- Меню настроек (русский fallback) -->
-    <string name="saqanet_menu_config">Конфигурация</string>
-    <string name="saqanet_menu_apps">Приложения</string>
-    <string name="saqanet_menu_language">Язык</string>
-    <string name="saqanet_menu_not_working">Не работает?</string>
-    <string name="saqanet_menu_about">О приложении</string>
-    <string name="saqanet_menu_tariffs">Тарифы</string>
+    <!-- ===== Меню настроек ===== -->
+    <string name="saqanet_menu_config">конфигурациялар</string>
+    <string name="saqanet_menu_apps">Приложениялар</string>
+    <string name="saqanet_menu_language">тыла</string>
+    <string name="saqanet_menu_not_working">Үлэлээбэт</string>
+    <string name="saqanet_menu_about">Бырагыраама туҺунан аах</string>
+    <string name="saqanet_menu_tariffs">Тарыыптар</string>
 
-    <!-- Язык -->
-    <string name="saqanet_select_language">Выберите язык интерфейса</string>
-    <string name="saqanet_apply">ПРИМЕНИТЬ</string>
-    <string name="saqanet_back">← Назад</string>
+    <!-- ===== Язык ===== -->
+    <string name="saqanet_select_language">интерфейс тылын тал</string>
+    <string name="saqanet_apply">Маны туҺан</string>
+    <string name="saqanet_back">кэтэх</string>
 
-    <!-- Не работает -->
-    <string name="saqanet_not_working_title">Что делать если VPN не работает?</string>
-    <string name="saqanet_step1">Отключите другие VPN-приложения</string>
-    <string name="saqanet_step2">Проверьте подписку в @SAQANet_bot — возможно истёк срок</string>
-    <string name="saqanet_step3">Попробуйте сменить протокол: VLESS → Trojan</string>
-    <string name="saqanet_step4">Получите новый ключ в боте. При обращении укажите ваш ID</string>
-    <string name="saqanet_step5">Включите Kill Switch в настройках для защиты при обрыве</string>
-    <string name="saqanet_go_to_bot">ПЕРЕЙТИ В @SAQANet_bot</string>
+    <!-- ===== Не работает ===== -->
+    <string name="saqanet_not_working_title">улэлээбэт боллаҔына кӨмӨ</string>
+    <string name="saqanet_step1">Атын ВПНнары араарарга</string>
+    <string name="saqanet_step2">Сурутуугун бэрэбиэркэлээ Үлэлиир бириэмэтэ бҮтҮӨн син</string>
+    <string name="saqanet_step3">Протоколу уларыт VLESS → Trojan</string>
+    <string name="saqanet_step4">Ботка саҤа кҮлҮүстэ ыл. Бэйэн ID кӨрдӨр</string>
+    <string name="saqanet_step5">Kill Switch холбоо настройкаҔа. Быстарыгар харыстыырга</string>
+    <string name="saqanet_go_to_bot">@SAQANet_bot-ка киир</string>
 
-    <!-- Обновления (русский fallback) -->
+    <!-- ===== Настройки (русский fallback) ===== -->
+    <string name="title_ui_settings">Настройки интерфейса</string>
+    <string name="title_advanced">Расширенные настройки</string>
+    <string name="title_about">О приложении</string>
+    <string name="title_pref_ui_mode_night">Настройки темы</string>
+    <string name="title_pref_speed_enabled">Показывать скорость</string>
+    <string name="summary_pref_speed_enabled">Показывать текущую скорость в уведомлении</string>
+    <string name="title_pref_confirm_remove">Подтверждение удаления</string>
+    <string name="summary_pref_confirm_remove">Требовать подтверждение при удалении конфигурации</string>
+    <string name="title_pref_is_booted">Авто-подключение при запуске</string>
+    <string name="summary_pref_is_booted">Автоматически подключаться к выбранному серверу при запуске</string>
+    <string name="title_check_update">Проверить обновление</string>
+    <string name="update_check_pre_release">Проверить предрелиз</string>
+
+    <!-- ===== Обновления ===== -->
     <string name="title_pref_auto_update_subscription">Автоматически обновлять подписки</string>
     <string name="summary_pref_auto_update_subscription">Автоматическое обновление подписок в фоновом режиме с указанным интервалом.</string>
+    <string name="title_pref_auto_update_interval">Интервал автообновления (минут, не менее 15)</string>
+    <string name="toast_invalid_update_interval">Неправильный интервал обновления. Минимум 15 минут.</string>
     <string name="title_update_config_count">Обновлено профилей: %d</string>
     <string name="title_update_subscription_result">Обновлено профилей: %1$d (успешно: %2$d, ошибки: %3$d, пропущено: %4$d)</string>
     <string name="title_update_subscription_no_subscription">Нет подписок</string>
-
-    <!-- Обновление приложения (русский fallback) -->
     <string name="update_check_for_update">Проверить обновление</string>
     <string name="update_already_latest_version">Уже последняя версия</string>
     <string name="update_new_version_found">Доступна новая версия: %s</string>
@@ -54,4 +68,32 @@
     <string name="update_optional_message">Доступна новая версия приложения. Обновить?</string>
     <string name="update_later">Позже</string>
     <string name="update_downloading">Загрузка обновления</string>
+
+    <!-- ===== Системные строки v2rayNG (русский) ===== -->
+    <string name="app_name" translatable="false">SAQANet</string>
+    <string name="action_stop_service">Остановить службу</string>
+    <string name="toast_services_start">Служба запущена</string>
+    <string name="toast_services_stop">Служба остановлена</string>
+    <string name="toast_services_success">Служба запущена успешно</string>
+    <string name="toast_services_failure">Ошибка запуска службы</string>
+    <string name="toast_permission_denied">Не удалось получить разрешение</string>
+    <string name="toast_permission_denied_notification">Не удалось получить разрешение на уведомления</string>
+    <string name="notification_action_stop_v2ray">Стоп</string>
+    <string name="notification_action_more">Подробнее</string>
+    <string name="title_server">Конфигурация</string>
+    <string name="menu_item_add_config">Добавить конфигурацию</string>
+    <string name="menu_item_save_config">Сохранить конфигурацию</string>
+    <string name="menu_item_edit_config">Редактировать конфигурацию</string>
+    <string name="menu_item_del_config">Удалить конфигурацию</string>
+    <string name="menu_item_import_config_qrcode">Импорт из QR-кода</string>
+    <string name="menu_item_import_config_clipboard">Импорт из буфера обмена</string>
+    <string name="menu_item_import_config_local">Импорт из файла</string>
+    <string name="del_config_comfirm">Подтвердить удаление?</string>
+    <string name="toast_config_file_invalid">Неверный формат конфигурации</string>
+    <string name="connection_test_testing">Проверка соединения…</string>
+    <string name="connection_test_available">Соединение доступно: %1$d мс</string>
+    <string name="connection_test_error">Ошибка проверки: %1$s</string>
+    <string name="connection_not_connected">Не подключено</string>
+    <string name="connection_connected">Подключено</string>
+    <string name="connection_disconnected">Отключено</string>
 </resources>
