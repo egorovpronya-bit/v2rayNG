@@ -95,5 +95,4 @@
     <string name="connection_test_error">Ошибка проверки: %1$s</string>
     <string name="connection_not_connected">Не подключено</string>
     <string name="connection_connected">Подключено</string>
-    <string name="connection_disconnected">Отключено</string>
 </resources>
