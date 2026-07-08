@@ -422,7 +422,7 @@ object SettingsManager {
      */
     fun getLocale(): Locale {
         val langCode =
-            MmkvManager.decodeSettingsString(AppConfig.PREF_LANGUAGE) ?: Language.AUTO.code
+            MmkvManager.decodeSettingsString(AppConfig.PREF_LANGUAGE) ?: Language.RUSSIAN.code
         val language = Language.fromCode(langCode)
 
         return when (language) {
