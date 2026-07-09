@@ -137,7 +137,6 @@
     <string name="title_privacy_policy">Privacy policy</string>
     <string name="title_language">Language</string>
     <string name="title_mode">Mode</string>
-    <string name="title_filter_config">Filter config</string>
     <string name="filter_config_all">All</string>
     <string name="connection_test_testing">Testing…</string>
     <string name="connection_test_available">Success: Connection took %dms</string>
