@@ -170,7 +170,6 @@
     <string name="title_pref_ipv6_enabled">Enable IPv6</string>
     <string name="title_pref_proxy_sharing_enabled">Allow connections from the LAN</string>
     <string name="title_pref_mux_enabled">Enable Mux</string>
-    <string name="title_mode">Mode</string>
     <string name="title_check_update">Check for updates</string>
     <string name="title_pref_auto_update_subscription">Automatic update subscriptions</string>
     <string name="title_sub_setting">Subscription group setting</string>
