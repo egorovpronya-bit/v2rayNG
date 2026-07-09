@@ -1,7 +1,6 @@
 package com.v2ray.ang.ui
 
 import android.app.DownloadManager
-import com.v2ray.ang.R
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
