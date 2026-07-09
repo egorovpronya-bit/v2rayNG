@@ -174,7 +174,6 @@
     <string name="title_pref_auto_update_subscription">Automatic update subscriptions</string>
     <string name="title_sub_setting">Subscription group setting</string>
     <string name="title_user_asset_setting">Asset files</string>
-    <string name="title_routing">Routing Settings</string>
     <string name="title_pref_feedback">Feedback</string>
     <string name="title_advanced">Advanced Settings</string>
 </resources>
