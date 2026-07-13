@@ -528,6 +528,11 @@ object SettingsManager {
         ensureDefaultValue(AppConfig.PREF_MUX_XUDP_CONCURRENCY, "8")
         ensureDefaultValue(AppConfig.PREF_FRAGMENT_LENGTH, "50-100")
         ensureDefaultValue(AppConfig.PREF_FRAGMENT_INTERVAL, "10-20")
+
+        // Local DNS must be enabled because the settings UI is simplified and
+        // users cannot toggle it. Without this, Android DNS queries may bypass
+        // xray's DNS module and the VPN appears connected but has no internet.
+        MmkvManager.encodeSettings(AppConfig.PREF_LOCAL_DNS_ENABLED, true)
     }
 
     private fun ensureDefaultValue(key: String, default: String) {
