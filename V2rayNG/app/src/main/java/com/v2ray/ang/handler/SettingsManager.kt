@@ -46,6 +46,7 @@ object SettingsManager {
         initRoutingRulesets(context)
         migrateServerListToSubscriptions()
         migrateHysteria2PinSHA256()
+        migrateDisableLocalDns()
     }
 
     /**
@@ -536,6 +537,13 @@ object SettingsManager {
         if (MmkvManager.decodeSettingsString(key).isNullOrEmpty()) {
             MmkvManager.encodeSettings(key, default)
         }
+    }
+
+    private fun migrateDisableLocalDns() {
+        val key = "local_dns_disabled_v2230"
+        if (MmkvManager.decodeSettingsBool(key, false)) return
+        MmkvManager.encodeSettings(AppConfig.PREF_LOCAL_DNS_ENABLED, false)
+        MmkvManager.encodeSettings(key, true)
     }
 
     private fun migrateHysteria2PinSHA256() {
