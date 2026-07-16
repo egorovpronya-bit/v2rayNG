@@ -61,6 +61,11 @@ class MainRecyclerAdapter(
             holder.itemMainBinding.tvName.text = profile.remarks
             holder.itemMainBinding.tvStatistics.text = getAddress(profile)
             holder.itemMainBinding.tvType.text = getProtocolDescription(profile)
+            holder.itemMainBinding.tvType.setTextColor(
+                ContextCompat.getColor(context,
+                    if (profile.network?.equals("ws", ignoreCase = true) == true)
+                        R.color.colorPing else R.color.colorConfigType)
+            )
 
             //TestResult
             val aff = MmkvManager.decodeServerAffiliationInfo(guid)
@@ -143,32 +148,15 @@ class MainRecyclerAdapter(
     }
 
     private fun getProtocolDescription(profile: ProfileItem): String {
-        if (profile.configType.isComplexType()) {
-            return profile.configType.name
+        if (profile.configType.isComplexType()) return profile.configType.name
+        val sec = profile.security?.lowercase()
+        val net = profile.network?.lowercase()
+        return when {
+            sec == "reality" -> "${profile.configType.name} · Reality"
+            net == "ws" -> "${profile.configType.name} · WS"
+            net != null && net != "tcp" -> "${profile.configType.name} · ${net.uppercase()}"
+            else -> profile.configType.name
         }
-
-        val parts = mutableListOf<String>()
-        parts.add(profile.configType.name)
-
-        // Transport: hide tcp or blank
-        profile.network?.let { net ->
-            if (net.isNotBlank() && !net.equals("tcp", ignoreCase = true)) {
-                parts.add(net)
-            }
-        }
-
-        // Security: hide blank or tls
-        profile.security?.let { sec ->
-            if (sec.isNotBlank()) {
-                if (profile.insecure == true && sec.equals("tls", ignoreCase = true)) {
-                    parts.add("$sec insecure") // TODO
-                } else {
-                    parts.add(sec)
-                }
-            }
-        }
-
-        return parts.joinToString(" / ")
     }
 
     fun removeServerSub(guid: String, position: Int) {
