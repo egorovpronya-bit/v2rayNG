@@ -118,7 +118,7 @@ object AppConfig {
     const val GITHUB_RAW_URL = "https://raw.githubusercontent.com"
     const val GITHUB_DOWNLOAD_URL = "$GITHUB_URL/%s/releases/latest/download"
     const val ANDROID_PACKAGE_NAME_LIST_URL = "$GITHUB_RAW_URL/2dust/androidpackagenamelist/master/proxy.txt"
-    const val APP_URL = "https://saqanet.ru"
+    const val APP_URL = "https://nl2.saqanet.ru"
     const val APP_API_URL = "https://api.github.com/repos/egorovpronya-bit/v2rayNG/releases"
     const val APP_ISSUES_URL = "https://t.me/SAQANet_bot"
     const val APP_WIKI_MODE = "https://saqanet.ru"

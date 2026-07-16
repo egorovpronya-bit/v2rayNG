@@ -100,6 +100,10 @@ class MainActivity : HelperBaseActivity() {
 
         UpdateUiHelper.initChannel(this)
         handleUpdateIntent(intent)
+        lifecycleScope.launch {
+            delay(5_000L)
+            UpdateUiHelper.checkAndShow(this@MainActivity, lifecycleScope)
+        }
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
