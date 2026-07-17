@@ -275,7 +275,12 @@ class MainActivity : HelperBaseActivity() {
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
             val (flag, city) = getServerMeta(config.remarks, config.server ?: "")
             val isActive = !autoEnabled && guid == currentGuid
-            container.addView(buildServerCard(flag, city, "VLESS", isActive) {
+            val proto = when {
+                config.security == "reality" || !config.publicKey.isNullOrBlank() -> "VLESS · Reality"
+                config.network == "ws" -> "VLESS · WS TLS"
+                else -> "VLESS"
+            }
+            container.addView(buildServerCard(flag, city, proto, isActive) {
                 MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, false)
                 selectServer(guid)
             })
