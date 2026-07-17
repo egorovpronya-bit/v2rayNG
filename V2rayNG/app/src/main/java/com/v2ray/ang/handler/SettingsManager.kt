@@ -47,6 +47,7 @@ object SettingsManager {
         migrateServerListToSubscriptions()
         migrateHysteria2PinSHA256()
         migrateDisableLocalDns()
+        migrateAddPaymentDirectRule()
     }
 
     /**
@@ -543,6 +544,23 @@ object SettingsManager {
         val key = "local_dns_disabled_v2230"
         if (MmkvManager.decodeSettingsBool(key, false)) return
         MmkvManager.encodeSettings(AppConfig.PREF_LOCAL_DNS_ENABLED, false)
+        MmkvManager.encodeSettings(key, true)
+    }
+
+    private fun migrateAddPaymentDirectRule() {
+        val key = "payment_direct_v1"
+        if (MmkvManager.decodeSettingsBool(key, false)) return
+        val rulesets = MmkvManager.decodeRoutingRulesets()?.toMutableList() ?: return
+        val alreadyPresent = rulesets.any { it.domain?.contains("yookassa.com") == true }
+        if (!alreadyPresent) {
+            rulesets.add(0, RulesetItem(
+                remarks = "Direct payment domains",
+                outboundTag = AppConfig.TAG_DIRECT,
+                domain = listOf("yookassa.com", "yoomoney.ru", "securepay.tinkoff.ru", "tinkoff.ru"),
+                locked = true
+            ))
+            MmkvManager.encodeRoutingRulesets(rulesets)
+        }
         MmkvManager.encodeSettings(key, true)
     }
 

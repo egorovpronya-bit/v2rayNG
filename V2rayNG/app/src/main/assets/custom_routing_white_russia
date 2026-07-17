@@ -1,5 +1,16 @@
 [
   {
+    "remarks": "Direct payment domains",
+    "outboundTag": "direct",
+    "domain": [
+      "yookassa.com",
+      "yoomoney.ru",
+      "securepay.tinkoff.ru",
+      "tinkoff.ru"
+    ],
+    "locked": true
+  },
+  {
     "remarks": "Bypass bittorrent",
     "outboundTag": "direct",
     "protocol": [
