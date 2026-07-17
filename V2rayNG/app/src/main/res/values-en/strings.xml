@@ -107,6 +107,7 @@
     <string name="saqanet_download_progress_unknown">⬇ %1$d MB…</string>
     <string name="saqanet_download_done">✓ Done, opening installer…</string>
     <string name="saqanet_download_error">⚠ Download error (code %d)</string>
+    <string name="saqanet_opening_browser">🌐 Opening browser to download…</string>
 
     <!-- Bypass list -->
     <string name="saqanet_bypass_description">Apps in this list work without VPN</string>

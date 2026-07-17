@@ -172,6 +172,7 @@ object UpdateUiHelper {
 
         activity.lifecycleScope.launch {
             var done = false
+            val pendingStart = System.currentTimeMillis()
             while (!done) {
                 delay(600)
                 val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
@@ -185,6 +186,16 @@ object UpdateUiHelper {
                 withContext(Dispatchers.Main) {
                     when (status) {
                         DownloadManager.STATUS_PENDING -> {
+                            // DownloadManager can hang in PENDING when VPN is active on some ROMs.
+                            // Fall back to browser after 20 s so user still gets the update.
+                            if (System.currentTimeMillis() - pendingStart > 20_000) {
+                                dm.remove(downloadId)
+                                activeDownloadId = null
+                                done = true
+                                banner?.text = activity.getString(R.string.saqanet_opening_browser)
+                                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(apkUrl)))
+                                return@withContext
+                            }
                             banner?.visibility = View.VISIBLE
                             banner?.text = "⬇ Подготовка..."
                         }

@@ -109,6 +109,7 @@
     <string name="saqanet_download_progress_unknown">⬇ %1$d МБ…</string>
     <string name="saqanet_download_done">✓ Готово, открываем установщик…</string>
     <string name="saqanet_download_error">⚠ Ошибка загрузки (код %d)</string>
+    <string name="saqanet_opening_browser">🌐 Открываем браузер для загрузки…</string>
 
     <!-- Bypass list -->
     <string name="saqanet_bypass_description">Приложения из этого списка работают без VPN</string>
