@@ -60,11 +60,14 @@ class MainRecyclerAdapter(
             //Name address
             holder.itemMainBinding.tvName.text = profile.remarks
             holder.itemMainBinding.tvStatistics.text = getAddress(profile)
-            holder.itemMainBinding.tvType.text = getProtocolDescription(profile)
+            val desc = getProtocolDescription(profile)
+            holder.itemMainBinding.tvType.text = desc
             holder.itemMainBinding.tvType.setTextColor(
-                ContextCompat.getColor(context,
-                    if (profile.network?.equals("ws", ignoreCase = true) == true)
-                        R.color.colorPing else R.color.colorConfigType)
+                ContextCompat.getColor(context, when {
+                    desc.contains("Reality") -> R.color.colorConfigType  // orange
+                    desc.contains("WS") -> R.color.colorPing             // green
+                    else -> R.color.colorConfigType
+                })
             )
 
             //TestResult
@@ -151,8 +154,9 @@ class MainRecyclerAdapter(
         if (profile.configType.isComplexType()) return profile.configType.name
         val sec = profile.security?.lowercase()
         val net = profile.network?.lowercase()
+        val isReality = sec == "reality" || (!profile.publicKey.isNullOrBlank() && sec != "tls")
         return when {
-            sec == "reality" -> "${profile.configType.name} · Reality"
+            isReality -> "${profile.configType.name} · Reality"
             net == "ws" -> "${profile.configType.name} · WS"
             net != null && net != "tcp" -> "${profile.configType.name} · ${net.uppercase()}"
             else -> profile.configType.name
