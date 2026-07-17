@@ -1,21 +1,18 @@
 package com.v2ray.ang.ui
 
-import android.app.DownloadManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
-import android.os.Environment
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.lifecycleScope
 import com.v2ray.ang.R
@@ -24,19 +21,23 @@ import com.v2ray.ang.extension.toast
 import com.v2ray.ang.handler.UpdateCheckerManager
 import com.v2ray.ang.util.LogUtil
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.File
+import java.io.FileOutputStream
+import java.util.concurrent.TimeUnit
 
 object UpdateUiHelper {
 
     private const val NOTIF_CHANNEL_ID = "saqanet_update_v2"
     const val NOTIF_UPDATE_ID = 1001
 
-    var activeDownloadId: Long? = null
-        private set
+    @Volatile
+    private var isDownloading = false
 
-    fun isDownloading(): Boolean = activeDownloadId != null
+    fun isDownloading(): Boolean = isDownloading
 
     fun initChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -146,100 +147,63 @@ object UpdateUiHelper {
             .notify(NOTIF_UPDATE_ID, notif)
     }
 
-    private fun isVpnActive(context: Context): Boolean {
-        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
-        return caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
-    }
-
     fun downloadAndInstall(activity: AppCompatActivity, apkUrl: String) {
-        if (activeDownloadId != null) {
+        if (isDownloading) {
             activity.toast(activity.getString(R.string.saqanet_loading))
             return
         }
+        isDownloading = true
 
-        // DownloadManager hangs in STATUS_PENDING when VPN is active on most Android ROMs.
-        // Open browser directly in that case — it handles VPN, mobile data, and redirects fine.
-        if (isVpnActive(activity)) {
-            activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(apkUrl)))
-            return
-        }
-
-        val dm = activity.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
         val banner = activity.findViewById<TextView>(R.id.tv_update_banner)
-
         banner?.visibility = View.VISIBLE
         banner?.text = activity.getString(R.string.saqanet_download_start)
 
-        // DownloadManager runs as com.android.providers.downloads — goes through VPN TUN
-        val request = DownloadManager.Request(Uri.parse(apkUrl))
-            .setTitle("SAQANet")
-            .setDescription(activity.getString(R.string.update_downloading))
-            .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            .setDestinationInExternalFilesDir(activity, Environment.DIRECTORY_DOWNLOADS, "saqanet_update.apk")
-            .setMimeType("application/vnd.android.package-archive")
-            .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-            .setAllowedOverMetered(true)
-            .setAllowedOverRoaming(true)
+        activity.lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val client = OkHttpClient.Builder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(10, TimeUnit.MINUTES)
+                    .build()
+                val response = client.newCall(Request.Builder().url(apkUrl).build()).execute()
+                if (!response.isSuccessful) throw Exception("HTTP ${response.code}")
 
-        val downloadId = dm.enqueue(request)
-        activeDownloadId = downloadId
+                val total = response.body?.contentLength() ?: -1L
+                val file = File(activity.cacheDir, "saqanet_update.apk")
+                var downloaded = 0L
 
-        activity.lifecycleScope.launch {
-            var done = false
-            while (!done) {
-                delay(600)
-                val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
-                if (!cursor.moveToFirst()) { cursor.close(); continue }
-                val status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                val downloaded = cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR))
-                val total = cursor.getLong(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES))
-                val reason = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_REASON))
-                cursor.close()
-
-                withContext(Dispatchers.Main) {
-                    when (status) {
-                        DownloadManager.STATUS_PENDING -> {
-                            banner?.visibility = View.VISIBLE
-                            banner?.text = "⬇ Подготовка..."
-                        }
-                        DownloadManager.STATUS_RUNNING -> {
-                            banner?.visibility = View.VISIBLE
-                            banner?.text = if (total > 0) {
-                                activity.getString(R.string.saqanet_download_progress, downloaded / 1048576, total / 1048576, (downloaded * 100 / total).toInt())
-                            } else {
-                                activity.getString(R.string.saqanet_download_progress_unknown, downloaded / 1048576)
+                response.body?.byteStream()?.use { input ->
+                    FileOutputStream(file).use { output ->
+                        val buf = ByteArray(8192)
+                        var n: Int
+                        while (input.read(buf).also { n = it } != -1) {
+                            output.write(buf, 0, n)
+                            downloaded += n
+                            val d = downloaded
+                            withContext(Dispatchers.Main) {
+                                banner?.text = if (total > 0)
+                                    activity.getString(R.string.saqanet_download_progress, d / 1048576, total / 1048576, (d * 100 / total).toInt())
+                                else
+                                    activity.getString(R.string.saqanet_download_progress_unknown, d / 1048576)
                             }
-                        }
-                        DownloadManager.STATUS_PAUSED -> {
-                            val reasonText = when (reason) {
-                                DownloadManager.PAUSED_QUEUED_FOR_WIFI -> activity.getString(R.string.saqanet_wifi_waiting)
-                                DownloadManager.PAUSED_WAITING_FOR_NETWORK -> activity.getString(R.string.saqanet_network_waiting)
-                                DownloadManager.PAUSED_WAITING_TO_RETRY -> activity.getString(R.string.saqanet_retrying)
-                                else -> activity.getString(R.string.saqanet_paused, reason.toString())
-                            }
-                            banner?.visibility = View.VISIBLE
-                            banner?.text = "⏸ $reasonText"
-                        }
-                        DownloadManager.STATUS_SUCCESSFUL -> {
-                            activeDownloadId = null
-                            done = true
-                            banner?.text = activity.getString(R.string.saqanet_download_done)
-                            val uri = dm.getUriForDownloadedFile(downloadId)
-                            if (uri != null) {
-                                val install = Intent(Intent.ACTION_VIEW).apply {
-                                    setDataAndType(uri, "application/vnd.android.package-archive")
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
-                                }
-                                activity.startActivity(install)
-                            }
-                        }
-                        DownloadManager.STATUS_FAILED -> {
-                            activeDownloadId = null
-                            done = true
-                            banner?.text = activity.getString(R.string.saqanet_download_error, reason)
                         }
                     }
+                }
+
+                withContext(Dispatchers.Main) {
+                    isDownloading = false
+                    banner?.text = activity.getString(R.string.saqanet_download_done)
+                    val uri = FileProvider.getUriForFile(activity, "${activity.packageName}.cache", file)
+                    activity.startActivity(Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, "application/vnd.android.package-archive")
+                        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    })
+                }
+            } catch (e: Exception) {
+                LogUtil.e("SAQANet", "APK download failed: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    isDownloading = false
+                    banner?.text = activity.getString(R.string.saqanet_download_error, -1)
+                    activity.toast(R.string.update_check_failed)
                 }
             }
         }
