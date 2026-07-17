@@ -6,6 +6,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -144,9 +146,22 @@ object UpdateUiHelper {
             .notify(NOTIF_UPDATE_ID, notif)
     }
 
+    private fun isVpnActive(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+        return caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)
+    }
+
     fun downloadAndInstall(activity: AppCompatActivity, apkUrl: String) {
         if (activeDownloadId != null) {
             activity.toast(activity.getString(R.string.saqanet_loading))
+            return
+        }
+
+        // DownloadManager hangs in STATUS_PENDING when VPN is active on most Android ROMs.
+        // Open browser directly in that case — it handles VPN, mobile data, and redirects fine.
+        if (isVpnActive(activity)) {
+            activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(apkUrl)))
             return
         }
 
@@ -172,7 +187,6 @@ object UpdateUiHelper {
 
         activity.lifecycleScope.launch {
             var done = false
-            val pendingStart = System.currentTimeMillis()
             while (!done) {
                 delay(600)
                 val cursor = dm.query(DownloadManager.Query().setFilterById(downloadId))
@@ -186,16 +200,6 @@ object UpdateUiHelper {
                 withContext(Dispatchers.Main) {
                     when (status) {
                         DownloadManager.STATUS_PENDING -> {
-                            // DownloadManager can hang in PENDING when VPN is active on some ROMs.
-                            // Fall back to browser after 20 s so user still gets the update.
-                            if (System.currentTimeMillis() - pendingStart > 20_000) {
-                                dm.remove(downloadId)
-                                activeDownloadId = null
-                                done = true
-                                banner?.text = activity.getString(R.string.saqanet_opening_browser)
-                                activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(apkUrl)))
-                                return@withContext
-                            }
                             banner?.visibility = View.VISIBLE
                             banner?.text = "⬇ Подготовка..."
                         }
