@@ -294,7 +294,6 @@ object AngConfigManager {
             val existingKey = existingByHostPort[hostPort]
             val oldSubId = if (existingKey != null) MmkvManager.decodeServerConfig(existingKey)?.subscriptionId ?: "" else ""
             val key = existingKey ?: Utils.getUuid()
-            config.guid = key
             MmkvManager.encodeProfileDirect(key, JsonUtil.toJson(config))
 
             // If reusing a key from a different subscription, remove it from there
