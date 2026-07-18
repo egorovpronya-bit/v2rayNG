@@ -271,6 +271,8 @@ class MainActivity : HelperBaseActivity() {
         }
         container.addView(buildAutoCard(autoEnabled, autoFlag, autoCity))
 
+        if (autoEnabled) return
+
         guids.forEach { guid ->
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
             val (flag, city) = getServerMeta(config.remarks, config.server ?: "")
@@ -682,7 +684,10 @@ class MainActivity : HelperBaseActivity() {
                             toast(getString(R.string.title_import_config_count, count))
                             mainViewModel.reloadServerList()
                             val guids = MmkvManager.decodeServerList("")
-                            if (guids.isNotEmpty()) MmkvManager.setSelectServer(guids.last())
+                            if (guids.isNotEmpty()) {
+                                MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
+                                MmkvManager.setSelectServer(guids[0])
+                            }
                             loadServerList()
                         }
                         countSub > 0 -> {}
