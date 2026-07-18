@@ -686,7 +686,7 @@ class MainActivity : HelperBaseActivity() {
                             val guids = MmkvManager.decodeServerList("")
                             if (guids.isNotEmpty()) {
                                 MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
-                                MmkvManager.setSelectServer(guids[0])
+                                MmkvManager.setSelectServer(guids.last())
                             }
                             loadServerList()
                         }
