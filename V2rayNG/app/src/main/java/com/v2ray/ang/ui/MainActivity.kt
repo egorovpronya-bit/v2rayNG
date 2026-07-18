@@ -271,12 +271,10 @@ class MainActivity : HelperBaseActivity() {
         }
         container.addView(buildAutoCard(autoEnabled, autoFlag, autoCity))
 
-        if (autoEnabled) return
-
         guids.forEach { guid ->
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
             val (flag, city) = getServerMeta(config.remarks, config.server ?: "")
-            val isActive = !autoEnabled && guid == currentGuid
+            val isActive = guid == currentGuid
             val proto = when {
                 config.security == "reality" || !config.publicKey.isNullOrBlank() -> "VLESS · Reality"
                 config.network == "ws" -> "VLESS · WS TLS"
@@ -319,7 +317,7 @@ class MainActivity : HelperBaseActivity() {
         autoSwitchJob?.cancel()
         autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
             while (true) {
-                delay(60_000L)
+                delay(10_000L)
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
                 runPingAndSwitchIfBetter()
             }
@@ -360,8 +358,8 @@ class MainActivity : HelperBaseActivity() {
         }
 
         tunnelFailCount++
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/3)")
-        if (tunnelFailCount < 3) return
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/2)")
+        if (tunnelFailCount < 2) return
 
         // 3 consecutive failures — switch to next server
         tunnelFailCount = 0
@@ -592,9 +590,13 @@ class MainActivity : HelperBaseActivity() {
         val currentGuid = MmkvManager.getSelectServer()
         val names = Array(cache.size) { i ->
             val p = cache[i].profile
-            val raw = p.remarks.ifEmpty { p.server ?: "SAQANet" }
-            if (raw.contains("Marz", ignoreCase = true) || raw.contains("user_")) "SAQANet — Нидерланды"
-            else raw
+            val (flag, city) = getServerMeta(p.remarks, p.server ?: "")
+            val proto = when {
+                p.security == "reality" || !p.publicKey.isNullOrBlank() -> "Reality"
+                p.network == "ws" -> "WS TLS"
+                else -> "VLESS"
+            }
+            "$flag $city · $proto"
         }
         val selected = cache.indexOfFirst { it.guid == currentGuid }
 
