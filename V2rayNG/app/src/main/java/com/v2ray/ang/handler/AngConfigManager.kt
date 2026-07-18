@@ -279,13 +279,31 @@ object AngConfigManager {
     private fun batchSaveConfigs(configs: List<ProfileItem>, subid: String): Map<String, ProfileItem> {
         val keyToProfile = mutableMapOf<String, ProfileItem>()
 
-        // Read serverList once
+        // Build lookup of existing servers by host+port+network+security to deduplicate across imports
+        // (NL Reality and NL WS share the same host:port but differ in network/security)
+        val allKeys = MmkvManager.decodeAllServerList()
+        val existingByHostPort = allKeys.mapNotNull { k ->
+            val p = MmkvManager.decodeServerConfig(k) ?: return@mapNotNull null
+            "${p.server}:${p.serverPort}:${p.network}:${p.security}" to k
+        }.toMap()
+
         val serverList = MmkvManager.decodeServerList(subid)
 
         configs.forEach { config ->
-            val key = Utils.getUuid()
-            // Save profile directly without updating serverList
+            val hostPort = "${config.server}:${config.serverPort}:${config.network}:${config.security}"
+            val existingKey = existingByHostPort[hostPort]
+            val oldSubId = if (existingKey != null) MmkvManager.decodeServerConfig(existingKey)?.subscriptionId ?: "" else ""
+            val key = existingKey ?: Utils.getUuid()
+            config.guid = key
             MmkvManager.encodeProfileDirect(key, JsonUtil.toJson(config))
+
+            // If reusing a key from a different subscription, remove it from there
+            if (existingKey != null && oldSubId != subid && !serverList.contains(existingKey)) {
+                val oldList = MmkvManager.decodeServerList(oldSubId)
+                if (oldList.remove(existingKey)) {
+                    MmkvManager.encodeServerList(oldList, oldSubId)
+                }
+            }
 
             if (!serverList.contains(key)) {
                 serverList.add(0, key)
@@ -293,7 +311,6 @@ object AngConfigManager {
             keyToProfile[key] = config
         }
 
-        // Write serverList once
         MmkvManager.encodeServerList(serverList, subid)
         return keyToProfile
     }

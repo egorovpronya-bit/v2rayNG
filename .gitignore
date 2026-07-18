@@ -64,3 +64,15 @@ V2rayNG/app/google-services.json
 # Ignore OS-specific files
 Thumbs.db
 .DS_Store
+
+# Graphify output and build artifacts
+graphify-out/
+apk-latest/
+*.ico
+build_jobs.json
+check_build.py
+check_icon.py
+check_marzban.py
+convert_ico.py
+create_icon.py
+update_reality.py

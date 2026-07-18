@@ -361,15 +361,18 @@ class MainActivity : HelperBaseActivity() {
         LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/2)")
         if (tunnelFailCount < 2) return
 
-        // 3 consecutive failures — switch to next server
+        // Consecutive failures — switch to next server in round-robin order
         tunnelFailCount = 0
-        val nextGuid = guids.firstOrNull { it != currentGuid } ?: currentGuid
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead x3, switching to $nextGuid")
+        val currentIdx = guids.indexOf(currentGuid)
+        val nextGuid = guids[(currentIdx + 1) % guids.size]
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead, switching to $nextGuid")
         withContext(Dispatchers.Main) {
             MmkvManager.setSelectServer(nextGuid)
             if (mainViewModel.isRunning.value == true) restartV2Ray()
             loadServerList()
         }
+        // Wait for new connection to stabilise before next check
+        delay(30_000L)
     }
 
     private fun initRussianBypassIfNeeded() {
