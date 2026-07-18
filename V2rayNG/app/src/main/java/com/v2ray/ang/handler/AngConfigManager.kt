@@ -639,8 +639,9 @@ object AngConfigManager {
         }
         val uri = URI(Utils.fixIllegalUrl(url))
         val subItem = SubscriptionItem()
-        subItem.remarks = uri.fragment ?: "import sub"
+        subItem.remarks = uri.fragment ?: "SAQANet"
         subItem.url = url
+        subItem.autoUpdate = true
         MmkvManager.encodeSubscription("", subItem)
         return 1
     }

@@ -82,6 +82,7 @@
     <string name="saqanet_auto_mode">Авто</string>
     <string name="saqanet_best_server">Лучший сервер по скорости</string>
     <string name="saqanet_auto_active">Авто уже активен</string>
+    <string name="saqanet_subscription_updated">Серверы обновлены ✓</string>
     <string name="saqanet_select_server">Выбор сервера</string>
     <string name="saqanet_cancel">Отмена</string>
     <string name="saqanet_notification_channel">Обновления SAQANet</string>

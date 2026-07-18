@@ -302,6 +302,16 @@ class MainActivity : HelperBaseActivity() {
         loadServerList()
     }
 
+    private fun refreshSubscriptions() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            AngConfigManager.updateConfigViaSubAll()
+            withContext(Dispatchers.Main) {
+                loadServerList()
+                toast(getString(R.string.saqanet_subscription_updated))
+            }
+        }
+    }
+
     private fun startAutoSwitching() {
         tunnelFailCount = 0
         autoSwitchJob?.cancel()
@@ -459,7 +469,15 @@ class MainActivity : HelperBaseActivity() {
             setBackgroundResource(if (isActive) R.drawable.bg_badge_blue else R.drawable.bg_badge_grey)
         }
 
-        row.addView(icon); row.addView(info); row.addView(badge)
+        val refreshBtn = TextView(this).apply {
+            text = "⟳"; textSize = 18f
+            setPadding(dp(10), dp(3), dp(4), dp(3))
+            setTextColor(0xFF6B7280.toInt())
+            isClickable = true; isFocusable = true
+            setOnClickListener { refreshSubscriptions() }
+        }
+
+        row.addView(icon); row.addView(info); row.addView(badge); row.addView(refreshBtn)
         row.setOnClickListener {
             if (isActive) toast(getString(R.string.saqanet_auto_active))
             else enableAutoMode()
