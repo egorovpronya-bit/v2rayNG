@@ -171,14 +171,6 @@ object SubscriptionUpdater {
                 return Result.success()
             }
 
-            // Skip subscription update while VPN is running — replacing server list
-            // mid-connection can break the active tunnel (old server UUID gets deleted
-            // from MMKV before VPN core reloads, causing reconnection failures).
-            if (com.v2ray.ang.core.CoreServiceManager.isRunning()) {
-                LogUtil.i(AppConfig.TAG, "SubscriptionUpdater: VPN is running, deferring update for $subId")
-                return Result.success()
-            }
-
             val sub = SubscriptionCache(subId, subItem)
 
             // Notify about update start
@@ -189,8 +181,16 @@ object SubscriptionUpdater {
                 "Updating ${sub.subscription.remarks}"
             )
 
+            val wasRunning = com.v2ray.ang.core.CoreServiceManager.isRunning()
             LogUtil.i(AppConfig.TAG, "SubscriptionUpdater automatic update: ---${sub.subscription.remarks}")
             AngConfigManager.updateConfigViaSub(sub)
+
+            if (wasRunning) {
+                val restartIntent = android.content.Intent(AppConfig.BROADCAST_ACTION_SERVICE)
+                restartIntent.setPackage(AppConfig.ANG_PACKAGE)
+                restartIntent.putExtra("key", AppConfig.MSG_STATE_RESTART)
+                applicationContext.sendBroadcast(restartIntent)
+            }
 
             // Clear notification
             NotificationHelper.cancel(NotificationChannelType.SUBSCRIPTION_UPDATE, applicationContext)
