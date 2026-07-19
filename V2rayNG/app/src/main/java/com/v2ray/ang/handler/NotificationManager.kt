@@ -271,8 +271,7 @@ object NotificationManager {
 
     private fun sanitizeServerName(name: String?): String {
         if (name.isNullOrEmpty()) return "SAQANet"
-        return if (name.contains("Marz", ignoreCase = true) || name.contains("user_"))
-            "SAQANet — Нидерланды" else name
+        return name.replace(Regex("\\s*\\(user_\\d+\\)"), "").trim().ifEmpty { "SAQANet" }
     }
 
     /**

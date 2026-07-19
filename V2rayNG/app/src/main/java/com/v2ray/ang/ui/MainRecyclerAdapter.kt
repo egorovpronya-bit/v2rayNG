@@ -59,6 +59,8 @@ class MainRecyclerAdapter(
 
             //Name address
             holder.itemMainBinding.tvName.text = profile.remarks
+                .replace(Regex("\\s*\\(user_\\d+\\)"), "").trim()
+                .ifEmpty { profile.remarks }
             holder.itemMainBinding.tvStatistics.text = getAddress(profile)
             val desc = getProtocolDescription(profile)
             holder.itemMainBinding.tvType.text = desc
