@@ -597,7 +597,10 @@ object CoreOutboundBuilder {
      */
     private fun updateOutboundFragment(streamSettings: OutboundBean.StreamSettingsBean): Boolean {
         try {
-            if (MmkvManager.decodeSettingsBool(AppConfig.PREF_FRAGMENT_ENABLED, false) == false) {
+            // Fragment always enabled for Reality (bypass TSPU), optional for TLS
+            if (streamSettings.security != AppConfig.REALITY
+                && MmkvManager.decodeSettingsBool(AppConfig.PREF_FRAGMENT_ENABLED, false) == false
+            ) {
                 return true
             }
             if (streamSettings.security != AppConfig.TLS
