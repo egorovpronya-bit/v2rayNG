@@ -271,11 +271,18 @@ class MainActivity : HelperBaseActivity() {
         }
         container.addView(buildAutoCard(autoEnabled, autoFlag, autoCity))
 
-        guids.forEach { guid ->
+        val sortedGuids = guids.sortedBy { guid ->
+            when (MmkvManager.decodeServerConfig(guid)?.configType) {
+                EConfigType.HYSTERIA2 -> 1
+                else -> 0
+            }
+        }
+        sortedGuids.forEach { guid ->
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
             val (flag, city) = getServerMeta(config.remarks, config.server ?: "")
             val isActive = guid == currentGuid
             val proto = when {
+                config.configType == EConfigType.HYSTERIA2 -> "Hysteria2"
                 config.security == "reality" || !config.publicKey.isNullOrBlank() -> "VLESS · Reality"
                 config.network == "ws" -> "VLESS · WS TLS"
                 else -> "VLESS"
@@ -334,8 +341,8 @@ class MainActivity : HelperBaseActivity() {
                 val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
                 val client = OkHttpClient.Builder()
                     .proxy(proxy)
-                    .connectTimeout(15, TimeUnit.SECONDS)
-                    .readTimeout(15, TimeUnit.SECONDS)
+                    .connectTimeout(5, TimeUnit.SECONDS)
+                    .readTimeout(5, TimeUnit.SECONDS)
                     .build()
                 val req = Request.Builder().url("http://cp.cloudflare.com/").head().build()
                 client.newCall(req).execute().use { true }
@@ -358,8 +365,8 @@ class MainActivity : HelperBaseActivity() {
         }
 
         tunnelFailCount++
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/2)")
-        if (tunnelFailCount < 2) return
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/1)")
+        if (tunnelFailCount < 1) return
 
         // Consecutive failures — switch to next server in round-robin order
         tunnelFailCount = 0
@@ -372,7 +379,7 @@ class MainActivity : HelperBaseActivity() {
             loadServerList()
         }
         // Wait for new connection to stabilise before next check
-        delay(30_000L)
+        delay(10_000L)
     }
 
     private fun initRussianBypassIfNeeded() {
