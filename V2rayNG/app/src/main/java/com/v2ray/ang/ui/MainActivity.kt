@@ -271,14 +271,20 @@ class MainActivity : HelperBaseActivity() {
         }
         container.addView(buildAutoCard(autoEnabled, autoFlag, autoCity))
 
-        val sortedGuids = guids.sortedBy { guid ->
+        val sortedGuids = guids.sortedWith(compareBy({ guid ->
             val cfg = MmkvManager.decodeServerConfig(guid)
-            when {
+            val remarks = cfg?.remarks ?: ""
+            val isMobile = remarks.contains("Mobile", ignoreCase = true)
+            val group = if (isMobile) 0 else 1  // Mobile first, WiFi second
+            val proto = when {
                 cfg?.configType == EConfigType.HYSTERIA2 -> 1
-                cfg?.network == "ws" -> 2
-                else -> 0  // Reality, VLESS
+                cfg?.network == "ws" -> 0
+                else -> 2  // Reality
             }
-        }
+            group * 10 + proto
+        }, { guid ->
+            MmkvManager.decodeServerConfig(guid)?.remarks ?: ""
+        }))
         sortedGuids.forEach { guid ->
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
             val (flag, city) = getServerMeta(config.remarks, config.server ?: "")
