@@ -272,9 +272,11 @@ class MainActivity : HelperBaseActivity() {
         container.addView(buildAutoCard(autoEnabled, autoFlag, autoCity))
 
         val sortedGuids = guids.sortedBy { guid ->
-            when (MmkvManager.decodeServerConfig(guid)?.configType) {
-                EConfigType.HYSTERIA2 -> 1
-                else -> 0
+            val cfg = MmkvManager.decodeServerConfig(guid)
+            when {
+                cfg?.configType == EConfigType.HYSTERIA2 -> 1
+                cfg?.network == "ws" -> 2
+                else -> 0  // Reality, VLESS
             }
         }
         sortedGuids.forEach { guid ->
