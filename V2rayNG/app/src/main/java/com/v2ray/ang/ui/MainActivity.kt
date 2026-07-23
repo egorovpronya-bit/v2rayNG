@@ -277,9 +277,9 @@ class MainActivity : HelperBaseActivity() {
             val isMobile = remarks.contains("Mobile", ignoreCase = true)
             val group = if (isMobile) 0 else 1  // Mobile first, WiFi second
             val proto = when {
-                cfg?.configType == EConfigType.HYSTERIA2 -> 1
-                cfg?.network == "ws" -> 0
-                else -> 2  // Reality
+                cfg?.configType == EConfigType.HYSTERIA2 -> 2
+                cfg?.network == "ws" -> 1
+                else -> 0  // Reality first
             }
             group * 10 + proto
         }, { guid ->
