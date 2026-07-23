@@ -275,11 +275,12 @@ class MainActivity : HelperBaseActivity() {
             val cfg = MmkvManager.decodeServerConfig(guid)
             val remarks = cfg?.remarks ?: ""
             val isMobile = remarks.contains("Mobile", ignoreCase = true)
+            val isReality = cfg?.security == "reality" || !cfg?.publicKey.isNullOrBlank()
             val group = if (isMobile) 0 else 1  // Mobile first, WiFi second
             val proto = when {
-                cfg?.configType == EConfigType.HYSTERIA2 -> 2
-                cfg?.network == "ws" -> 1
-                else -> 0  // Reality first
+                isReality -> 2  // Reality last (WiFi only)
+                cfg?.network == "ws" -> 0  // WS first
+                else -> 1  // Hysteria2 middle
             }
             group * 10 + proto
         }, { guid ->
@@ -331,8 +332,9 @@ class MainActivity : HelperBaseActivity() {
         tunnelFailCount = 0
         autoSwitchJob?.cancel()
         autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
+            delay(15_000L) // Wait 15s before first check to let connection stabilise
             while (true) {
-                delay(10_000L)
+                delay(15_000L)
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
                 runPingAndSwitchIfBetter()
             }
@@ -373,8 +375,8 @@ class MainActivity : HelperBaseActivity() {
         }
 
         tunnelFailCount++
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/1)")
-        if (tunnelFailCount < 1) return
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/3)")
+        if (tunnelFailCount < 3) return  // Need 3 consecutive failures before switching
 
         // Consecutive failures — switch to next server in round-robin order
         tunnelFailCount = 0
@@ -387,7 +389,7 @@ class MainActivity : HelperBaseActivity() {
             loadServerList()
         }
         // Wait for new connection to stabilise before next check
-        delay(10_000L)
+        delay(15_000L)
     }
 
     private fun initRussianBypassIfNeeded() {
