@@ -444,7 +444,7 @@ class MainActivity : HelperBaseActivity() {
         val r = remarks.uppercase()
         val h = host.lowercase()
         return when {
-            r.contains("GERMANY") || r.contains("-DE") || h.contains("de1") || h.contains(".de.") -> "🇩🇪" to getString(R.string.saqanet_server_germany)
+            r.contains("GERMANY") || r.contains("ГЕРМАНИЯ") || r.contains("-DE") || h.contains("de1") || h.contains(".de.") -> "🇩🇪" to getString(R.string.saqanet_server_germany)
             r.contains("-CF") || (h.contains("saqanet.ru") && !h.contains("nl2")) -> "☁️" to getString(R.string.saqanet_server_amsterdam_cf)
             else -> "🇳🇱" to getString(R.string.saqanet_server_amsterdam)
         }
