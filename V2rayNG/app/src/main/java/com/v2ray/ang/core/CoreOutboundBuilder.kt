@@ -568,7 +568,13 @@ object CoreOutboundBuilder {
             alpn = profileItem.alpn?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }.takeIf { !it.isNullOrEmpty() },
             echConfigList = profileItem.echConfigList.nullIfBlank(),
             verifyPeerCertByName = profileItem.verifyPeerCertByName.nullIfBlank(),
-            pinnedPeerCertSha256 = profileItem.pinnedCA256.nullIfBlank(),
+            pinnedPeerCertSha256 = profileItem.pinnedCA256.nullIfBlank()?.let { pin ->
+                // xray-core expects hex; subscription sends base64 — convert if needed
+                runCatching {
+                    android.util.Base64.decode(pin, android.util.Base64.DEFAULT)
+                        .joinToString("") { "%02x".format(it) }
+                }.getOrDefault(pin)
+            },
             publicKey = profileItem.publicKey.nullIfBlank(),
             shortId = profileItem.shortId.nullIfBlank(),
             spiderX = profileItem.spiderX.nullIfBlank(),
