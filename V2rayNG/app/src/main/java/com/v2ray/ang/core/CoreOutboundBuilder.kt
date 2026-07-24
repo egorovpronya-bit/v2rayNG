@@ -592,7 +592,8 @@ object CoreOutboundBuilder {
             streamSettings.realitySettings = tlsSetting
         }
 
-        if (profileItem.finalMask.isNullOrEmpty()) {
+        if (profileItem.finalMask.isNullOrEmpty()
+            && streamSettings.network != NetworkType.HYSTERIA.type) {
             updateOutboundFragment(streamSettings)
         }
     }
