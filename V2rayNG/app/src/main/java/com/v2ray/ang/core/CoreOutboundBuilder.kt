@@ -569,11 +569,15 @@ object CoreOutboundBuilder {
             echConfigList = profileItem.echConfigList.nullIfBlank(),
             verifyPeerCertByName = profileItem.verifyPeerCertByName.nullIfBlank(),
             pinnedPeerCertSha256 = profileItem.pinnedCA256.nullIfBlank()?.let { pin ->
-                // xray-core expects hex; subscription sends base64 — convert if needed
-                runCatching {
-                    android.util.Base64.decode(pin, android.util.Base64.DEFAULT)
-                        .joinToString("") { "%02x".format(it) }
-                }.getOrDefault(pin)
+                // xray-core expects hex; if already hex (64 hex chars) pass through, else convert from base64
+                if (pin.length == 64 && pin.all { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }) {
+                    pin.lowercase()
+                } else {
+                    runCatching {
+                        android.util.Base64.decode(pin, android.util.Base64.DEFAULT)
+                            .joinToString("") { "%02x".format(it) }
+                    }.getOrDefault(pin)
+                }
             },
             publicKey = profileItem.publicKey.nullIfBlank(),
             shortId = profileItem.shortId.nullIfBlank(),
