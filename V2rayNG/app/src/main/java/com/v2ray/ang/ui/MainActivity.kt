@@ -271,21 +271,7 @@ class MainActivity : HelperBaseActivity() {
         }
         container.addView(buildAutoCard(autoEnabled, autoFlag, autoCity))
 
-        val sortedGuids = guids.sortedWith(compareBy({ guid ->
-            val cfg = MmkvManager.decodeServerConfig(guid)
-            val remarks = cfg?.remarks ?: ""
-            val isMobile = remarks.contains("Mobile", ignoreCase = true)
-            val isReality = cfg?.security == "reality" || !cfg?.publicKey.isNullOrBlank()
-            val group = if (isMobile) 0 else 1  // Mobile first, WiFi second
-            val proto = when {
-                isReality -> 2  // Reality last (WiFi only)
-                cfg?.network == "ws" -> 0  // WS first
-                else -> 1  // Hysteria2 middle
-            }
-            group * 10 + proto
-        }, { guid ->
-            MmkvManager.decodeServerConfig(guid)?.remarks ?: ""
-        }))
+        val sortedGuids = sortedServerGuids()
         sortedGuids.forEach { guid ->
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
             val (flag, city) = getServerMeta(config.remarks, config.server ?: "")
@@ -309,11 +295,29 @@ class MainActivity : HelperBaseActivity() {
         loadServerList()
     }
 
+    private fun sortedServerGuids(): List<String> {
+        val guids = MmkvManager.decodeAllServerList()
+        return guids.sortedWith(compareBy({ guid ->
+            val cfg = MmkvManager.decodeServerConfig(guid)
+            val isMobile = cfg?.remarks?.contains("Mobile", ignoreCase = true) == true
+            val isReality = cfg?.security == "reality" || !cfg?.publicKey.isNullOrBlank()
+            val group = if (isMobile) 0 else 1
+            val proto = when {
+                isReality -> 2
+                cfg?.network == "ws" -> 0
+                else -> 1
+            }
+            group * 10 + proto
+        }, { guid ->
+            MmkvManager.decodeServerConfig(guid)?.remarks ?: ""
+        }))
+    }
+
     private fun enableAutoMode() {
         MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
-        val guids = MmkvManager.decodeAllServerList()
-        if (guids.isEmpty()) { loadServerList(); return }
-        MmkvManager.setSelectServer(guids[0])
+        val sorted = sortedServerGuids()
+        if (sorted.isEmpty()) { loadServerList(); return }
+        MmkvManager.setSelectServer(sorted[0])
         if (mainViewModel.isRunning.value == true) restartV2Ray()
         loadServerList()
     }
@@ -378,10 +382,11 @@ class MainActivity : HelperBaseActivity() {
         LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/3)")
         if (tunnelFailCount < 3) return  // Need 3 consecutive failures before switching
 
-        // Consecutive failures — switch to next server in round-robin order
+        // Consecutive failures — switch to next server in sorted round-robin order
         tunnelFailCount = 0
-        val currentIdx = guids.indexOf(currentGuid)
-        val nextGuid = guids[(currentIdx + 1) % guids.size]
+        val sorted = sortedServerGuids()
+        val currentIdx = sorted.indexOf(currentGuid)
+        val nextGuid = sorted[(currentIdx + 1) % sorted.size]
         LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead, switching to $nextGuid")
         withContext(Dispatchers.Main) {
             MmkvManager.setSelectServer(nextGuid)
