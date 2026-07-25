@@ -255,6 +255,7 @@ class MainActivity : HelperBaseActivity() {
     // ── Server list ────────────────────────────────────────────────────────────
 
     private fun loadServerList() {
+        Log.d("SAQALoad", "loadServerList called")
         val container = binding.serverListContainer
         container.removeAllViews()
 
@@ -297,11 +298,11 @@ class MainActivity : HelperBaseActivity() {
 
     private fun sortedServerGuids(): List<String> {
         val guids = MmkvManager.decodeAllServerList()
-        return guids.sortedWith(compareBy({ guid ->
+        Log.d("SAQASort", "sortedServerGuids: ${guids.size} servers")
+        val sorted = guids.sortedWith(compareBy({ guid ->
             val cfg = MmkvManager.decodeServerConfig(guid)
             val r = cfg?.remarks?.lowercase() ?: ""
             val s = cfg?.server?.lowercase() ?: ""
-            // Mobile = remarks contains "Mobile" OR server is nl2/de1 (direct WS servers)
             val isMobile = r.contains("mobile") || s.contains("nl2") || s.contains("de1")
             val isReality = cfg?.security == "reality" || !cfg?.publicKey.isNullOrBlank()
             val group = if (isMobile) 0 else 1
@@ -310,10 +311,14 @@ class MainActivity : HelperBaseActivity() {
                 cfg?.network == "ws" -> 0
                 else -> 1
             }
-            group * 10 + proto
+            val key = group * 10 + proto
+            Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | mobile=$isMobile reality=$isReality group=$group proto=$proto key=$key")
+            key
         }, { guid ->
             MmkvManager.decodeServerConfig(guid)?.remarks ?: ""
         }))
+        Log.d("SAQASort", "Sorted order: ${sorted.map { MmkvManager.decodeServerConfig(it)?.remarks }}")
+        return sorted
     }
 
     private fun enableAutoMode() {
