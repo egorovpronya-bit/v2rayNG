@@ -299,7 +299,10 @@ class MainActivity : HelperBaseActivity() {
         val guids = MmkvManager.decodeAllServerList()
         return guids.sortedWith(compareBy({ guid ->
             val cfg = MmkvManager.decodeServerConfig(guid)
-            val isMobile = cfg?.remarks?.contains("Mobile", ignoreCase = true) == true
+            val r = cfg?.remarks?.lowercase() ?: ""
+            val s = cfg?.server?.lowercase() ?: ""
+            // Mobile = remarks contains "Mobile" OR server is nl2/de1 (direct WS servers)
+            val isMobile = r.contains("mobile") || s.contains("nl2") || s.contains("de1")
             val isReality = cfg?.security == "reality" || !cfg?.publicKey.isNullOrBlank()
             val group = if (isMobile) 0 else 1
             val proto = when {
