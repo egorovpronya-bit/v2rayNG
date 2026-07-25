@@ -4,6 +4,10 @@ import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Typeface
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.net.Uri
 import android.net.VpnService
 import android.os.Build
@@ -63,6 +67,7 @@ class MainActivity : HelperBaseActivity() {
     private var trafficJob: Job? = null
     private var autoSwitchJob: Job? = null
     private var updateCheckJob: Job? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var tunnelFailCount = 0
     private var totalUpload = 0L
     private var totalDownload = 0L
@@ -106,6 +111,7 @@ class MainActivity : HelperBaseActivity() {
             UpdateUiHelper.checkAndShow(this@MainActivity, lifecycleScope)
         }
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
+        registerNetworkCallback()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() { moveTaskToBack(false) }
@@ -324,7 +330,7 @@ class MainActivity : HelperBaseActivity() {
 
     private fun enableAutoMode() {
         MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
-        val sorted = sortedServerGuids()
+        val sorted = autoSwitchGuids()
         if (sorted.isEmpty()) { loadServerList(); return }
         MmkvManager.setSelectServer(sorted[0])
         if (mainViewModel.isRunning.value == true) restartV2Ray()
@@ -355,6 +361,54 @@ class MainActivity : HelperBaseActivity() {
     }
 
     private fun stopAutoSwitching() { autoSwitchJob?.cancel(); autoSwitchJob = null }
+
+    private fun isWifi(): Boolean {
+        val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val nc = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+        return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+    }
+
+    // Returns only servers appropriate for the current network type.
+    // "Mobile *" servers for cellular, "WiFi *" servers for Wi-Fi.
+    private fun autoSwitchGuids(): List<String> {
+        val prefix = if (isWifi()) "wifi" else "mobile"
+        return sortedServerGuids().filter {
+            MmkvManager.decodeServerConfig(it)?.remarks?.lowercase()?.startsWith(prefix) == true
+        }.ifEmpty { sortedServerGuids() }
+    }
+
+    private fun registerNetworkCallback() {
+        val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
+        val cb = object : ConnectivityManager.NetworkCallback() {
+            override fun onCapabilitiesChanged(network: Network, nc: NetworkCapabilities) {
+                if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) return
+                val wifi = nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                val prefix = if (wifi) "wifi" else "mobile"
+                val current = MmkvManager.getSelectServer()
+                val currentOk = current?.let {
+                    MmkvManager.decodeServerConfig(it)?.remarks?.lowercase()?.startsWith(prefix)
+                } ?: false
+                if (!currentOk) {
+                    val first = autoSwitchGuids().firstOrNull() ?: return
+                    tunnelFailCount = 0
+                    lifecycleScope.launch(Dispatchers.Main) {
+                        MmkvManager.setSelectServer(first)
+                        if (mainViewModel.isRunning.value == true) restartV2Ray()
+                        loadServerList()
+                    }
+                }
+            }
+        }
+        cm.registerNetworkCallback(NetworkRequest.Builder().build(), cb)
+        networkCallback = cb
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        networkCallback?.let {
+            (getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager).unregisterNetworkCallback(it)
+        }
+    }
 
     private suspend fun isTunnelAlive(): Boolean {
         return withContext(Dispatchers.IO) {
@@ -391,9 +445,9 @@ class MainActivity : HelperBaseActivity() {
         LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/3)")
         if (tunnelFailCount < 3) return  // Need 3 consecutive failures before switching
 
-        // Consecutive failures — switch to next server in sorted round-robin order
+        // Consecutive failures — switch to next server matching current network type
         tunnelFailCount = 0
-        val sorted = sortedServerGuids()
+        val sorted = autoSwitchGuids()
         val currentIdx = sorted.indexOf(currentGuid)
         val nextGuid = sorted[(currentIdx + 1) % sorted.size]
         LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead, switching to $nextGuid")
