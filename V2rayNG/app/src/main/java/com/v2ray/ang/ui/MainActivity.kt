@@ -506,11 +506,12 @@ class MainActivity : HelperBaseActivity() {
     private fun getServerMeta(remarks: String, host: String): Pair<String, String> {
         val r = remarks.uppercase()
         val h = host.lowercase()
-        return when {
-            r.contains("GERMANY") || r.contains("ГЕРМАНИЯ") || r.contains("-DE") || h.contains("de1") || h.contains(".de.") -> "🇩🇪" to getString(R.string.saqanet_server_germany)
-            r.contains("-CF") || (h.contains("saqanet.ru") && !h.contains("nl2")) -> "☁️" to getString(R.string.saqanet_server_amsterdam_cf)
-            else -> "🇳🇱" to getString(R.string.saqanet_server_amsterdam)
+        val flag = when {
+            r.contains("GERMANY") || r.contains("ГЕРМАНИЯ") || r.contains("-DE") || h.contains("de1") || h.contains(".de.") -> "🇩🇪"
+            r.contains("-CF") || (h.contains("saqanet.ru") && !h.contains("nl2")) -> "☁️"
+            else -> "🇳🇱"
         }
+        return flag to remarks
     }
 
     private fun buildAutoCard(isActive: Boolean, currentFlag: String = "", currentCity: String = ""): View {
