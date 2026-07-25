@@ -198,7 +198,13 @@ class MainActivity : HelperBaseActivity() {
             toast(R.string.title_file_chooser)
             return
         }
-        CoreServiceManager.startVService(this)
+        lifecycleScope.launch(Dispatchers.IO) {
+            try { AngConfigManager.updateConfigViaSubAll() } catch (_: Exception) {}
+            withContext(Dispatchers.Main) {
+                loadServerList()
+                CoreServiceManager.startVService(this@MainActivity)
+            }
+        }
     }
 
     fun restartV2Ray() {

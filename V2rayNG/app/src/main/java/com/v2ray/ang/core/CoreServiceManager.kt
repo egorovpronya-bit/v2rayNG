@@ -159,15 +159,7 @@ object CoreServiceManager {
         // refresh socks port when enabled dynamic socks port
         SettingsManager.refreshRuntimeSocksPort()
 
-        // Auto-update subscriptions before connecting (fetch latest server configs)
-        try {
-            AngConfigManager.updateConfigViaSubAll()
-        } catch (e: Exception) {
-            LogUtil.w(AppConfig.TAG, "StartCore-Manager: Subscription auto-update failed: ${e.message}")
-        }
-
-        // Re-read selected server and config after subscription update
-        // (guid may have changed if profile was recreated)
+        // Subscription update is done before startVService() on IO thread (see MainActivity.startV2Ray)
         val currentGuid = MmkvManager.getSelectServer() ?: guid
         val freshConfig = MmkvManager.decodeServerConfig(currentGuid)
 
