@@ -41,6 +41,9 @@ object Hysteria2Fmt : FmtBase() {
                 config.portHoppingInterval = queryParam["mportHopInt"]
             }
             config.pinnedCA256 = queryParam["pinSHA256"]
+            if (config.pinnedCA256.isNotNullEmpty()) {
+                config.insecure = false
+            }
 
         }
 

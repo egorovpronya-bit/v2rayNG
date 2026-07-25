@@ -19,6 +19,7 @@ import com.v2ray.ang.enums.EConfigType
 import com.v2ray.ang.extension.isComplexType
 import com.v2ray.ang.extension.toast
 import com.v2ray.ang.extension.toastError
+import com.v2ray.ang.handler.AngConfigManager
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.NotificationManager
 import com.v2ray.ang.handler.SettingsManager
@@ -158,10 +159,23 @@ object CoreServiceManager {
         // refresh socks port when enabled dynamic socks port
         SettingsManager.refreshRuntimeSocksPort()
 
+        // Auto-update subscriptions before connecting (fetch latest server configs)
+        try {
+            AngConfigManager.updateConfigViaSubAll()
+        } catch (e: Exception) {
+            LogUtil.w(AppConfig.TAG, "StartCore-Manager: Subscription auto-update failed: ${e.message}")
+        }
+
+        // Re-read selected server and config after subscription update
+        // (guid may have changed if profile was recreated)
+        val currentGuid = MmkvManager.getSelectServer() ?: guid
+        val freshConfig = MmkvManager.decodeServerConfig(currentGuid)
+
 //        val result = V2rayConfigUtil.getV2rayConfig(context, guid)
 //        if (!result.status) error(result.errorMessage.ifBlank { "Failed to get V2Ray config" })
 
-        if (config.insecure == true) {
+        val activeConfig = freshConfig ?: config
+        if (activeConfig.insecure == true && activeConfig.pinnedCA256.isNullOrEmpty()) {
             context.toastError(R.string.toast_allow_insecure_deprecated)
             context.toastError(R.string.toast_allow_insecure_deprecated)
         }
