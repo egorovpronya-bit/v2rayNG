@@ -755,24 +755,8 @@ class MainActivity : HelperBaseActivity() {
         showLoading()
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // If https:// URL — fetch subscription content and import VLESS keys directly
-                val resolved = if (server != null &&
-                    (server.startsWith("https://") || server.startsWith("http://"))
-                ) {
-                    try {
-                        val raw = com.v2ray.ang.util.HttpUtil.getUrlContentWithUserAgent(
-                            com.v2ray.ang.dto.UrlContentRequest(url = server)
-                        )
-                        val decoded = Utils.decode(raw)
-                        if (decoded.contains("vless://") || decoded.contains("vmess://")) decoded else raw
-                    } catch (e: Exception) {
-                        LogUtil.e(AppConfig.TAG, "Failed to fetch subscription URL", e)
-                        server
-                    }
-                } else server
-
                 val (count, countSub) = AngConfigManager.importBatchConfig(
-                    resolved, mainViewModel.subscriptionId, true
+                    server, mainViewModel.subscriptionId, true
                 )
                 delay(500L)
                 withContext(Dispatchers.Main) {
@@ -780,7 +764,7 @@ class MainActivity : HelperBaseActivity() {
                         count > 0 -> {
                             toast(getString(R.string.title_import_config_count, count))
                             mainViewModel.reloadServerList()
-                            val guids = MmkvManager.decodeServerList("")
+                            val guids = MmkvManager.decodeAllServerList()
                             if (guids.isNotEmpty()) {
                                 MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
                                 MmkvManager.setSelectServer(guids.last())

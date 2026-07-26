@@ -188,7 +188,8 @@ object AngConfigManager {
             countSub = parseBatchSubscription(Utils.decode(server))
         }
         if (countSub > 0) {
-            updateConfigViaSubAll()
+            val result = updateConfigViaSubAll()
+            if (count <= 0) count = result.configCount
         }
 
         return count to countSub
