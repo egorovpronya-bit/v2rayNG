@@ -374,13 +374,16 @@ class MainActivity : HelperBaseActivity() {
         return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
     }
 
-    // Returns only servers appropriate for the current network type.
-    // "Mobile *" servers for cellular, "WiFi *" servers for Wi-Fi.
+    // Returns servers sorted by priority for current network.
+    // On WiFi: WiFi servers first, Mobile as fallback.
+    // On cellular: Mobile servers first, WiFi as fallback.
     private fun autoSwitchGuids(): List<String> {
-        val prefix = if (isWifi()) "wifi" else "mobile"
-        return sortedServerGuids().filter {
-            MmkvManager.decodeServerConfig(it)?.remarks?.lowercase()?.startsWith(prefix) == true
-        }.ifEmpty { sortedServerGuids() }
+        val onWifi = isWifi()
+        return sortedServerGuids().sortedBy { guid ->
+            val r = MmkvManager.decodeServerConfig(guid)?.remarks?.lowercase() ?: ""
+            if (onWifi) { if (r.startsWith("wifi")) 0 else 1 }
+            else        { if (r.startsWith("mobile")) 0 else 1 }
+        }
     }
 
     private fun registerNetworkCallback() {
@@ -388,7 +391,7 @@ class MainActivity : HelperBaseActivity() {
         val cb = object : ConnectivityManager.NetworkCallback() {
             override fun onCapabilitiesChanged(network: Network, nc: NetworkCapabilities) {
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) return
-                val wifi = nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+                val wifi = isWifi()  // check active network, not the specific network that fired
                 val prefix = if (wifi) "wifi" else "mobile"
                 val current = MmkvManager.getSelectServer()
                 val currentOk = current?.let {
@@ -441,8 +444,8 @@ class MainActivity : HelperBaseActivity() {
                 val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
                 val client = OkHttpClient.Builder()
                     .proxy(proxy)
-                    .connectTimeout(5, TimeUnit.SECONDS)
-                    .readTimeout(5, TimeUnit.SECONDS)
+                    .connectTimeout(10, TimeUnit.SECONDS)
+                    .readTimeout(10, TimeUnit.SECONDS)
                     .build()
                 val req = Request.Builder().url("http://cp.cloudflare.com/").head().build()
                 client.newCall(req).execute().use { true }
