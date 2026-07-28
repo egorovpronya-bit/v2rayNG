@@ -319,14 +319,13 @@ class MainActivity : HelperBaseActivity() {
             val isMobile = r.contains("mobile") || s.contains("nl2") || s.contains("de1")
             val isReality = cfg?.security == "reality" || !cfg?.publicKey.isNullOrBlank()
             val group = if (isMobile) 0 else 1
+            // Germany WS(0) → Hysteria2(1) → Amsterdam WS(2) → Reality(3)
             val proto = when {
-                isReality -> 2
-                cfg?.network == "ws" -> 0
+                isReality -> 3
+                cfg?.network == "ws" -> if (s.contains("de1")) 0 else 2
                 else -> 1
             }
-            // On mobile: try DE first (slightly faster)
-            val deFirst = if (s.contains("de1")) 0 else 1
-            val key = group * 100 + proto * 10 + deFirst
+            val key = group * 100 + proto * 10
             Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | key=$key")
             key
         }, { guid ->
