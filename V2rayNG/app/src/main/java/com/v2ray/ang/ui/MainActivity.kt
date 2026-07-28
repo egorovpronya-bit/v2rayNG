@@ -69,6 +69,7 @@ class MainActivity : HelperBaseActivity() {
     private var updateCheckJob: Job? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var tunnelFailCount = 0
+    private var wasOnWifi = false
     private var totalUpload = 0L
     private var totalDownload = 0L
     private var lastRxBytes = -1L
@@ -391,16 +392,20 @@ class MainActivity : HelperBaseActivity() {
         val cb = object : ConnectivityManager.NetworkCallback() {
             override fun onCapabilitiesChanged(network: Network, nc: NetworkCapabilities) {
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) return
-                val wifi = isWifi()  // check active network, not the specific network that fired
-                val prefix = if (wifi) "wifi" else "mobile"
+                val nowOnWifi = isWifi()
+                val networkTypeChanged = nowOnWifi != wasOnWifi
+                wasOnWifi = nowOnWifi
+                // Only force-switch on network type change (WiFi↔cellular).
+                // Repeated callbacks on same network type are handled by periodic check to avoid
+                // cycling back to a failing server after failover has settled on a working one.
+                if (!networkTypeChanged) return
+                val prefix = if (nowOnWifi) "wifi" else "mobile"
                 val current = MmkvManager.getSelectServer()
                 val currentOk = current?.let {
                     MmkvManager.decodeServerConfig(it)?.remarks?.lowercase()?.startsWith(prefix)
                 } ?: false
                 if (!currentOk) {
                     val first = autoSwitchGuids().firstOrNull() ?: return
-                    // ponytail: nc is the specific network that fired (cellular fires while wifi active),
-                    // autoSwitchGuids() uses isWifi() (active network) so first may equal current — skip restart
                     if (first == current) return
                     tunnelFailCount = 0
                     lifecycleScope.launch(Dispatchers.Main) {
