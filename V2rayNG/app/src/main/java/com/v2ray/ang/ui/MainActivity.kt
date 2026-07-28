@@ -319,11 +319,11 @@ class MainActivity : HelperBaseActivity() {
             val isMobile = r.contains("mobile") || s.contains("nl2") || s.contains("de1")
             val isReality = cfg?.security == "reality" || !cfg?.publicKey.isNullOrBlank()
             val group = if (isMobile) 0 else 1
-            // Germany WS(0) → Hysteria2(1) → Amsterdam WS(2) → Reality(3)
+            // Germany WS(0) → Amsterdam WS(1) → Hysteria2(2) → Reality(3)
             val proto = when {
                 isReality -> 3
-                cfg?.network == "ws" -> if (s.contains("de1")) 0 else 2
-                else -> 1
+                cfg?.network == "ws" -> if (s.contains("de1")) 0 else 1
+                else -> 2
             }
             val key = group * 100 + proto * 10
             Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | key=$key")
