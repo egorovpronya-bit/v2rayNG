@@ -69,7 +69,6 @@ class MainActivity : HelperBaseActivity() {
     private var updateCheckJob: Job? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
     private var tunnelFailCount = 0
-    private var wasOnWifi = false
     private var totalUpload = 0L
     private var totalDownload = 0L
     private var lastRxBytes = -1L
@@ -358,9 +357,9 @@ class MainActivity : HelperBaseActivity() {
         tunnelFailCount = 0
         autoSwitchJob?.cancel()
         autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
-            delay(15_000L) // Wait 15s before first check to let connection stabilise
+            delay(8_000L) // Wait 8s for VPN to stabilise
             while (true) {
-                delay(15_000L)
+                delay(8_000L)
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
                 runPingAndSwitchIfBetter()
             }
@@ -371,63 +370,29 @@ class MainActivity : HelperBaseActivity() {
 
     private fun isWifi(): Boolean {
         val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        val nc = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
-        return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+        // activeNetwork is the VPN tunnel when VPN is active — it has no TRANSPORT_WIFI.
+        // Check all non-VPN networks to find the real physical transport.
+        for (network in cm.allNetworks) {
+            val nc = cm.getNetworkCapabilities(network) ?: continue
+            if (nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) continue
+            if (nc.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+            }
+        }
+        return false
     }
 
-    // Returns servers sorted by priority for current network.
-    // On WiFi: WiFi servers first, Mobile as fallback.
-    // On cellular: Mobile servers first, WiFi as fallback.
-    private fun autoSwitchGuids(): List<String> {
-        val onWifi = isWifi()
-        return sortedServerGuids().sortedBy { guid ->
-            val r = MmkvManager.decodeServerConfig(guid)?.remarks?.lowercase() ?: ""
-            if (onWifi) { if (r.startsWith("wifi")) 0 else 1 }
-            else        { if (r.startsWith("mobile")) 0 else 1 }
-        }
-    }
+    private fun autoSwitchGuids(): List<String> = sortedServerGuids()
 
     private fun registerNetworkCallback() {
         val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val cb = object : ConnectivityManager.NetworkCallback() {
             override fun onCapabilitiesChanged(network: Network, nc: NetworkCapabilities) {
-                if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) return
-                val nowOnWifi = isWifi()
-                val networkTypeChanged = nowOnWifi != wasOnWifi
-                wasOnWifi = nowOnWifi
-                // Only force-switch on network type change (WiFi↔cellular).
-                // Repeated callbacks on same network type are handled by periodic check to avoid
-                // cycling back to a failing server after failover has settled on a working one.
-                if (!networkTypeChanged) return
-                val prefix = if (nowOnWifi) "wifi" else "mobile"
-                val current = MmkvManager.getSelectServer()
-                val currentOk = current?.let {
-                    MmkvManager.decodeServerConfig(it)?.remarks?.lowercase()?.startsWith(prefix)
-                } ?: false
-                if (!currentOk) {
-                    val first = autoSwitchGuids().firstOrNull() ?: return
-                    if (first == current) return
-                    tunnelFailCount = 0
-                    lifecycleScope.launch(Dispatchers.Main) {
-                        MmkvManager.setSelectServer(first)
-                        if (mainViewModel.isRunning.value == true) restartV2Ray()
-                        loadServerList()
-                    }
-                }
+                // Network type tracking — reserved for future WiFi/cellular split logic
             }
 
             override fun onLost(network: Network) {
-                if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) return
-                if (isWifi()) return  // WiFi still up, cellular lost — not our concern
-                val current = MmkvManager.getSelectServer() ?: return
-                val onWifiServer = MmkvManager.decodeServerConfig(current)?.remarks?.lowercase()?.startsWith("wifi") ?: false
-                if (!onWifiServer) return
-                val first = autoSwitchGuids().firstOrNull() ?: return
-                lifecycleScope.launch(Dispatchers.Main) {
-                    MmkvManager.setSelectServer(first)
-                    if (mainViewModel.isRunning.value == true) restartV2Ray()
-                    loadServerList()
-                }
+                // Failover handled by periodic tunnel check in startAutoSwitching
             }
         }
         cm.registerNetworkCallback(NetworkRequest.Builder().build(), cb)
@@ -449,8 +414,8 @@ class MainActivity : HelperBaseActivity() {
                 val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
                 val client = OkHttpClient.Builder()
                     .proxy(proxy)
-                    .connectTimeout(10, TimeUnit.SECONDS)
-                    .readTimeout(10, TimeUnit.SECONDS)
+                    .connectTimeout(5, TimeUnit.SECONDS)
+                    .readTimeout(5, TimeUnit.SECONDS)
                     .build()
                 val req = Request.Builder().url("http://cp.cloudflare.com/").head().build()
                 client.newCall(req).execute().use { true }
@@ -473,10 +438,10 @@ class MainActivity : HelperBaseActivity() {
         }
 
         tunnelFailCount++
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/3)")
-        if (tunnelFailCount < 3) return  // Need 3 consecutive failures before switching
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/2)")
+        if (tunnelFailCount < 2) return  // Need 2 consecutive failures before switching
 
-        // Consecutive failures — switch to next server matching current network type
+        // 2 consecutive failures — switch to next server
         tunnelFailCount = 0
         val sorted = autoSwitchGuids()
         val currentIdx = sorted.indexOf(currentGuid)
@@ -488,7 +453,7 @@ class MainActivity : HelperBaseActivity() {
             loadServerList()
         }
         // Wait for new connection to stabilise before next check
-        delay(15_000L)
+        delay(10_000L)
     }
 
     private fun initRussianBypassIfNeeded() {
