@@ -324,10 +324,8 @@ class MainActivity : HelperBaseActivity() {
                 cfg?.network == "ws" -> 0
                 else -> 1
             }
-            // Prefer DE (through Cloudflare) over NL (direct) — NL fails on some WiFi networks
-            val deFirst = if (s.contains("de1")) 0 else 1
-            val key = group * 100 + proto * 10 + deFirst
-            Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | mobile=$isMobile reality=$isReality group=$group proto=$proto deFirst=$deFirst key=$key")
+            val key = group * 10 + proto
+            Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | mobile=$isMobile reality=$isReality group=$group proto=$proto key=$key")
             key
         }, { guid ->
             MmkvManager.decodeServerConfig(guid)?.remarks ?: ""
@@ -440,10 +438,10 @@ class MainActivity : HelperBaseActivity() {
         }
 
         tunnelFailCount++
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/2)")
-        if (tunnelFailCount < 2) return  // Need 2 consecutive failures before switching
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/3)")
+        if (tunnelFailCount < 3) return  // Need 3 consecutive failures before switching
 
-        // 2 consecutive failures — switch to next server
+        // 3 consecutive failures — switch to next server
         tunnelFailCount = 0
         val sorted = autoSwitchGuids()
         val currentIdx = sorted.indexOf(currentGuid)
