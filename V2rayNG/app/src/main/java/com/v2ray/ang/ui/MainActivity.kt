@@ -357,9 +357,9 @@ class MainActivity : HelperBaseActivity() {
         tunnelFailCount = 0
         autoSwitchJob?.cancel()
         autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
-            delay(8_000L) // Wait 8s for VPN to stabilise
+            delay(20_000L) // Wait 20s — WS needs TLS+WebSocket handshake time before first check
             while (true) {
-                delay(8_000L)
+                delay(10_000L)
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
                 runPingAndSwitchIfBetter()
             }
@@ -414,8 +414,8 @@ class MainActivity : HelperBaseActivity() {
                 val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
                 val client = OkHttpClient.Builder()
                     .proxy(proxy)
-                    .connectTimeout(5, TimeUnit.SECONDS)
-                    .readTimeout(5, TimeUnit.SECONDS)
+                    .connectTimeout(8, TimeUnit.SECONDS)
+                    .readTimeout(8, TimeUnit.SECONDS)
                     .build()
                 val req = Request.Builder().url("http://cp.cloudflare.com/").head().build()
                 client.newCall(req).execute().use { true }
@@ -453,7 +453,7 @@ class MainActivity : HelperBaseActivity() {
             loadServerList()
         }
         // Wait for new connection to stabilise before next check
-        delay(10_000L)
+        delay(15_000L)
     }
 
     private fun initRussianBypassIfNeeded() {
