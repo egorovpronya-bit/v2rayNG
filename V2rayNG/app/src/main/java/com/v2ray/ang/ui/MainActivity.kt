@@ -324,8 +324,10 @@ class MainActivity : HelperBaseActivity() {
                 cfg?.network == "ws" -> 0
                 else -> 1
             }
-            val key = group * 10 + proto
-            Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | mobile=$isMobile reality=$isReality group=$group proto=$proto key=$key")
+            // DE (through Cloudflare) works on WiFi; NL (direct) works only on МТС
+            val deFirst = if (s.contains("de1")) 0 else 1
+            val key = group * 100 + proto * 10 + deFirst
+            Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | key=$key")
             key
         }, { guid ->
             MmkvManager.decodeServerConfig(guid)?.remarks ?: ""
