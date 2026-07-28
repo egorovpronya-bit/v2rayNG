@@ -396,12 +396,29 @@ class MainActivity : HelperBaseActivity() {
                 } ?: false
                 if (!currentOk) {
                     val first = autoSwitchGuids().firstOrNull() ?: return
+                    // ponytail: nc is the specific network that fired (cellular fires while wifi active),
+                    // autoSwitchGuids() uses isWifi() (active network) so first may equal current — skip restart
+                    if (first == current) return
                     tunnelFailCount = 0
                     lifecycleScope.launch(Dispatchers.Main) {
                         MmkvManager.setSelectServer(first)
                         if (mainViewModel.isRunning.value == true) restartV2Ray()
                         loadServerList()
                     }
+                }
+            }
+
+            override fun onLost(network: Network) {
+                if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) return
+                if (isWifi()) return  // WiFi still up, cellular lost — not our concern
+                val current = MmkvManager.getSelectServer() ?: return
+                val onWifiServer = MmkvManager.decodeServerConfig(current)?.remarks?.lowercase()?.startsWith("wifi") ?: false
+                if (!onWifiServer) return
+                val first = autoSwitchGuids().firstOrNull() ?: return
+                lifecycleScope.launch(Dispatchers.Main) {
+                    MmkvManager.setSelectServer(first)
+                    if (mainViewModel.isRunning.value == true) restartV2Ray()
+                    loadServerList()
                 }
             }
         }
