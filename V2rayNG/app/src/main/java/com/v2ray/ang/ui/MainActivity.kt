@@ -324,7 +324,7 @@ class MainActivity : HelperBaseActivity() {
                 cfg?.network == "ws" -> 0
                 else -> 1
             }
-            // DE (through Cloudflare) works on WiFi; NL (direct) works only on МТС
+            // On mobile: try DE first (slightly faster)
             val deFirst = if (s.contains("de1")) 0 else 1
             val key = group * 100 + proto * 10 + deFirst
             Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | key=$key")
@@ -359,9 +359,9 @@ class MainActivity : HelperBaseActivity() {
         tunnelFailCount = 0
         autoSwitchJob?.cancel()
         autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
-            delay(20_000L) // Wait 20s — WS needs TLS+WebSocket handshake time before first check
+            delay(20_000L)
             while (true) {
-                delay(10_000L)
+                delay(if (isWifi()) 5_000L else 10_000L)
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
                 runPingAndSwitchIfBetter()
             }
@@ -384,7 +384,13 @@ class MainActivity : HelperBaseActivity() {
         return false
     }
 
-    private fun autoSwitchGuids(): List<String> = sortedServerGuids()
+    private fun autoSwitchGuids(): List<String> {
+        val sorted = sortedServerGuids()
+        if (!isWifi()) return sorted
+        // WiFi: home ISPs block TCP-based WS (TLS data dropped after TCP SYN); skip to Hysteria2 (UDP)
+        val noWs = sorted.filter { MmkvManager.decodeServerConfig(it)?.network != "ws" }
+        return noWs.ifEmpty { sorted }
+    }
 
     private fun registerNetworkCallback() {
         val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -440,8 +446,9 @@ class MainActivity : HelperBaseActivity() {
         }
 
         tunnelFailCount++
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/3)")
-        if (tunnelFailCount < 3) return  // Need 3 consecutive failures before switching
+        val failThreshold = if (isWifi()) 1 else 3
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/$failThreshold)")
+        if (tunnelFailCount < failThreshold) return
 
         // 3 consecutive failures — switch to next server
         tunnelFailCount = 0
