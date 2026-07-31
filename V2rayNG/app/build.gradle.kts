@@ -9,7 +9,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.saqanet.vpn"
+        applicationId = "ru.saqanet.vpn"
         minSdk = 24
         targetSdk = 37
         versionCode = 800
