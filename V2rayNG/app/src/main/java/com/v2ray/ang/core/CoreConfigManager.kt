@@ -902,18 +902,19 @@ object CoreConfigManager {
             MmkvManager.decodeSettingsString(AppConfig.PREF_ROUTING_DOMAIN_STRATEGY)
                 ?: "AsIs"
 
-        // Route QUIC (UDP 443) direct: WS/Reality are TCP-only tunnels and silently drop UDP.
-        // blackhole doesn't send ICMP → Chrome still waits 15-60s QUIC timeout.
-        // direct → Chrome's QUIC reaches the server immediately (Google isn't blocked in RU).
-        // For ISP-blocked sites: their QUIC is also blocked by ISP → Chrome falls back to TCP
-        // through VPN automatically. No VPN breakage.
-        v2rayConfig.routing.rules.add(
-            V2rayConfig.RoutingBean.RulesBean(
-                outboundTag = AppConfig.TAG_DIRECT,
-                network = "udp",
-                port = "443",
+        // WS is TCP-only: can't tunnel QUIC (UDP 443). Route QUIC direct so Chrome reaches
+        // Google's servers and falls back to TCP through VPN if ISP blocks UDP 443.
+        // NOT applied for Hysteria2 — it handles QUIC natively through its QUIC tunnel.
+        val primaryNetwork = v2rayConfig.outbounds.firstOrNull()?.streamSettings?.network
+        if (primaryNetwork == "ws") {
+            v2rayConfig.routing.rules.add(
+                V2rayConfig.RoutingBean.RulesBean(
+                    outboundTag = AppConfig.TAG_DIRECT,
+                    network = "udp",
+                    port = "443",
+                )
             )
-        )
+        }
 
         val rulesetItems = MmkvManager.decodeRoutingRulesets()
         rulesetItems?.forEach { key ->
