@@ -902,12 +902,14 @@ object CoreConfigManager {
             MmkvManager.decodeSettingsString(AppConfig.PREF_ROUTING_DOMAIN_STRATEGY)
                 ?: "AsIs"
 
-        // Block QUIC (UDP 443): WS is TCP-only, without this Chrome silently drops QUIC
-        // and waits 10-15s timeout before falling back to HTTP/2 → Google won't open.
-        // blackhole closes immediately → Chrome gets fast error → instant HTTP/2 fallback.
+        // Route QUIC (UDP 443) direct: WS/Reality are TCP-only tunnels and silently drop UDP.
+        // blackhole doesn't send ICMP → Chrome still waits 15-60s QUIC timeout.
+        // direct → Chrome's QUIC reaches the server immediately (Google isn't blocked in RU).
+        // For ISP-blocked sites: their QUIC is also blocked by ISP → Chrome falls back to TCP
+        // through VPN automatically. No VPN breakage.
         v2rayConfig.routing.rules.add(
             V2rayConfig.RoutingBean.RulesBean(
-                outboundTag = AppConfig.TAG_BLOCKED,
+                outboundTag = AppConfig.TAG_DIRECT,
                 network = "udp",
                 port = "443",
             )
