@@ -70,6 +70,12 @@ object CoreOutboundBuilder {
             } else {
                 outbound.mux?.enabled = false
                 outbound.mux?.concurrency = -1
+                // ponytail: WS+TCP cannot tunnel UDP; without reject Chrome waits 10-15s QUIC timeout before HTTP/2 fallback
+                if (outbound.streamSettings?.network == NetworkType.WS.type) {
+                    outbound.mux?.enabled = true
+                    outbound.mux?.xudpConcurrency = 16
+                    outbound.mux?.xudpProxyUDP443 = "reject"
+                }
             }
 
         } catch (e: Exception) {
