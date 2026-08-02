@@ -639,11 +639,9 @@ object CoreConfigManager {
         }
     }
 
-    // xray v26+ silently drops UDP through TCP-only WS; explicitly route DNS to dns-out.
+    // xray v26+ silently drops raw UDP DNS through TCP-only WS; ensure dns-out in VPN mode.
     private fun ensureWsDnsRouting(v2rayConfig: V2rayConfig) {
         if (!SettingsManager.isVpnMode()) return
-        val primaryNetwork = v2rayConfig.outbounds.firstOrNull()?.streamSettings?.network
-        if (primaryNetwork != NetworkType.WS.type) return
         if (v2rayConfig.outbounds.none { it.tag == "dns-out" }) {
             v2rayConfig.outbounds.add(V2rayConfig.OutboundBean(
                 protocol = "dns",
