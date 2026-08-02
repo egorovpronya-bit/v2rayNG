@@ -67,6 +67,12 @@ object CoreOutboundBuilder {
                 if (protocol.equals(EConfigType.VLESS.name, true) && outbound.settings?.vnext?.first()?.users?.first()?.flow?.isNotEmpty() == true) {
                     outbound.mux?.concurrency = -1
                 }
+            } else if (outbound.streamSettings?.network == NetworkType.WS.type) {
+                // WS is TCP-only; reject QUIC so Chrome falls back to HTTP/2 immediately
+                outbound.mux?.enabled = true
+                outbound.mux?.concurrency = 8
+                outbound.mux?.xudpConcurrency = 8
+                outbound.mux?.xudpProxyUDP443 = "reject"
             } else {
                 outbound.mux?.enabled = false
                 outbound.mux?.concurrency = -1
