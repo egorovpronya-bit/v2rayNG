@@ -70,13 +70,6 @@ object CoreOutboundBuilder {
             } else {
                 outbound.mux?.enabled = false
                 outbound.mux?.concurrency = -1
-                // ponytail: WS needs mux for TCP multiplexing; xudpConcurrency intentionally
-                // omitted — xudp is incompatible between client v26 and server v25, breaks DNS.
-                // Modern Chrome (124+) falls back from QUIC in ~300ms without explicit reject.
-                if (outbound.streamSettings?.network == NetworkType.WS.type) {
-                    outbound.mux?.enabled = true
-                    outbound.mux?.concurrency = 8
-                }
             }
 
         } catch (e: Exception) {
