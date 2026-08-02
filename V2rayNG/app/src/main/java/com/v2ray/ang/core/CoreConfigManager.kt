@@ -12,6 +12,7 @@ import com.v2ray.ang.dto.entities.RulesetItem
 import com.v2ray.ang.enums.BalancerStrategyType
 import com.v2ray.ang.enums.CoreResolvedType
 import com.v2ray.ang.enums.EConfigType
+import com.v2ray.ang.enums.NetworkType
 import com.v2ray.ang.extension.isNotNullEmpty
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.SettingsManager
@@ -168,6 +169,7 @@ object CoreConfigManager {
         configureFakeDns(v2rayConfig)
         configureDns(v2rayConfig, policyGroupBalancerTags)
         configureLocalDns(v2rayConfig)
+        ensureWsDnsRouting(v2rayConfig)
 
         // (added by getDns / getCustomLocalDns) to use the balancer, then add
         // the catch-all balancer rule.
@@ -634,6 +636,29 @@ object CoreConfigManager {
                     outboundTag = AppConfig.TAG_DNS,
                 )
             )
+        }
+    }
+
+    // xray v26+ silently drops UDP through TCP-only WS; explicitly route DNS to dns-out.
+    private fun ensureWsDnsRouting(v2rayConfig: V2rayConfig) {
+        if (!SettingsManager.isVpnMode()) return
+        val primaryNetwork = v2rayConfig.outbounds.firstOrNull()?.streamSettings?.network
+        if (primaryNetwork != NetworkType.WS.type) return
+        if (v2rayConfig.outbounds.none { it.tag == "dns-out" }) {
+            v2rayConfig.outbounds.add(V2rayConfig.OutboundBean(
+                protocol = "dns",
+                tag = "dns-out",
+                settings = null,
+                streamSettings = null,
+                mux = null
+            ))
+        }
+        if (v2rayConfig.routing.rules.none { it.port == "53" && it.outboundTag == "dns-out" }) {
+            v2rayConfig.routing.rules.add(0, V2rayConfig.RoutingBean.RulesBean(
+                inboundTag = arrayListOf("tun"),
+                outboundTag = "dns-out",
+                port = "53",
+            ))
         }
     }
 
