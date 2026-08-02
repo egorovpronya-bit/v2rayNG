@@ -902,20 +902,6 @@ object CoreConfigManager {
             MmkvManager.decodeSettingsString(AppConfig.PREF_ROUTING_DOMAIN_STRATEGY)
                 ?: "AsIs"
 
-        // WS is TCP-only: can't tunnel QUIC (UDP 443). Route QUIC direct so Chrome reaches
-        // Google's servers and falls back to TCP through VPN if ISP blocks UDP 443.
-        // NOT applied for Hysteria2 — it handles QUIC natively through its QUIC tunnel.
-        val primaryNetwork = v2rayConfig.outbounds.firstOrNull()?.streamSettings?.network
-        if (primaryNetwork == "ws") {
-            v2rayConfig.routing.rules.add(
-                V2rayConfig.RoutingBean.RulesBean(
-                    outboundTag = AppConfig.TAG_DIRECT,
-                    network = "udp",
-                    port = "443",
-                )
-            )
-        }
-
         val rulesetItems = MmkvManager.decodeRoutingRulesets()
         rulesetItems?.forEach { key ->
             appendRoutingUserRule(configContext, key, v2rayConfig, policyGroupBalancerTags)

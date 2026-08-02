@@ -70,6 +70,17 @@ object CoreOutboundBuilder {
             } else {
                 outbound.mux?.enabled = false
                 outbound.mux?.concurrency = -1
+                // WS is TCP-only and cannot tunnel QUIC (UDP 443). Chrome waits 60-90s for
+                // QUIC timeout before falling back to HTTP/2 — page appears broken.
+                // Fix: enable xudp with "reject" so xray sends Chrome an explicit refusal,
+                // triggering immediate HTTP/2 fallback. concurrency=8 (not -1) required
+                // or DNS over TCP breaks.
+                if (outbound.streamSettings?.network == NetworkType.WS.type) {
+                    outbound.mux?.enabled = true
+                    outbound.mux?.concurrency = 8
+                    outbound.mux?.xudpConcurrency = 8
+                    outbound.mux?.xudpProxyUDP443 = "reject"
+                }
             }
 
         } catch (e: Exception) {
