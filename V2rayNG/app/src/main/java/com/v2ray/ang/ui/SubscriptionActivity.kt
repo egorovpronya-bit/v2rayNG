@@ -22,7 +22,7 @@ class SubscriptionActivity : BaseActivity() {
                 .setItems(arrayOf("💬 Оплатить через Telegram", "🌐 Оплатить на сайте")) { _, which ->
                     when (which) {
                         0 -> openBot()
-                        1 -> openBrowser("https://saqanet.ru/buy?plan=$planId")
+                        1 -> openBrowser("https://go.saqanet.ru/buy?plan=$planId")
                     }
                 }
                 .show()
