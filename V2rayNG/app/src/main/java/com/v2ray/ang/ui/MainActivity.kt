@@ -12,6 +12,8 @@ import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.provider.Settings
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
@@ -197,6 +199,16 @@ class MainActivity : HelperBaseActivity() {
         if (MmkvManager.getSelectServer().isNullOrEmpty()) {
             toast(R.string.title_file_chooser)
             return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val pm = getSystemService(PowerManager::class.java)
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                try {
+                    startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+                        data = Uri.parse("package:$packageName")
+                    })
+                } catch (_: Exception) {}
+            }
         }
         lifecycleScope.launch(Dispatchers.IO) {
             try { AngConfigManager.updateConfigViaSubAll() } catch (_: Exception) {}

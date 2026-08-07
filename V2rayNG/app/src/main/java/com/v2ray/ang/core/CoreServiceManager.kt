@@ -34,7 +34,9 @@ import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import libv2ray.CoreCallbackHandler
 import libv2ray.CoreController
 import libv2ray.ProcessFinder
@@ -48,6 +50,7 @@ object CoreServiceManager {
     private var currentConfig: ProfileItem? = null
     private var processFinder: XrayProcessFinder? = null
     private var browserDialer: IDialerService? = null
+    @Volatile private var isUserInitiatedStop = false
 
     var serviceControl: SoftReference<ServiceControl>? = null
         set(value) {
@@ -445,6 +448,17 @@ object CoreServiceManager {
         override fun shutdown(): Long {
             val serviceControl = serviceControl?.get() ?: return -1
             return try {
+                val wasUserStop = isUserInitiatedStop
+                isUserInitiatedStop = false
+                if (!wasUserStop) {
+                    // Unexpected shutdown (e.g., WS timeout in Doze mode) — auto-reconnect once
+                    val service = serviceControl.getService()
+                    LogUtil.i(AppConfig.TAG, "StartCore-Manager: Unexpected shutdown, scheduling reconnect in 5s")
+                    CoroutineScope(Dispatchers.IO).launch {
+                        delay(5000L)
+                        withContext(Dispatchers.Main) { startVService(service) }
+                    }
+                }
                 serviceControl.stopService()
                 0
             } catch (e: Exception) {
@@ -533,6 +547,7 @@ object CoreServiceManager {
 
                 AppConfig.MSG_STATE_STOP -> {
                     LogUtil.i(AppConfig.TAG, "StartCore-Manager: Stop service")
+                    isUserInitiatedStop = true
                     serviceControl.stopService()
                 }
 
