@@ -75,6 +75,7 @@ class MainActivity : HelperBaseActivity() {
     private var totalDownload = 0L
     private var lastRxBytes = -1L
     private var lastTxBytes = -1L
+    private var batteryOptRequested = false
 
     val mainViewModel: MainViewModel by viewModels()
 
@@ -200,9 +201,10 @@ class MainActivity : HelperBaseActivity() {
             toast(R.string.title_file_chooser)
             return
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !batteryOptRequested) {
             val pm = getSystemService(PowerManager::class.java)
             if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                batteryOptRequested = true
                 try {
                     startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
                         data = Uri.parse("package:$packageName")
