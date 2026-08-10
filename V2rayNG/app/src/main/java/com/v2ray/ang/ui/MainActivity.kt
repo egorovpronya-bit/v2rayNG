@@ -328,18 +328,16 @@ class MainActivity : HelperBaseActivity() {
         Log.d("SAQASort", "sortedServerGuids: ${guids.size} servers")
         val sorted = guids.sortedWith(compareBy({ guid ->
             val cfg = MmkvManager.decodeServerConfig(guid)
-            val r = cfg?.remarks?.lowercase() ?: ""
             val s = cfg?.server?.lowercase() ?: ""
-            val isMobile = r.contains("mobile") || s.contains("nl2") || s.contains("de1")
-            val isReality = cfg?.security == "reality" || !cfg?.publicKey.isNullOrBlank()
-            val group = if (isMobile) 0 else 1
-            // Germany WS(0) → Amsterdam WS(1) → Hysteria2(2) → Reality(3)
-            val proto = when {
-                isReality -> 3
-                cfg?.network == "ws" -> if (s.contains("de1")) 0 else 1
-                else -> 2
+            val isHysteria2 = cfg?.configType == EConfigType.HYSTERIA2
+            val isDE = s.contains("de1")
+            // H2 DE(0) → H2 NL(1) → WS DE(2) → WS NL(3) → other(4)
+            val key = when {
+                isHysteria2 && isDE -> 0
+                isHysteria2 -> 1
+                isDE -> 2
+                else -> if (s.contains("nl2")) 3 else 4
             }
-            val key = group * 100 + proto * 10
             Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | key=$key")
             key
         }, { guid ->
