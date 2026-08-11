@@ -452,11 +452,12 @@ object CoreServiceManager {
                 isUserInitiatedStop = false
                 if (!wasUserStop) {
                     // Unexpected shutdown (e.g., WS timeout in Doze mode) — auto-reconnect once
-                    val service = serviceControl.getService()
+                    // Use applicationContext: service context is invalid after stopService()
+                    val appCtx = serviceControl.getService().applicationContext
                     LogUtil.i(AppConfig.TAG, "StartCore-Manager: Unexpected shutdown, scheduling reconnect in 5s")
                     CoroutineScope(Dispatchers.IO).launch {
                         delay(5000L)
-                        withContext(Dispatchers.Main) { startVService(service) }
+                        withContext(Dispatchers.Main) { startVService(appCtx) }
                     }
                 }
                 serviceControl.stopService()
