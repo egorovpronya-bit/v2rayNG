@@ -70,8 +70,8 @@ object CoreOutboundBuilder {
             } else if (outbound.streamSettings?.network == NetworkType.WS.type) {
                 // WS is TCP-only; reject QUIC so Chrome falls back to HTTP/2 immediately
                 outbound.mux?.enabled = true
-                outbound.mux?.concurrency = 8
-                outbound.mux?.xudpConcurrency = 8
+                outbound.mux?.concurrency = 16
+                outbound.mux?.xudpConcurrency = 16
                 outbound.mux?.xudpProxyUDP443 = "reject"
             } else {
                 outbound.mux?.enabled = false
