@@ -12,8 +12,9 @@ import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
-import android.provider.Settings
+import android.os.HapticFeedbackConstants
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
@@ -83,6 +84,7 @@ class MainActivity : HelperBaseActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == RESULT_OK) startV2Ray()
+        else showVpnPermissionDenied()
     }
 
     private val requestActivityLauncher = registerForActivityResult(
@@ -147,6 +149,7 @@ class MainActivity : HelperBaseActivity() {
     }
 
     private fun handlePowerClick() {
+        buzzPower()
         if (mainViewModel.isRunning.value == true) {
             CoreServiceManager.stopVService(this)
         } else if (SettingsManager.isVpnMode()) {
@@ -154,6 +157,55 @@ class MainActivity : HelperBaseActivity() {
             if (intent == null) startV2Ray() else requestVpnPermission.launch(intent)
         } else {
             startV2Ray()
+        }
+    }
+
+    private fun buzzPower() {
+        val view = binding.btnPower
+        view.isHapticFeedbackEnabled = true
+        val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            HapticFeedbackConstants.CONFIRM
+        } else {
+            HapticFeedbackConstants.VIRTUAL_KEY
+        }
+        if (view.performHapticFeedback(type)) return
+        try {
+            val vb = getSystemService(Vibrator::class.java) ?: return
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                vb.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vb.vibrate(VibrationEffect.createOneShot(40, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vb.vibrate(40)
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    private fun showNoKeyDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.saqanet_no_key_title)
+            .setMessage(R.string.saqanet_no_key_message)
+            .setPositiveButton(R.string.saqanet_no_key_paste) { _, _ -> importClipboard() }
+            .setNeutralButton(R.string.saqanet_no_key_bot) { _, _ -> openSaqaBot() }
+            .setNegativeButton(R.string.saqanet_cancel, null)
+            .show()
+    }
+
+    private fun showVpnPermissionDenied() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.saqanet_vpn_perm_title)
+            .setMessage(R.string.saqanet_vpn_perm_message)
+            .setPositiveButton(android.R.string.ok, null)
+            .show()
+    }
+
+    private fun openSaqaBot() {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=SAQANet_bot")))
+        } catch (_: Exception) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/SAQANet_bot")))
         }
     }
 
@@ -167,11 +219,7 @@ class MainActivity : HelperBaseActivity() {
                 R.id.settings_per_app -> { requestActivityLauncher.launch(Intent(this, PerAppProxyActivity::class.java)); true }
                 R.id.settings_language -> { startActivity(Intent(this, LanguageActivity::class.java)); true }
                 R.id.settings_not_working -> { startActivity(Intent(this, NotWorkingActivity::class.java)); true }
-                R.id.settings_telegram -> {
-                    try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("tg://resolve?domain=SAQANet_bot"))) }
-                    catch (e: Exception) { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/SAQANet_bot"))) }
-                    true
-                }
+                R.id.settings_telegram -> { openSaqaBot(); true }
                 R.id.settings_check_update -> { UpdateUiHelper.checkAndShowManual(this, lifecycleScope); true }
                 R.id.settings_about -> { startActivity(Intent(this, AboutActivity::class.java)); true }
                 R.id.settings_subscriptions -> { startActivity(Intent(this, SubscriptionActivity::class.java)); true }
@@ -198,21 +246,8 @@ class MainActivity : HelperBaseActivity() {
 
     private fun startV2Ray() {
         if (MmkvManager.getSelectServer().isNullOrEmpty()) {
-            toast(R.string.title_file_chooser)
+            showNoKeyDialog()
             return
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val pm = getSystemService(PowerManager::class.java)
-            if (!pm.isIgnoringBatteryOptimizations(packageName)
-                && !MmkvManager.decodeSettingsBool(AppConfig.PREF_BATTERY_OPT_REQUESTED, false)
-            ) {
-                MmkvManager.encodeSettings(AppConfig.PREF_BATTERY_OPT_REQUESTED, true)
-                try {
-                    startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
-                        data = Uri.parse("package:$packageName")
-                    })
-                } catch (_: Exception) {}
-            }
         }
         lifecycleScope.launch(Dispatchers.IO) {
             try { AngConfigManager.updateConfigViaSubAll() } catch (_: Exception) {}
@@ -691,7 +726,7 @@ class MainActivity : HelperBaseActivity() {
     private fun showProfileSwitcher() {
         val cache = mainViewModel.serversCache
         if (cache.isEmpty()) {
-            toast(R.string.title_file_chooser)
+            showNoKeyDialog()
             return
         }
         val currentGuid = MmkvManager.getSelectServer()

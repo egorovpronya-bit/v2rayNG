@@ -8,6 +8,12 @@
     <string name="saqanet_connected">холбонно</string>
     <string name="saqanet_disconnected">Арахсыбыт</string>
     <string name="saqanet_tap_to_connect">холбонорго баттаа</string>
+    <string name="saqanet_no_key_title">Күлүүс суох</string>
+    <string name="saqanet_no_key_message">Бастаан подписка сигэтин эп. Буфертан уган кэбис эбэтэр Telegram бокка ыл.</string>
+    <string name="saqanet_no_key_paste">Сигэни уган кэбис</string>
+    <string name="saqanet_no_key_bot">Боту арый</string>
+    <string name="saqanet_vpn_perm_title">VPN көҥүлэ наада</string>
+    <string name="saqanet_vpn_perm_message">Бу көҥүл суох VPN холбонуо суоҕа. Кнопкуну хатылаан «OK» тал.</string>
     <string name="saqanet_notifications">Биллэрии</string>
     <string name="saqanet_add">Эбэн биэр</string>
     <string name="title_settings">Туруоруулар</string>

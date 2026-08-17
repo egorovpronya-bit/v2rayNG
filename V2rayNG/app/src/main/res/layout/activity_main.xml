@@ -119,7 +119,8 @@
                 android:layout_width="226dp"
                 android:layout_height="226dp"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:hapticFeedbackEnabled="true">
 
                 <View
                     android:id="@+id/power_glow"

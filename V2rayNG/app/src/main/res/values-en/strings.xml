@@ -6,6 +6,12 @@
     <string name="saqanet_connected">Connected</string>
     <string name="saqanet_disconnected">Disconnected</string>
     <string name="saqanet_tap_to_connect">Tap to connect</string>
+    <string name="saqanet_no_key_title">No key yet</string>
+    <string name="saqanet_no_key_message">Add a subscription link first. Paste it from the clipboard or get one in the Telegram bot.</string>
+    <string name="saqanet_no_key_paste">Paste link</string>
+    <string name="saqanet_no_key_bot">Open bot</string>
+    <string name="saqanet_vpn_perm_title">VPN permission needed</string>
+    <string name="saqanet_vpn_perm_message">Android cannot start the VPN without this permission. Tap Connect again and choose OK.</string>
     <string name="saqanet_notifications">Notifications</string>
     <string name="saqanet_add">Add</string>
     <string name="saqanet_not_working_title">What to do if VPN is not working?</string>
