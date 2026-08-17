@@ -12,9 +12,9 @@ import android.net.Uri
 import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
-import android.os.HapticFeedbackConstants
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.view.HapticFeedbackConstants
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
