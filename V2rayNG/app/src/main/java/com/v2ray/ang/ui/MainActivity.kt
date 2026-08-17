@@ -14,7 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.view.HapticFeedbackConstants
+import android.os.VibratorManager
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
@@ -161,23 +161,20 @@ class MainActivity : HelperBaseActivity() {
     }
 
     private fun buzzPower() {
-        val view = binding.btnPower
-        view.isHapticFeedbackEnabled = true
-        val type = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            HapticFeedbackConstants.CONFIRM
-        } else {
-            HapticFeedbackConstants.VIRTUAL_KEY
-        }
-        if (view.performHapticFeedback(type)) return
         try {
-            val vb = getSystemService(Vibrator::class.java) ?: return
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                vb.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
-            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vb.vibrate(VibrationEffect.createOneShot(40, VibrationEffect.DEFAULT_AMPLITUDE))
+            val vb = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                getSystemService(VibratorManager::class.java)?.defaultVibrator
             } else {
                 @Suppress("DEPRECATION")
-                vb.vibrate(40)
+                getSystemService(Vibrator::class.java)
+            } ?: return
+            if (!vb.hasVibrator()) return
+            // Явный импульс: системный haptic на многих телефонах тихий или выключен.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vb.vibrate(VibrationEffect.createOneShot(55, 220))
+            } else {
+                @Suppress("DEPRECATION")
+                vb.vibrate(55)
             }
         } catch (_: Exception) {
         }
