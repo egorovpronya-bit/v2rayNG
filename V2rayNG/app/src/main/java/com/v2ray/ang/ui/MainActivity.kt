@@ -10,11 +10,14 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.Uri
 import android.net.VpnService
+import android.media.AudioAttributes
 import android.os.Build
 import android.os.Bundle
+import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.view.MotionEvent
 import android.util.Log
 import android.view.Gravity
 import android.view.KeyEvent
@@ -100,6 +103,18 @@ class MainActivity : HelperBaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+        binding.btnPower.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    buzzPower()
+                    v.animate().scaleX(0.92f).scaleY(0.92f).setDuration(50).start()
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    v.animate().scaleX(1f).scaleY(1f).setDuration(70).start()
+                }
+            }
+            false
+        }
         binding.btnPower.setOnClickListener { handlePowerClick() }
         binding.btnSettings.setOnClickListener { showSettingsMenu(it) }
         binding.btnAdd.setOnClickListener { showAddMenu(it) }
@@ -149,7 +164,6 @@ class MainActivity : HelperBaseActivity() {
     }
 
     private fun handlePowerClick() {
-        buzzPower()
         if (mainViewModel.isRunning.value == true) {
             CoreServiceManager.stopVService(this)
         } else if (SettingsManager.isVpnMode()) {
@@ -169,12 +183,30 @@ class MainActivity : HelperBaseActivity() {
                 getSystemService(Vibrator::class.java)
             } ?: return
             if (!vb.hasVibrator()) return
-            // Явный импульс: системный haptic на многих телефонах тихий или выключен.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vb.vibrate(VibrationEffect.createOneShot(55, 220))
+            val effect = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                VibrationEffect.createOneShot(80, 255)
             } else {
-                @Suppress("DEPRECATION")
-                vb.vibrate(55)
+                null
+            }
+            when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && effect != null -> {
+                    val attrs = VibrationAttributes.Builder()
+                        .setUsage(VibrationAttributes.USAGE_HARDWARE_FEEDBACK)
+                        .build()
+                    vb.vibrate(effect, attrs)
+                }
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && effect != null -> {
+                    val audio = AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                        .build()
+                    @Suppress("DEPRECATION")
+                    vb.vibrate(effect, audio)
+                }
+                else -> {
+                    @Suppress("DEPRECATION")
+                    vb.vibrate(80)
+                }
             }
         } catch (_: Exception) {
         }
@@ -246,13 +278,8 @@ class MainActivity : HelperBaseActivity() {
             showNoKeyDialog()
             return
         }
-        lifecycleScope.launch(Dispatchers.IO) {
-            try { AngConfigManager.updateConfigViaSubAll() } catch (_: Exception) {}
-            withContext(Dispatchers.Main) {
-                loadServerList()
-                CoreServiceManager.startVService(this@MainActivity)
-            }
-        }
+        // Не ждать обновления подписки — из‑за сети кнопка «молчала» 2–3 с.
+        CoreServiceManager.startVService(this)
     }
 
     fun restartV2Ray() {
