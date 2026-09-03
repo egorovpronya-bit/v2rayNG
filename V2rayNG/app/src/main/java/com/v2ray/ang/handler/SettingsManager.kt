@@ -48,6 +48,54 @@ object SettingsManager {
         migrateHysteria2PinSHA256()
         migrateDisableLocalDns()
         migrateAddPaymentDirectRule()
+        applyDefaultBypassApps()
+    }
+
+    /**
+     * Default bypass packages. Merge on every list-version bump so updates
+     * actually tick checkboxes (old flag-only init left existing installs empty).
+     */
+    private const val BYPASS_LIST_VERSION = 2
+
+    fun defaultBypassPackages(): Set<String> = setOf(
+        "ru.sberbankmobile", "com.idamob.tinkoff.android", "ru.vtb24.mobilebanking.android",
+        "ru.alfabank.mobile.android", "ru.gazprombank.android", "ru.psbank.mobile",
+        "ru.mtsbank.android", "ru.ozon.finance", "ru.rosbank.android",
+        "ru.open.mobile", "ru.sovcombank.mobile", "ru.raiffeisen.android",
+        "ru.wildberries.android", "com.wildberries.ru",
+        "ru.ozon.app.android", "ru.sbermegamarket.app",
+        "ru.yandex.market", "com.avito.android", "ru.avito",
+        "ru.dodopizza.app", "com.dodopizza.app",
+        "ru.samokat.app", "com.foodband.eda", "ru.eda",
+        "ru.delivery.club", "ru.perekrestok.app", "ru.x5retail.app",
+        "ru.chizhik.app", "ru.vkusvill.android",
+        "ru.yandex.taximeter", "ru.yandex.mobile",
+        "ru.dublgis.dgismobile", "ru.rzd.passenger", "com.aviasales.app",
+        "com.vkontakte.android", "com.vk.video", "ru.ok.android", "ru.rutube.app",
+        "ru.gosuslugi.mobile", "ru.nalog.nalogpayer", "ru.russianpost.tracking.pochta",
+        "ru.mts.selfservice", "com.mts.android", "ru.megafon.selfservice",
+        "ru.beeline.services", "ru.tele2.android",
+        "ru.kinopoisk.android", "com.yandex.browser", "ru.yandex.music",
+        "ru.taxsee.taxi", "ru.citypoint.carsharing"
+    )
+
+    fun applyDefaultBypassApps() {
+        MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, true)
+        MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, true)
+
+        val savedVersion = MmkvManager.decodeSettingsInt(AppConfig.PREF_RUSSIAN_BYPASS_VERSION, 0)
+        val current = MmkvManager.decodeSettingsStringSet(AppConfig.PREF_PER_APP_PROXY_SET)
+            ?.let { HashSet(it) }
+            ?: HashSet()
+
+        if (savedVersion >= BYPASS_LIST_VERSION && current.isNotEmpty()) {
+            return
+        }
+
+        current.addAll(defaultBypassPackages())
+        MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY_SET, current)
+        MmkvManager.encodeSettings(AppConfig.PREF_RUSSIAN_BYPASS_VERSION, BYPASS_LIST_VERSION)
+        MmkvManager.encodeSettings(AppConfig.PREF_RUSSIAN_BYPASS_INITIALIZED, true)
     }
 
     /**

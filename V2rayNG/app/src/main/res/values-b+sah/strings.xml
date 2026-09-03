@@ -12,6 +12,8 @@
     <string name="saqanet_no_key_message">Бастаан подписка сигэтин эп. Буфертан уган кэбис эбэтэр Telegram бокка ыл.</string>
     <string name="saqanet_no_key_paste">Сигэни уган кэбис</string>
     <string name="saqanet_no_key_bot">Боту арый</string>
+    <string name="saqanet_expired_title">Подписка бүттэ</string>
+    <string name="saqanet_expired_message">Пробнай эбэтэр төлөммүт болдьох бүттэ. VPN араҕыста, сервердар сотулуннулар. Боту эбэтэр сайттан ылыҥ.</string>
     <string name="saqanet_vpn_perm_title">VPN көҥүлэ наада</string>
     <string name="saqanet_vpn_perm_message">Бу көҥүл суох VPN холбонуо суоҕа. Кнопкуну хатылаан «OK» тал.</string>
     <string name="saqanet_notifications">Биллэрии</string>

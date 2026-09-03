@@ -30,6 +30,13 @@ import java.net.URI
 
 object AngConfigManager {
 
+    private fun isSubscriptionExpired(e: Exception): Boolean {
+        val msg = e.message ?: return false
+        return msg.contains("status code 404") ||
+            msg.contains("status code 401") ||
+            msg.contains("status code 403")
+    }
+
     // Parser mapping for different config types (lazy initialized)
     private val configFmtParsers: Map<String, (String) -> ProfileItem?> by lazy {
         mapOf(
@@ -570,6 +577,7 @@ object AngConfigManager {
             val proxyUsername = SettingsManager.getSocksUsername()
             val proxyPassword = SettingsManager.getSocksPassword()
 
+            var expired = false
             var configText = try {
                 val httpPort = SettingsManager.getHttpPort()
                 HttpUtil.getUrlContentWithUserAgent(
@@ -583,10 +591,13 @@ object AngConfigManager {
                     )
                 )
             } catch (e: Exception) {
+                if (isSubscriptionExpired(e)) {
+                    expired = true
+                }
                 LogUtil.e(AppConfig.ANG_PACKAGE, "Update subscription: proxy not ready or other error", e)
                 ""
             }
-            if (configText.isEmpty()) {
+            if (configText.isEmpty() && !expired) {
                 configText = try {
                     HttpUtil.getUrlContentWithUserAgent(
                         UrlContentRequest(
@@ -595,9 +606,17 @@ object AngConfigManager {
                         )
                     )
                 } catch (e: Exception) {
+                    if (isSubscriptionExpired(e)) {
+                        expired = true
+                    }
                     LogUtil.e(AppConfig.TAG, "Update subscription: Failed to get URL content with user agent", e)
                     ""
                 }
+            }
+            if (expired) {
+                MmkvManager.removeServerViaSubid(it.guid)
+                LogUtil.i(AppConfig.TAG, "Subscription expired, servers removed: ${it.subscription.remarks}")
+                return SubscriptionUpdateResult(expiredCount = 1)
             }
             if (configText.isEmpty()) {
                 return SubscriptionUpdateResult(failureCount = 1)

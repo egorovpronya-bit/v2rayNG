@@ -46,8 +46,8 @@ class PerAppProxyActivity : BaseActivity() {
         addCustomDividerToRecyclerView(binding.recyclerView, this, R.drawable.custom_divider)
 
         // Авто-включаем bypass mode — пользователь просто выбирает приложения
-        MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, true)
-        MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, true)
+        SettingsManager.applyDefaultBypassApps()
+        viewModel.reloadFromStorage()
 
         initList()
     }

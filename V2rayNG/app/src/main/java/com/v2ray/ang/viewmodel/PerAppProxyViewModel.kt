@@ -14,6 +14,11 @@ class PerAppProxyViewModel : ViewModel() {
 
     fun getAll(): Set<String> = blacklist.toSet()
 
+    fun reloadFromStorage() {
+        blacklist.clear()
+        MmkvManager.decodeSettingsStringSet(AppConfig.PREF_PER_APP_PROXY_SET)?.let { blacklist.addAll(it) }
+    }
+
     fun add(packageName: String): Boolean {
         val changed = blacklist.add(packageName)
         if (changed) {

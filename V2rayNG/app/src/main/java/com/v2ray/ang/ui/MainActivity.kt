@@ -122,7 +122,7 @@ class MainActivity : HelperBaseActivity() {
         setupViewModel()
         SubscriptionUpdater.sync()
         mainViewModel.reloadServerList()
-        initRussianBypassIfNeeded()
+        SettingsManager.applyDefaultBypassApps()
 
         UpdateUiHelper.initChannel(this)
         handleUpdateIntent(intent)
@@ -222,6 +222,17 @@ class MainActivity : HelperBaseActivity() {
             .show()
     }
 
+    private fun showExpiredDialog() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.saqanet_expired_title)
+            .setMessage(R.string.saqanet_expired_message)
+            .setPositiveButton(R.string.saqanet_go_to_bot) { _, _ -> openSaqaBot() }
+            .setNegativeButton(R.string.saqanet_menu_tariffs) { _, _ ->
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://saqanet.ru/buy")))
+            }
+            .show()
+    }
+
     private fun showVpnPermissionDenied() {
         AlertDialog.Builder(this)
             .setTitle(R.string.saqanet_vpn_perm_title)
@@ -274,12 +285,25 @@ class MainActivity : HelperBaseActivity() {
     }
 
     private fun startV2Ray() {
-        if (MmkvManager.getSelectServer().isNullOrEmpty()) {
-            showNoKeyDialog()
-            return
+        lifecycleScope.launch(Dispatchers.IO) {
+            val result = AngConfigManager.updateConfigViaSubAll()
+            withContext(Dispatchers.Main) {
+                if (result.expiredCount > 0) {
+                    if (mainViewModel.isRunning.value == true) {
+                        CoreServiceManager.stopVService(this@MainActivity)
+                    }
+                    mainViewModel.reloadServerList()
+                    loadServerList()
+                    showExpiredDialog()
+                    return@withContext
+                }
+                if (MmkvManager.getSelectServer().isNullOrEmpty()) {
+                    showNoKeyDialog()
+                    return@withContext
+                }
+                CoreServiceManager.startVService(this@MainActivity)
+            }
         }
-        // Не ждать обновления подписки — из‑за сети кнопка «молчала» 2–3 с.
-        CoreServiceManager.startVService(this)
     }
 
     fun restartV2Ray() {
@@ -432,9 +456,23 @@ class MainActivity : HelperBaseActivity() {
         autoSwitchJob?.cancel()
         autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
             delay(20_000L)
+            var loops = 0
             while (true) {
                 delay(if (isWifi()) 5_000L else 10_000L)
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
+                loops++
+                if (loops % 12 == 0) {
+                    val result = AngConfigManager.updateConfigViaSubAll()
+                    if (result.expiredCount > 0) {
+                        withContext(Dispatchers.Main) {
+                            CoreServiceManager.stopVService(this@MainActivity)
+                            mainViewModel.reloadServerList()
+                            loadServerList()
+                            showExpiredDialog()
+                        }
+                        break
+                    }
+                }
                 runPingAndSwitchIfBetter()
             }
         }
@@ -518,7 +556,7 @@ class MainActivity : HelperBaseActivity() {
         }
 
         tunnelFailCount++
-        val failThreshold = if (isWifi()) 1 else 3
+        val failThreshold = 3
         LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/$failThreshold)")
         if (tunnelFailCount < failThreshold) return
 
@@ -535,49 +573,6 @@ class MainActivity : HelperBaseActivity() {
         }
         // Wait for new connection to stabilise before next check
         delay(15_000L)
-    }
-
-    private fun initRussianBypassIfNeeded() {
-        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_RUSSIAN_BYPASS_INITIALIZED)) {
-            // BYPASS_APPS must be true — without it, only Russian apps route through VPN (proxy-only mode)
-            if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_BYPASS_APPS)) {
-                MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, true)
-            }
-            return
-        }
-        val russianApps = mutableSetOf(
-            // Банки
-            "ru.sberbankmobile", "com.idamob.tinkoff.android", "ru.vtb24.mobilebanking.android",
-            "ru.alfabank.mobile.android", "ru.gazprombank.android", "ru.psbank.mobile",
-            "ru.mtsbank.android", "ru.ozon.finance", "ru.rosbank.android",
-            "ru.open.mobile", "ru.sovcombank.mobile", "ru.raiffeisen.android",
-            // Маркетплейсы
-            "ru.wildberries.android", "com.wildberries.ru",
-            "ru.ozon.app.android", "ru.sbermegamarket.app",
-            "ru.yandex.market", "com.avito.android", "ru.avito",
-            // Доставка еды и продуктов
-            "ru.dodopizza.app", "com.dodopizza.app",
-            "ru.samokat.app", "com.foodband.eda", "ru.eda",
-            "ru.delivery.club", "ru.perekrestok.app", "ru.x5retail.app",
-            "ru.chizhik.app", "ru.vkusvill.android",
-            // Такси и транспорт
-            "ru.yandex.taximeter", "ru.yandex.mobile",
-            "ru.dublgis.dgismobile", "ru.rzd.passenger", "com.aviasales.app",
-            // Соцсети и видео
-            "com.vkontakte.android", "com.vk.video", "ru.ok.android", "ru.rutube.app",
-            // Госуслуги и официальные
-            "ru.gosuslugi.mobile", "ru.nalog.nalogpayer", "ru.russianpost.tracking.pochta",
-            // Операторы связи
-            "ru.mts.selfservice", "com.mts.android", "ru.megafon.selfservice",
-            "ru.beeline.services", "ru.tele2.android",
-            // Другие
-            "ru.kinopoisk.android", "com.yandex.browser", "ru.yandex.music",
-            "ru.taxsee.taxi", "ru.citypoint.carsharing"
-        )
-        MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY, true)
-        MmkvManager.encodeSettings(AppConfig.PREF_BYPASS_APPS, true)
-        MmkvManager.encodeSettings(AppConfig.PREF_PER_APP_PROXY_SET, russianApps)
-        MmkvManager.encodeSettings(AppConfig.PREF_RUSSIAN_BYPASS_INITIALIZED, true)
     }
 
     private fun getServerMeta(remarks: String, host: String): Pair<String, String> {

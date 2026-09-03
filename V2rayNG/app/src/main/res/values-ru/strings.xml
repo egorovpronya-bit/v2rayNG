@@ -20,6 +20,8 @@
     <string name="saqanet_no_key_message">Сначала добавьте ссылку подписки. Вставьте её из буфера или получите в Telegram-боте.</string>
     <string name="saqanet_no_key_paste">Вставить ссылку</string>
     <string name="saqanet_no_key_bot">Открыть бота</string>
+    <string name="saqanet_expired_title">Подписка закончилась</string>
+    <string name="saqanet_expired_message">Тестовый или оплаченный период истёк. VPN выключен, сервера удалены. Купите подписку в боте или на сайте.</string>
     <string name="saqanet_vpn_perm_title">Нужно разрешение VPN</string>
     <string name="saqanet_vpn_perm_message">Без разрешения Android VPN не включится. Нажмите кнопку ещё раз и выберите «OK».</string>
     <string name="saqanet_notifications">Уведомления</string>
