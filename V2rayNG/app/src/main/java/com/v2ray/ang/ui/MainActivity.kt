@@ -49,11 +49,6 @@ import com.v2ray.ang.handler.SubscriptionUpdater
 import com.v2ray.ang.dto.UrlContentRequest
 import com.v2ray.ang.util.HttpUtil
 import com.v2ray.ang.util.LogUtil
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.net.InetSocketAddress
-import java.net.Proxy
-import java.util.concurrent.TimeUnit
 import com.v2ray.ang.util.Utils
 import com.v2ray.ang.viewmodel.MainViewModel
 import kotlinx.coroutines.Dispatchers
@@ -71,10 +66,8 @@ class MainActivity : HelperBaseActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     private var trafficJob: Job? = null
-    private var autoSwitchJob: Job? = null
     private var updateCheckJob: Job? = null
     private var networkCallback: ConnectivityManager.NetworkCallback? = null
-    private var tunnelFailCount = 0
     private var totalUpload = 0L
     private var totalDownload = 0L
     private var lastRxBytes = -1L
@@ -332,7 +325,6 @@ class MainActivity : HelperBaseActivity() {
             binding.tvConnectionState.text = getString(R.string.saqanet_connected)
             binding.tvConnectionState.setTextColor(0xFF4F6EF7.toInt())
             startTrafficPolling()
-            if (MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) startAutoSwitching()
             // Delayed update check — runs 30s after VPN connects, doesn't interfere with tunnel startup
             updateCheckJob?.cancel()
             updateCheckJob = lifecycleScope.launch {
@@ -340,7 +332,6 @@ class MainActivity : HelperBaseActivity() {
                 UpdateUiHelper.checkAndShow(this@MainActivity, lifecycleScope)
             }
         } else {
-            stopAutoSwitching()
             stopTrafficPolling()
             updateCheckJob?.cancel()
             binding.shieldBar.setBackgroundResource(R.drawable.bg_shield_inactive)
@@ -384,7 +375,7 @@ class MainActivity : HelperBaseActivity() {
         }
         container.addView(buildAutoCard(autoEnabled, autoFlag, autoCity))
 
-        val sortedGuids = sortedServerGuids()
+        val sortedGuids = CoreServiceManager.sortedServerGuids()
         sortedGuids.forEach { guid ->
             val config = MmkvManager.decodeServerConfig(guid) ?: return@forEach
             val (flag, city) = getServerMeta(config.remarks, config.server ?: "")
@@ -408,33 +399,9 @@ class MainActivity : HelperBaseActivity() {
         loadServerList()
     }
 
-    private fun sortedServerGuids(): List<String> {
-        val guids = MmkvManager.decodeAllServerList()
-        Log.d("SAQASort", "sortedServerGuids: ${guids.size} servers")
-        val sorted = guids.sortedWith(compareBy({ guid ->
-            val cfg = MmkvManager.decodeServerConfig(guid)
-            val s = cfg?.server?.lowercase() ?: ""
-            val isHysteria2 = cfg?.configType == EConfigType.HYSTERIA2
-            val isDE = s.contains("de1")
-            // H2 DE(0) → H2 NL(1) → WS DE(2) → WS NL(3) → other(4)
-            val key = when {
-                isHysteria2 && isDE -> 0
-                isHysteria2 -> 1
-                isDE -> 2
-                else -> if (s.contains("nl2")) 3 else 4
-            }
-            Log.d("SAQASort", "  ${cfg?.remarks} | server=$s | key=$key")
-            key
-        }, { guid ->
-            MmkvManager.decodeServerConfig(guid)?.remarks ?: ""
-        }))
-        Log.d("SAQASort", "Sorted order: ${sorted.map { MmkvManager.decodeServerConfig(it)?.remarks }}")
-        return sorted
-    }
-
     private fun enableAutoMode() {
         MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
-        val sorted = autoSwitchGuids()
+        val sorted = CoreServiceManager.autoSwitchGuids(this)
         if (sorted.isEmpty()) { loadServerList(); return }
         MmkvManager.setSelectServer(sorted[0])
         if (mainViewModel.isRunning.value == true) restartV2Ray()
@@ -451,57 +418,6 @@ class MainActivity : HelperBaseActivity() {
         }
     }
 
-    private fun startAutoSwitching() {
-        tunnelFailCount = 0
-        autoSwitchJob?.cancel()
-        autoSwitchJob = lifecycleScope.launch(Dispatchers.IO) {
-            delay(20_000L)
-            var loops = 0
-            while (true) {
-                delay(if (isWifi()) 5_000L else 10_000L)
-                if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
-                loops++
-                if (loops % 12 == 0) {
-                    val result = AngConfigManager.updateConfigViaSubAll()
-                    if (result.expiredCount > 0) {
-                        withContext(Dispatchers.Main) {
-                            CoreServiceManager.stopVService(this@MainActivity)
-                            mainViewModel.reloadServerList()
-                            loadServerList()
-                            showExpiredDialog()
-                        }
-                        break
-                    }
-                }
-                runPingAndSwitchIfBetter()
-            }
-        }
-    }
-
-    private fun stopAutoSwitching() { autoSwitchJob?.cancel(); autoSwitchJob = null }
-
-    private fun isWifi(): Boolean {
-        val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        // activeNetwork is the VPN tunnel when VPN is active — it has no TRANSPORT_WIFI.
-        // Check all non-VPN networks to find the real physical transport.
-        for (network in cm.allNetworks) {
-            val nc = cm.getNetworkCapabilities(network) ?: continue
-            if (nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) continue
-            if (nc.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
-                return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-            }
-        }
-        return false
-    }
-
-    private fun autoSwitchGuids(): List<String> {
-        val sorted = sortedServerGuids()
-        if (!isWifi()) return sorted
-        // WiFi: home ISPs block TCP-based WS (TLS data dropped after TCP SYN); skip to Hysteria2 (UDP)
-        val noWs = sorted.filter { MmkvManager.decodeServerConfig(it)?.network != "ws" }
-        return noWs.ifEmpty { sorted }
-    }
-
     private fun registerNetworkCallback() {
         val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
         val cb = object : ConnectivityManager.NetworkCallback() {
@@ -510,7 +426,7 @@ class MainActivity : HelperBaseActivity() {
             }
 
             override fun onLost(network: Network) {
-                // Failover handled by periodic tunnel check in startAutoSwitching
+                // Failover handled by CoreVpnService's own watchdog (survives Activity backgrounding)
             }
         }
         cm.registerNetworkCallback(NetworkRequest.Builder().build(), cb)
@@ -522,57 +438,6 @@ class MainActivity : HelperBaseActivity() {
         networkCallback?.let {
             (getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager).unregisterNetworkCallback(it)
         }
-    }
-
-    private suspend fun isTunnelAlive(): Boolean {
-        return withContext(Dispatchers.IO) {
-            try {
-                val socksPort = SettingsManager.getSocksPort()
-                if (socksPort == 0) return@withContext true
-                val proxy = Proxy(Proxy.Type.SOCKS, InetSocketAddress("127.0.0.1", socksPort))
-                val client = OkHttpClient.Builder()
-                    .proxy(proxy)
-                    .connectTimeout(8, TimeUnit.SECONDS)
-                    .readTimeout(8, TimeUnit.SECONDS)
-                    .build()
-                val req = Request.Builder().url("http://cp.cloudflare.com/").head().build()
-                client.newCall(req).execute().use { true }
-            } catch (e: Exception) {
-                false
-            }
-        }
-    }
-
-    private suspend fun runPingAndSwitchIfBetter() {
-        val guids = MmkvManager.decodeAllServerList()
-        if (guids.size < 2) return
-        val currentGuid = MmkvManager.getSelectServer() ?: guids[0]
-
-        if (isTunnelAlive()) {
-            tunnelFailCount = 0
-            LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel alive, no switch needed")
-            withContext(Dispatchers.Main) { loadServerList() }
-            return
-        }
-
-        tunnelFailCount++
-        val failThreshold = 3
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/$failThreshold)")
-        if (tunnelFailCount < failThreshold) return
-
-        // 3 consecutive failures — switch to next server
-        tunnelFailCount = 0
-        val sorted = autoSwitchGuids()
-        val currentIdx = sorted.indexOf(currentGuid)
-        val nextGuid = sorted[(currentIdx + 1) % sorted.size]
-        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead, switching to $nextGuid")
-        withContext(Dispatchers.Main) {
-            MmkvManager.setSelectServer(nextGuid)
-            if (mainViewModel.isRunning.value == true) restartV2Ray()
-            loadServerList()
-        }
-        // Wait for new connection to stabilise before next check
-        delay(15_000L)
     }
 
     private fun getServerMeta(remarks: String, host: String): Pair<String, String> {

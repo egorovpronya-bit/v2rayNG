@@ -21,12 +21,20 @@ import com.v2ray.ang.BuildConfig
 import com.v2ray.ang.contracts.ServiceControl
 import com.v2ray.ang.contracts.Tun2SocksControl
 import com.v2ray.ang.core.CoreServiceManager
+import com.v2ray.ang.handler.AngConfigManager
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.NotificationManager
 import com.v2ray.ang.handler.SettingsManager
 import com.v2ray.ang.util.LogUtil
 import com.v2ray.ang.util.MyContextWrapper
 import com.v2ray.ang.util.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.lang.ref.SoftReference
 
 @SuppressLint("VpnServicePolicy")
@@ -34,6 +42,13 @@ class CoreVpnService : VpnService(), ServiceControl {
     private lateinit var mInterface: ParcelFileDescriptor
     private var isRunning = false
     private var tun2SocksService: Tun2SocksControl? = null
+
+    // Runs in this foreground Service (not tied to MainActivity's lifecycle) so the
+    // tunnel health-check / auto-switch keeps working while the app is backgrounded
+    // or its Activity gets destroyed by the OS — this Service is what actually stays alive.
+    private val watchdogScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var watchdogJob: Job? = null
+    private var tunnelFailCount = 0
 
     /**destroy
      * Unfortunately registerDefaultNetworkCallback is going to return our VPN interface: https://android.googlesource.com/platform/frameworks/base/+/dda156ab0c5d66ad82bdcf76cda07cbc0a9c8a2e
@@ -82,6 +97,7 @@ class CoreVpnService : VpnService(), ServiceControl {
 
     override fun onRevoke() {
         LogUtil.w(AppConfig.TAG, "StartCore-VPN: Permission revoked")
+        stopWatchdog()
         stopAllService()
     }
 
@@ -93,6 +109,7 @@ class CoreVpnService : VpnService(), ServiceControl {
     override fun onDestroy() {
         super.onDestroy()
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: Service destroyed")
+        watchdogScope.cancel()
 
         // Ensure VPN interface is properly closed when the service is destroyed without
         // going through stopAllService() (e.g. when killed unexpectedly). isRunning is
@@ -116,6 +133,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         NotificationManager.showNotification(null)
         setupVpnService()
         startService()
+        startWatchdog()
         return START_STICKY
         //return super.onStartCommand(intent, flags, startId)
     }
@@ -137,6 +155,7 @@ class CoreVpnService : VpnService(), ServiceControl {
     }
 
     override fun stopService() {
+        stopWatchdog()
         stopAllService(true)
     }
 
@@ -390,6 +409,69 @@ class CoreVpnService : VpnService(), ServiceControl {
                 LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to close interface", e)
             }
         }
+    }
+
+    /**
+     * Periodic tunnel liveness check + auto-switch, moved here from MainActivity's
+     * lifecycleScope: that job died whenever the OS destroyed the backgrounded Activity
+     * (e.g. overnight with the screen off), leaving a silently dead tunnel behind a
+     * still-"connected" notification with nothing left to detect or fix it. This Service
+     * is the foreground component that actually survives that scenario.
+     */
+    private fun startWatchdog() {
+        if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) return
+        tunnelFailCount = 0
+        watchdogJob?.cancel()
+        watchdogJob = watchdogScope.launch {
+            delay(20_000L)
+            var loops = 0
+            while (true) {
+                delay(if (CoreServiceManager.isWifi(this@CoreVpnService)) 5_000L else 10_000L)
+                if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
+                loops++
+                if (loops % 12 == 0) {
+                    val result = AngConfigManager.updateConfigViaSubAll()
+                    if (result.expiredCount > 0) {
+                        LogUtil.i(AppConfig.TAG, "Auto-switch: subscription expired, stopping")
+                        stopAllService(true)
+                        break
+                    }
+                }
+                if (checkTunnelAndSwitch()) break
+            }
+        }
+    }
+
+    private fun stopWatchdog() {
+        watchdogJob?.cancel()
+        watchdogJob = null
+    }
+
+    /** Returns true if a server switch was triggered (caller should stop looping — a fresh watchdog starts with the new server). */
+    private suspend fun checkTunnelAndSwitch(): Boolean {
+        val guids = MmkvManager.decodeAllServerList()
+        if (guids.size < 2) return false
+        val currentGuid = MmkvManager.getSelectServer() ?: guids[0]
+
+        if (CoreServiceManager.measureTunnelDelay() >= 0) {
+            tunnelFailCount = 0
+            return false
+        }
+
+        tunnelFailCount++
+        val failThreshold = 3
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/$failThreshold)")
+        if (tunnelFailCount < failThreshold) return false
+
+        val sorted = CoreServiceManager.autoSwitchGuids(this)
+        val currentIdx = sorted.indexOf(currentGuid)
+        val nextGuid = sorted[(currentIdx + 1) % sorted.size]
+        LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead, switching to $nextGuid")
+        MmkvManager.setSelectServer(nextGuid)
+        stopAllService(false)
+        delay(500)
+        CoreServiceManager.startVService(applicationContext, nextGuid)
+        return true
     }
 }
 

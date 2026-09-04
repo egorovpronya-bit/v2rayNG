@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.system.OsConstants
@@ -117,6 +118,57 @@ object CoreServiceManager {
      * @return True if the service is running, false otherwise.
      */
     fun isRunning() = coreController.isRunning
+
+    /**
+     * True if the active (non-VPN) network transport is WiFi.
+     * Shared by MainActivity (UI) and CoreVpnService (background watchdog) so both
+     * agree on which servers are eligible for auto-switch.
+     */
+    fun isWifi(context: Context): Boolean {
+        val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        // activeNetwork is the VPN tunnel when VPN is active — it has no TRANSPORT_WIFI.
+        // Check all non-VPN networks to find the real physical transport.
+        for (network in cm.allNetworks) {
+            val nc = cm.getNetworkCapabilities(network) ?: continue
+            if (nc.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) continue
+            if (nc.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)) {
+                return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+            }
+        }
+        return false
+    }
+
+    /**
+     * Server guids sorted for the auto-select flow: H2 DE(0) -> H2 NL(1) -> WS DE(2) -> WS NL(3) -> other(4).
+     */
+    fun sortedServerGuids(): List<String> {
+        val guids = MmkvManager.decodeAllServerList()
+        return guids.sortedWith(compareBy({ guid ->
+            val cfg = MmkvManager.decodeServerConfig(guid)
+            val s = cfg?.server?.lowercase() ?: ""
+            val isHysteria2 = cfg?.configType == EConfigType.HYSTERIA2
+            val isDE = s.contains("de1")
+            when {
+                isHysteria2 && isDE -> 0
+                isHysteria2 -> 1
+                isDE -> 2
+                else -> if (s.contains("nl2")) 3 else 4
+            }
+        }, { guid ->
+            MmkvManager.decodeServerConfig(guid)?.remarks ?: ""
+        }))
+    }
+
+    /**
+     * Servers eligible for auto-switch. On WiFi, skip WS (TCP) servers when alternatives
+     * exist — home ISPs often drop TLS data on TCP-based WS after the TCP handshake.
+     */
+    fun autoSwitchGuids(context: Context): List<String> {
+        val sorted = sortedServerGuids()
+        if (!isWifi(context)) return sorted
+        val noWs = sorted.filter { MmkvManager.decodeServerConfig(it)?.network != "ws" }
+        return noWs.ifEmpty { sorted }
+    }
 
     /**
      * Gets the name of the currently running server.
