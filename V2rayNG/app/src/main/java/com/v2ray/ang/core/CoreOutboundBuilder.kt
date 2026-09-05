@@ -68,11 +68,11 @@ object CoreOutboundBuilder {
                     outbound.mux?.concurrency = -1
                 }
             } else if (outbound.streamSettings?.network == NetworkType.WS.type) {
-                // WS is TCP-only; reject QUIC so Chrome falls back to HTTP/2 immediately
-                outbound.mux?.enabled = true
-                outbound.mux?.concurrency = 16
-                outbound.mux?.xudpConcurrency = 16
-                outbound.mux?.xudpProxyUDP443 = "reject"
+                // WS is TCP-only. Mux+reject UDP/443 made Chrome fall back to HTTP/2, but the
+                // YouTube app often never retries TCP and spins forever. QUIC is blackholed in
+                // routing instead; leave mux off so video TCP streams are not multiplexed.
+                outbound.mux?.enabled = false
+                outbound.mux?.concurrency = -1
             } else {
                 outbound.mux?.enabled = false
                 outbound.mux?.concurrency = -1

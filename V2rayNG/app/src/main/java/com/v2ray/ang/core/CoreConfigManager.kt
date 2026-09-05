@@ -492,6 +492,8 @@ object CoreConfigManager {
         if (!sniffAllTlsAndHttp) {
             inbound1.sniffing?.destOverride?.clear()
         }
+        // QUIC sniffing rewrites UDP/443 destinations and fights the blackhole rule below.
+        inbound1.sniffing?.destOverride?.removeAll { it.equals("quic", ignoreCase = true) }
         if (fakedns) {
             inbound1.sniffing?.destOverride?.add("fakedns")
         }
@@ -924,6 +926,17 @@ object CoreConfigManager {
         v2rayConfig.routing.domainStrategy =
             MmkvManager.decodeSettingsString(AppConfig.PREF_ROUTING_DOMAIN_STRATEGY)
                 ?: "AsIs"
+
+        // YouTube/Chrome QUIC is UDP/443. It cannot traverse TCP-only WS. Sending it
+        // "direct" waits 60–90s for the ISP to drop the packet. Mux-reject only helped
+        // Chrome. Blackhole fails immediately so the app retries HTTPS/TCP through the tunnel.
+        v2rayConfig.routing.rules.add(
+            V2rayConfig.RoutingBean.RulesBean(
+                network = "udp",
+                port = "443",
+                outboundTag = AppConfig.TAG_BLOCKED,
+            )
+        )
 
         val rulesetItems = MmkvManager.decodeRoutingRulesets()
         rulesetItems?.forEach { key ->
