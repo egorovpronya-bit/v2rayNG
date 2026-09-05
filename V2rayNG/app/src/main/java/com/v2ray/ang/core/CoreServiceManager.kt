@@ -35,6 +35,7 @@ import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.util.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -348,7 +349,7 @@ object CoreServiceManager {
     fun measureTunnelDelay(): Long {
         if (!coreController.isRunning) return -1L
         return try {
-            coreController.measureDelay("https://1.1.1.1/generate_204")
+            coreController.measureDelay(SettingsManager.getDelayTestUrl())
         } catch (e: Exception) {
             LogUtil.w(AppConfig.TAG, "Tunnel health check failed: ${e.message}")
             -1L
@@ -358,12 +359,15 @@ object CoreServiceManager {
     /**
      * Stops the V2Ray core service.
      * Unregisters broadcast receivers, stops notifications, and shuts down plugins.
-     * @return True if the core was stopped successfully, false otherwise.
+     * @return the Job stopping the native core loop, or null if it wasn't running.
+     *   `coreController.stopLoop()` is async/native — callers that need to guarantee the
+     *   core is actually stopped before starting a new one (e.g. auto-switch) must join() it;
+     *   without that, `coreController.isRunning` can still read true when the next start begins.
      */
-    fun stopCoreLoop(): Boolean {
-        val service = getService() ?: return false
+    fun stopCoreLoop(): Job? {
+        val service = getService() ?: return null
 
-        if (coreController.isRunning) {
+        val stopJob = if (coreController.isRunning) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     coreController.stopLoop()
@@ -371,7 +375,7 @@ object CoreServiceManager {
                     LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to stop V2Ray loop", e)
                 }
             }
-        }
+        } else null
 
         // Close existing browser dialer
         CoreNativeManager.reconcileBrowserDialer("")
@@ -389,7 +393,7 @@ object CoreServiceManager {
             LogUtil.e(AppConfig.TAG, "StartCore-Manager: Failed to unregister receiver", e)
         }
 
-        return true
+        return stopJob
     }
 
     /**

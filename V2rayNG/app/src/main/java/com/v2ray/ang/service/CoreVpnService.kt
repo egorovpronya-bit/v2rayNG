@@ -364,7 +364,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         tun2SocksService?.startTun2Socks()
     }
 
-    private fun stopAllService(isForced: Boolean = true) {
+    private fun stopAllService(isForced: Boolean = true): Job? {
 //        val configName = defaultDPreference.getPrefString(PREF_CURR_CONFIG_GUID, "")
 //        val emptyInfo = VpnNetworkInfo()
 //        val info = loadVpnNetworkInfo(configName, emptyInfo)!! + (lastNetworkInfo ?: emptyInfo)
@@ -381,7 +381,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         tun2SocksService?.stopTun2Socks()
         tun2SocksService = null
 
-        CoreServiceManager.stopCoreLoop()
+        val stopJob = CoreServiceManager.stopCoreLoop()
 
         if (isForced) {
             //stopSelf has to be called ahead of mInterface.close(). otherwise v2ray core cannot be stooped
@@ -409,6 +409,7 @@ class CoreVpnService : VpnService(), ServiceControl {
                 LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to close interface", e)
             }
         }
+        return stopJob
     }
 
     /**
@@ -468,8 +469,12 @@ class CoreVpnService : VpnService(), ServiceControl {
         val nextGuid = sorted[(currentIdx + 1) % sorted.size]
         LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead, switching to $nextGuid")
         MmkvManager.setSelectServer(nextGuid)
-        stopAllService(false)
-        delay(500)
+        // Must join the stop before starting the next server: coreController.stopLoop() is
+        // async/native, so a fixed delay() here previously raced it — if the core hadn't
+        // actually stopped yet, startCoreLoop() would see isRunning==true, return false, and
+        // CoreVpnService.startService() would then force-stop everything (see stopAllService's
+        // isForced=true default), killing the tunnel instead of switching it.
+        stopAllService(false)?.join()
         CoreServiceManager.startVService(applicationContext, nextGuid)
         return true
     }
