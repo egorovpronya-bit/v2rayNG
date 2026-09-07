@@ -13,10 +13,12 @@ import android.net.VpnService
 import android.media.AudioAttributes
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.os.VibrationAttributes
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.provider.Settings
 import android.view.MotionEvent
 import android.util.Log
 import android.view.Gravity
@@ -124,6 +126,7 @@ class MainActivity : HelperBaseActivity() {
             UpdateUiHelper.checkAndShow(this@MainActivity, lifecycleScope)
         }
         checkAndRequestPermission(PermissionType.POST_NOTIFICATIONS) {}
+        requestBatteryOptimizationExemption()
         registerNetworkCallback()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -139,6 +142,24 @@ class MainActivity : HelperBaseActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleUpdateIntent(intent)
+    }
+
+    /**
+     * Doze/App Standby can freeze the foreground VPN service (and its watchdog coroutine)
+     * during long idle periods (e.g. overnight, screen off) unless the app is exempted.
+     * The manifest permission was already declared but this request was never wired up,
+     * silently killing auto-mode with no error surfaced anywhere.
+     */
+    private fun requestBatteryOptimizationExemption() {
+        if (MmkvManager.decodeSettingsBool(AppConfig.PREF_BATTERY_OPT_REQUESTED)) return
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (pm.isIgnoringBatteryOptimizations(packageName)) return
+        MmkvManager.encodeSettings(AppConfig.PREF_BATTERY_OPT_REQUESTED, true)
+        try {
+            startActivity(Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName")))
+        } catch (e: Exception) {
+            LogUtil.e(AppConfig.TAG, "Failed to request battery optimization exemption", e)
+        }
     }
 
     private fun handleUpdateIntent(intent: Intent) {
