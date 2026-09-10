@@ -66,6 +66,14 @@ class CoreProxyOnlyService : Service(), ServiceControl {
     }
 
     /**
+     * Restarts the core loop without stopping this Service — see ServiceControl.restartService().
+     */
+    override fun restartService() {
+        CoreServiceManager.stopCoreLoop()
+        CoreServiceManager.startCoreLoop(null)
+    }
+
+    /**
      * Protects the VPN socket.
      * @param socket The socket to protect.
      * @return True if the socket is protected, false otherwise.

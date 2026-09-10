@@ -159,6 +159,22 @@ class CoreVpnService : VpnService(), ServiceControl {
         stopAllService(true)
     }
 
+    /**
+     * Restarts the core in place: stops only the core loop (isForced=false keeps this
+     * foreground Service, its notification, and the VPN interface alive) and re-delivers
+     * a start intent to this already-foreground Service — the same pattern checkTunnelAndSwitch()
+     * uses for auto-switch. Re-delivering to an already-foreground Service is exempt from
+     * Android 12+'s "no new foreground service from background" restriction, unlike a fresh
+     * stopService()+startVService() which was silently failing when triggered from a background
+     * caller (SubscriptionUpdater's periodic WorkManager task, notification restart action).
+     */
+    override fun restartService() {
+        watchdogScope.launch {
+            stopAllService(false)?.join()
+            CoreServiceManager.startVService(applicationContext)
+        }
+    }
+
     override fun vpnProtect(socket: Int): Boolean {
         return protect(socket)
     }
