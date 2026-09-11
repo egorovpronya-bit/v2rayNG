@@ -19,3 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Gson reflects on field names to (de)serialize JSON; our dto/config classes
+# mostly rely on matching Kotlin property names instead of @SerializedName,
+# so R8 must not rename or strip them.
+-keepattributes Signature,*Annotation*
+-keep class com.v2ray.ang.dto.** { <fields>; }
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
