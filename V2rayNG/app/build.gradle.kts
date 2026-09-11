@@ -12,8 +12,8 @@ android {
         applicationId = "ru.saqanet.vpn"
         minSdk = 24
         targetSdk = 37
-        versionCode = 822
-        versionName = "2.3.62"
+        versionCode = 823
+        versionName = "2.3.63"
         multiDexEnabled = true
 
         val abiFilterList = (properties["ABI_FILTERS"] as? String)?.split(';')
