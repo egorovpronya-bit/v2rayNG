@@ -161,14 +161,13 @@ object CoreServiceManager {
     }
 
     /**
-     * Servers eligible for auto-switch. On WiFi, skip WS (TCP) servers when alternatives
-     * exist — home ISPs often drop TLS data on TCP-based WS after the TCP handshake.
+     * Servers eligible for auto-switch. Keep every protocol (H2 and WS/TCP).
+     * Home Wi‑Fi often drops UDP/QUIC, so excluding WS previously forced a dead H2
+     * path and the watchdog tore the VPN down. Order still prefers H2, then TCP.
      */
+    @Suppress("UNUSED_PARAMETER")
     fun autoSwitchGuids(context: Context): List<String> {
-        val sorted = sortedServerGuids()
-        if (!isWifi(context)) return sorted
-        val noWs = sorted.filter { MmkvManager.decodeServerConfig(it)?.network != "ws" }
-        return noWs.ifEmpty { sorted }
+        return sortedServerGuids()
     }
 
     /**
@@ -267,7 +266,7 @@ object CoreServiceManager {
     fun startCoreLoop(vpnInterface: ParcelFileDescriptor?): Boolean {
         if (coreController.isRunning) {
             LogUtil.w(AppConfig.TAG, "StartCore-Manager: Core already running")
-            return false
+            return true
         }
 
         val service = getService()
@@ -359,12 +358,14 @@ object CoreServiceManager {
     /**
      * Stops the V2Ray core service.
      * Unregisters broadcast receivers, stops notifications, and shuts down plugins.
+     * @param notifyUi when false (in-place core swap / auto-switch) do not tell the UI
+     *   the VPN stopped and do not drop the foreground notification — the TUN stays up.
      * @return the Job stopping the native core loop, or null if it wasn't running.
      *   `coreController.stopLoop()` is async/native — callers that need to guarantee the
      *   core is actually stopped before starting a new one (e.g. auto-switch) must join() it;
      *   without that, `coreController.isRunning` can still read true when the next start begins.
      */
-    fun stopCoreLoop(): Job? {
+    fun stopCoreLoop(notifyUi: Boolean = true): Job? {
         val service = getService() ?: return null
 
         val stopJob = if (coreController.isRunning) {
@@ -384,8 +385,10 @@ object CoreServiceManager {
             browserDialer = null
         }
 
-        MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_STOP_SUCCESS, "")
-        NotificationManager.cancelNotification()
+        if (notifyUi) {
+            MessageUtil.sendMsg2UI(service, AppConfig.MSG_STATE_STOP_SUCCESS, "")
+            NotificationManager.cancelNotification()
+        }
 
         try {
             service.unregisterReceiver(mMsgReceive)
@@ -611,6 +614,11 @@ object CoreServiceManager {
                 AppConfig.MSG_STATE_RESTART -> {
                     LogUtil.i(AppConfig.TAG, "StartCore-Manager: Restart service")
                     serviceControl.restartService()
+                }
+
+                AppConfig.MSG_START_WATCHDOG -> {
+                    LogUtil.i(AppConfig.TAG, "StartCore-Manager: Start watchdog")
+                    serviceControl.ensureWatchdog()
                 }
 
                 AppConfig.MSG_MEASURE_DELAY -> {

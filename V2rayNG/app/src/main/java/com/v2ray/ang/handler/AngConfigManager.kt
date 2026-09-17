@@ -32,9 +32,10 @@ object AngConfigManager {
 
     private fun isSubscriptionExpired(e: Exception): Boolean {
         val msg = e.message ?: return false
-        return msg.contains("status code 404") ||
-            msg.contains("status code 401") ||
-            msg.contains("status code 403")
+        // Only 401 is a real "key rejected". 403/404 come from Cloudflare, DPI,
+        // a wrong path, or a parked origin — wiping servers on those used to
+        // kill a working VPN in auto mode.
+        return msg.contains("status code 401")
     }
 
     // Parser mapping for different config types (lazy initialized)

@@ -69,8 +69,12 @@ class CoreProxyOnlyService : Service(), ServiceControl {
      * Restarts the core loop without stopping this Service — see ServiceControl.restartService().
      */
     override fun restartService() {
-        CoreServiceManager.stopCoreLoop()
+        CoreServiceManager.stopCoreLoop(notifyUi = false)
         CoreServiceManager.startCoreLoop(null)
+    }
+
+    override fun ensureWatchdog() {
+        // Proxy-only mode has no tunnel watchdog.
     }
 
     /**

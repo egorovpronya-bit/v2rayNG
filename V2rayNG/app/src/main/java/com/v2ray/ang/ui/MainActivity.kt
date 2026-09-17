@@ -43,6 +43,7 @@ import com.v2ray.ang.enums.PermissionType
 import com.v2ray.ang.extension.toast
 import com.v2ray.ang.extension.toastError
 import com.v2ray.ang.handler.AngConfigManager
+import com.v2ray.ang.util.MessageUtil
 import com.v2ray.ang.handler.MmkvManager
 import com.v2ray.ang.handler.SettingsChangeManager
 import com.v2ray.ang.handler.SettingsManager
@@ -424,8 +425,15 @@ class MainActivity : HelperBaseActivity() {
         MmkvManager.encodeSettings(AppConfig.PREF_AUTO_SELECT, true)
         val sorted = CoreServiceManager.autoSwitchGuids(this)
         if (sorted.isEmpty()) { loadServerList(); return }
-        MmkvManager.setSelectServer(sorted[0])
-        if (mainViewModel.isRunning.value == true) restartV2Ray()
+        val current = MmkvManager.getSelectServer()
+        if (current.isNullOrEmpty() || current !in sorted) {
+            MmkvManager.setSelectServer(sorted[0])
+        }
+        if (mainViewModel.isRunning.value == true) {
+            MessageUtil.sendMsg2Service(this, AppConfig.MSG_START_WATCHDOG, "")
+        } else {
+            startV2Ray()
+        }
         loadServerList()
     }
 

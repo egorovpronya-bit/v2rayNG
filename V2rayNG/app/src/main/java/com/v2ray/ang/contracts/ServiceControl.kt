@@ -29,6 +29,12 @@ interface ServiceControl {
     fun restartService()
 
     /**
+     * Starts (or restarts) the tunnel watchdog without tearing down the VPN.
+     * Used when the user enables auto-select while already connected.
+     */
+    fun ensureWatchdog()
+
+    /**
      * Protects the VPN socket.
      * @param socket The socket to protect.
      * @return True if the socket is protected, false otherwise.

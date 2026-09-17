@@ -149,7 +149,9 @@ class CoreVpnService : VpnService(), ServiceControl {
         }
         if (!CoreServiceManager.startCoreLoop(mInterface)) {
             LogUtil.e(AppConfig.TAG, "StartCore-VPN: Failed to start core loop")
-            stopAllService()
+            if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) {
+                stopAllService()
+            }
             return
         }
     }
@@ -170,9 +172,18 @@ class CoreVpnService : VpnService(), ServiceControl {
      */
     override fun restartService() {
         watchdogScope.launch {
-            stopAllService(false)?.join()
-            CoreServiceManager.startVService(applicationContext)
+            CoreServiceManager.stopCoreLoop(notifyUi = false)?.join()
+            if (::mInterface.isInitialized) {
+                if (!CoreServiceManager.startCoreLoop(mInterface)) {
+                    LogUtil.e(AppConfig.TAG, "StartCore-VPN: In-place restart failed to start core")
+                }
+            }
+            startWatchdog()
         }
+    }
+
+    override fun ensureWatchdog() {
+        startWatchdog()
     }
 
     override fun vpnProtect(socket: Int): Boolean {
@@ -397,7 +408,7 @@ class CoreVpnService : VpnService(), ServiceControl {
         tun2SocksService?.stopTun2Socks()
         tun2SocksService = null
 
-        val stopJob = CoreServiceManager.stopCoreLoop()
+        val stopJob = CoreServiceManager.stopCoreLoop(notifyUi = isForced)
 
         if (isForced) {
             //stopSelf has to be called ahead of mInterface.close(). otherwise v2ray core cannot be stooped
@@ -443,18 +454,16 @@ class CoreVpnService : VpnService(), ServiceControl {
             delay(20_000L)
             var loops = 0
             while (true) {
-                delay(if (CoreServiceManager.isWifi(this@CoreVpnService)) 5_000L else 10_000L)
+                delay(15_000L)
                 if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
                 loops++
                 if (loops % 12 == 0) {
                     val result = AngConfigManager.updateConfigViaSubAll()
                     if (result.expiredCount > 0) {
-                        LogUtil.i(AppConfig.TAG, "Auto-switch: subscription expired, stopping")
-                        stopAllService(true)
-                        break
+                        LogUtil.i(AppConfig.TAG, "Auto-switch: subscription 401, keeping tunnel")
                     }
                 }
-                if (checkTunnelAndSwitch()) break
+                checkTunnelAndSwitch()
             }
         }
     }
@@ -464,35 +473,36 @@ class CoreVpnService : VpnService(), ServiceControl {
         watchdogJob = null
     }
 
-    /** Returns true if a server switch was triggered (caller should stop looping — a fresh watchdog starts with the new server). */
-    private suspend fun checkTunnelAndSwitch(): Boolean {
+    /** Swap outbound in place. TUN, notification and watchdog stay up. */
+    private suspend fun checkTunnelAndSwitch() {
         val guids = MmkvManager.decodeAllServerList()
-        if (guids.size < 2) return false
+        if (guids.size < 2) return
         val currentGuid = MmkvManager.getSelectServer() ?: guids[0]
 
         if (CoreServiceManager.measureTunnelDelay() >= 0) {
             tunnelFailCount = 0
-            return false
+            return
         }
 
         tunnelFailCount++
-        val failThreshold = 3
+        val failThreshold = 5
         LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel check failed ($tunnelFailCount/$failThreshold)")
-        if (tunnelFailCount < failThreshold) return false
+        if (tunnelFailCount < failThreshold) return
 
         val sorted = CoreServiceManager.autoSwitchGuids(this)
+        if (sorted.isEmpty()) return
         val currentIdx = sorted.indexOf(currentGuid)
-        val nextGuid = sorted[(currentIdx + 1) % sorted.size]
+        val nextGuid = sorted[(if (currentIdx >= 0) currentIdx + 1 else 0) % sorted.size]
+        if (nextGuid == currentGuid) return
         LogUtil.i(AppConfig.TAG, "Auto-switch: tunnel dead, switching to $nextGuid")
         MmkvManager.setSelectServer(nextGuid)
-        // Must join the stop before starting the next server: coreController.stopLoop() is
-        // async/native, so a fixed delay() here previously raced it — if the core hadn't
-        // actually stopped yet, startCoreLoop() would see isRunning==true, return false, and
-        // CoreVpnService.startService() would then force-stop everything (see stopAllService's
-        // isForced=true default), killing the tunnel instead of switching it.
-        stopAllService(false)?.join()
-        CoreServiceManager.startVService(applicationContext, nextGuid)
-        return true
+        CoreServiceManager.stopCoreLoop(notifyUi = false)?.join()
+        if (::mInterface.isInitialized) {
+            if (!CoreServiceManager.startCoreLoop(mInterface)) {
+                LogUtil.e(AppConfig.TAG, "Auto-switch: failed to start next server, keeping TUN")
+            }
+        }
+        tunnelFailCount = 0
     }
 }
 
