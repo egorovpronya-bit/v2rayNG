@@ -82,7 +82,11 @@ class CoreVpnService : VpnService(), ServiceControl {
             }
 
             override fun onLost(network: Network) {
-                setUnderlyingNetworks(null)
+                // Don't go to null here: that forces a hard blackout (no underlying
+                // network at all) for the gap between losing this network and
+                // onAvailable() for its replacement — which on Wi-Fi association/DHCP
+                // can take several seconds. Keep the old (likely dead) binding until
+                // the real replacement arrives; same failure mode, no artificial gap.
             }
         }
     }
