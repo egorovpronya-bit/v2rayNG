@@ -12,7 +12,7 @@ android {
         applicationId = "ru.saqanet.vpn"
         minSdk = 24
         targetSdk = 37
-        versionCode = 824
+        versionCode = 825
         versionName = "2.3.64"
         multiDexEnabled = true
 
