@@ -243,7 +243,7 @@ class MainActivity : HelperBaseActivity() {
             .setMessage(R.string.saqanet_expired_message)
             .setPositiveButton(R.string.saqanet_go_to_bot) { _, _ -> openSaqaBot() }
             .setNegativeButton(R.string.saqanet_menu_tariffs) { _, _ ->
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://saqanet.ru/buy")))
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/SAQANet_bot?start=buy")))
             }
             .show()
     }
