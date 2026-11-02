@@ -26,6 +26,7 @@
 # libv2ray (gomobile/JNI): its classes are called from Kotlin and the native
 # core invokes CoreCallbackHandler implementations via JNI reflection, so
 # callback method names must not be obfuscated.
+-keep class go.** { *; }
 -keep class libv2ray.** { *; }
 -keep class * implements libv2ray.CoreCallbackHandler { *; }
 
