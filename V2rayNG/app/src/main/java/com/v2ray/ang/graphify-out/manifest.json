@@ -1,0 +1,732 @@
+{
+  "AngApplication.kt": {
+    "mtime": 1781924723.976646,
+    "ast_hash": "894d794d6a6a393bd9065aa21808ff48",
+    "semantic_hash": "894d794d6a6a393bd9065aa21808ff48"
+  },
+  "AppConfig.kt": {
+    "mtime": 1783132386.0385392,
+    "ast_hash": "7a3fa6a3bd7a4373279ae96aa0ef0047",
+    "semantic_hash": "7a3fa6a3bd7a4373279ae96aa0ef0047"
+  },
+  "contracts/BaseAdapterListener.kt": {
+    "mtime": 1781924723.9776456,
+    "ast_hash": "fa5bd1673497a12a3930d3c1282d4b0b",
+    "semantic_hash": "fa5bd1673497a12a3930d3c1282d4b0b"
+  },
+  "contracts/MainAdapterListener.kt": {
+    "mtime": 1781924723.9776456,
+    "ast_hash": "e306ab99358fca3abbd2b511093d5718",
+    "semantic_hash": "e306ab99358fca3abbd2b511093d5718"
+  },
+  "contracts/ServiceControl.kt": {
+    "mtime": 1781924723.9786456,
+    "ast_hash": "048ed274a8b43284503e1ff1ac1d8c76",
+    "semantic_hash": "048ed274a8b43284503e1ff1ac1d8c76"
+  },
+  "contracts/Tun2SocksControl.kt": {
+    "mtime": 1781924723.9786456,
+    "ast_hash": "94c846de398d80b4f508d3914a25378b",
+    "semantic_hash": "94c846de398d80b4f508d3914a25378b"
+  },
+  "core/CoreConfigContextBuilder.kt": {
+    "mtime": 1781924723.9796455,
+    "ast_hash": "068c02b7b3987256a8a667ac192cb62b",
+    "semantic_hash": "068c02b7b3987256a8a667ac192cb62b"
+  },
+  "core/CoreConfigManager.kt": {
+    "mtime": 1783226160.615597,
+    "ast_hash": "880b8efc08afae306c853b623c2b4623",
+    "semantic_hash": "880b8efc08afae306c853b623c2b4623"
+  },
+  "core/CoreNativeManager.kt": {
+    "mtime": 1781924723.9806461,
+    "ast_hash": "5c8b1dc25b0a9dcff58b2228a744e97e",
+    "semantic_hash": "5c8b1dc25b0a9dcff58b2228a744e97e"
+  },
+  "core/CoreOutboundBuilder.kt": {
+    "mtime": 1781924723.981166,
+    "ast_hash": "f70feb1a43301176a6b067e602742779",
+    "semantic_hash": "f70feb1a43301176a6b067e602742779"
+  },
+  "core/CoreServiceManager.kt": {
+    "mtime": 1783132386.0385392,
+    "ast_hash": "f95ffd19ce5bbbbe9c7439ac192206fe",
+    "semantic_hash": "f95ffd19ce5bbbbe9c7439ac192206fe"
+  },
+  "dto/AppInfo.kt": {
+    "mtime": 1781924723.982169,
+    "ast_hash": "332a134fc62c3e966f3eeabbb6170815",
+    "semantic_hash": "332a134fc62c3e966f3eeabbb6170815"
+  },
+  "dto/CertSha256.kt": {
+    "mtime": 1781924723.982169,
+    "ast_hash": "faf8aeaba02a00bad93abbadf2c1e2c5",
+    "semantic_hash": "faf8aeaba02a00bad93abbadf2c1e2c5"
+  },
+  "dto/CheckUpdateResult.kt": {
+    "mtime": 1781924723.982169,
+    "ast_hash": "867c50ea377c496697e98ac30ce8cfb2",
+    "semantic_hash": "867c50ea377c496697e98ac30ce8cfb2"
+  },
+  "dto/ConfigResult.kt": {
+    "mtime": 1781924723.982169,
+    "ast_hash": "64a436aecfb146e009e59d227181d503",
+    "semantic_hash": "64a436aecfb146e009e59d227181d503"
+  },
+  "dto/CoreConfigContext.kt": {
+    "mtime": 1781924723.9831686,
+    "ast_hash": "373e4d1247457a9f7950bbed46ce9e20",
+    "semantic_hash": "373e4d1247457a9f7950bbed46ce9e20"
+  },
+  "dto/GitHubRelease.kt": {
+    "mtime": 1781924723.9831686,
+    "ast_hash": "cde5d8672fc2f158678cdb17565949bd",
+    "semantic_hash": "cde5d8672fc2f158678cdb17565949bd"
+  },
+  "dto/GroupMapItem.kt": {
+    "mtime": 1781924723.9841688,
+    "ast_hash": "a1520305441014e9b67664f8c120c08d",
+    "semantic_hash": "a1520305441014e9b67664f8c120c08d"
+  },
+  "dto/IPAPIInfo.kt": {
+    "mtime": 1781924723.9841688,
+    "ast_hash": "e10f9afa5746c549cdca20f73e4c7f7c",
+    "semantic_hash": "e10f9afa5746c549cdca20f73e4c7f7c"
+  },
+  "dto/OutboundTrafficStat.kt": {
+    "mtime": 1781924723.9841688,
+    "ast_hash": "bef192abd46a42a8bff545353842156d",
+    "semantic_hash": "bef192abd46a42a8bff545353842156d"
+  },
+  "dto/RealPingEvent.kt": {
+    "mtime": 1781924723.9841688,
+    "ast_hash": "181c0973d598fd31c99e22847b4e60cd",
+    "semantic_hash": "181c0973d598fd31c99e22847b4e60cd"
+  },
+  "dto/SaqaNetUpdateInfo.kt": {
+    "mtime": 1783132386.3360293,
+    "ast_hash": "cd3c18c5f4bdd5732b4a396b6b765c28",
+    "semantic_hash": "cd3c18c5f4bdd5732b4a396b6b765c28"
+  },
+  "dto/SubscriptionUpdateResult.kt": {
+    "mtime": 1781924723.985169,
+    "ast_hash": "a2a82f59bc39c2a7dbb91d335131b16c",
+    "semantic_hash": "a2a82f59bc39c2a7dbb91d335131b16c"
+  },
+  "dto/TestServiceMessage.kt": {
+    "mtime": 1781924723.985169,
+    "ast_hash": "ecf30d66df7c02d8d028c24b2538a87f",
+    "semantic_hash": "ecf30d66df7c02d8d028c24b2538a87f"
+  },
+  "dto/UrlContentRequest.kt": {
+    "mtime": 1781924723.985169,
+    "ast_hash": "b61241014cc4eb9625811f1baa9132a0",
+    "semantic_hash": "b61241014cc4eb9625811f1baa9132a0"
+  },
+  "dto/V2rayConfig.kt": {
+    "mtime": 1781924723.9861693,
+    "ast_hash": "00bc6956f375e4c9508b9d75061fd879",
+    "semantic_hash": "00bc6956f375e4c9508b9d75061fd879"
+  },
+  "dto/VmessQRCode.kt": {
+    "mtime": 1781924723.9861693,
+    "ast_hash": "321985140ab6bf0d5fa704454d2e3c53",
+    "semantic_hash": "321985140ab6bf0d5fa704454d2e3c53"
+  },
+  "dto/entities/AssetUrlCache.kt": {
+    "mtime": 1781924723.9871695,
+    "ast_hash": "f4aa63132aa3eb3800f07b258592f147",
+    "semantic_hash": "f4aa63132aa3eb3800f07b258592f147"
+  },
+  "dto/entities/AssetUrlItem.kt": {
+    "mtime": 1781924723.9871695,
+    "ast_hash": "1b359efd2941e798c95d8b061e347724",
+    "semantic_hash": "1b359efd2941e798c95d8b061e347724"
+  },
+  "dto/entities/ProfileItem.kt": {
+    "mtime": 1781924723.9871695,
+    "ast_hash": "8ea63f9901d6555b344d3894dca339cd",
+    "semantic_hash": "8ea63f9901d6555b344d3894dca339cd"
+  },
+  "dto/entities/RulesetItem.kt": {
+    "mtime": 1781924723.9881697,
+    "ast_hash": "db4226dbefe86d90cae9799f263760a0",
+    "semantic_hash": "db4226dbefe86d90cae9799f263760a0"
+  },
+  "dto/entities/ServerAffiliationInfo.kt": {
+    "mtime": 1781924723.9881697,
+    "ast_hash": "0cac016a8e66f44aaf80040969787a1f",
+    "semantic_hash": "0cac016a8e66f44aaf80040969787a1f"
+  },
+  "dto/entities/ServersCache.kt": {
+    "mtime": 1781924723.9881697,
+    "ast_hash": "4b4af90c945b9b424e98e7f65d58806f",
+    "semantic_hash": "4b4af90c945b9b424e98e7f65d58806f"
+  },
+  "dto/entities/SubscriptionCache.kt": {
+    "mtime": 1781924723.9891696,
+    "ast_hash": "9a5954639d4dde84f45dc5e9f69d93d5",
+    "semantic_hash": "9a5954639d4dde84f45dc5e9f69d93d5"
+  },
+  "dto/entities/SubscriptionItem.kt": {
+    "mtime": 1781924723.9891696,
+    "ast_hash": "8b0b6b8fa752cfe443aaa5df85e649bd",
+    "semantic_hash": "8b0b6b8fa752cfe443aaa5df85e649bd"
+  },
+  "dto/entities/WebDavConfig.kt": {
+    "mtime": 1781924723.9891696,
+    "ast_hash": "7d29277224fb776079e0afcd60120932",
+    "semantic_hash": "7d29277224fb776079e0afcd60120932"
+  },
+  "enums/BalancerStrategyType.kt": {
+    "mtime": 1781924723.99017,
+    "ast_hash": "a0df7f3838c99114e2baf80da6685ff1",
+    "semantic_hash": "a0df7f3838c99114e2baf80da6685ff1"
+  },
+  "enums/CoreResolvedType.kt": {
+    "mtime": 1781924723.99017,
+    "ast_hash": "b452610271a255847cf88a5a22418100",
+    "semantic_hash": "b452610271a255847cf88a5a22418100"
+  },
+  "enums/EConfigType.kt": {
+    "mtime": 1781924723.99017,
+    "ast_hash": "399910f1c352409d52d1bb1340b71e5c",
+    "semantic_hash": "399910f1c352409d52d1bb1340b71e5c"
+  },
+  "enums/Language.kt": {
+    "mtime": 1782017510.3732731,
+    "ast_hash": "e741d6c9e97035ac7b8a187b6540ff3d",
+    "semantic_hash": "e741d6c9e97035ac7b8a187b6540ff3d"
+  },
+  "enums/NetworkType.kt": {
+    "mtime": 1781924723.9911704,
+    "ast_hash": "60c2d979d12244c9e85173712e44b107",
+    "semantic_hash": "60c2d979d12244c9e85173712e44b107"
+  },
+  "enums/NotificationChannelType.kt": {
+    "mtime": 1781924723.9911704,
+    "ast_hash": "e714955f74954677aea59f7ba8283933",
+    "semantic_hash": "e714955f74954677aea59f7ba8283933"
+  },
+  "enums/PermissionType.kt": {
+    "mtime": 1781924723.9921706,
+    "ast_hash": "1f8cc7d814129735bfa2329a43a20270",
+    "semantic_hash": "1f8cc7d814129735bfa2329a43a20270"
+  },
+  "enums/RoutingType.kt": {
+    "mtime": 1781924723.9921706,
+    "ast_hash": "4f336824e3bfdfa2073b2def276e7aa5",
+    "semantic_hash": "4f336824e3bfdfa2073b2def276e7aa5"
+  },
+  "enums/VpnInterfaceAddressConfig.kt": {
+    "mtime": 1781924723.9931707,
+    "ast_hash": "279e55b72a7e12c8178b17d30a0b5321",
+    "semantic_hash": "279e55b72a7e12c8178b17d30a0b5321"
+  },
+  "extension/_Ext.kt": {
+    "mtime": 1781924723.9931707,
+    "ast_hash": "9fd2deecd528b4cee3dc37210bb5f0c2",
+    "semantic_hash": "9fd2deecd528b4cee3dc37210bb5f0c2"
+  },
+  "fmt/CustomFmt.kt": {
+    "mtime": 1781924723.994171,
+    "ast_hash": "9b0ea3752d68839f54b85d3b5250bfe7",
+    "semantic_hash": "9b0ea3752d68839f54b85d3b5250bfe7"
+  },
+  "fmt/FmtBase.kt": {
+    "mtime": 1781924723.994171,
+    "ast_hash": "92b5265684f82ea584dad7d813826130",
+    "semantic_hash": "92b5265684f82ea584dad7d813826130"
+  },
+  "fmt/Hysteria2Fmt.kt": {
+    "mtime": 1781924723.9951718,
+    "ast_hash": "d6c8e5afb9f4db62854dfd1c99f255c2",
+    "semantic_hash": "d6c8e5afb9f4db62854dfd1c99f255c2"
+  },
+  "fmt/ShadowsocksFmt.kt": {
+    "mtime": 1781924723.9951718,
+    "ast_hash": "85fcf216dc6dbb1ec054f2a07d40ec06",
+    "semantic_hash": "85fcf216dc6dbb1ec054f2a07d40ec06"
+  },
+  "fmt/SocksFmt.kt": {
+    "mtime": 1781924723.9951718,
+    "ast_hash": "8e903573f6112b69e96e9c5063579a95",
+    "semantic_hash": "8e903573f6112b69e96e9c5063579a95"
+  },
+  "fmt/TrojanFmt.kt": {
+    "mtime": 1781924723.9961715,
+    "ast_hash": "f102acc531a791331f58d2c055a4a475",
+    "semantic_hash": "f102acc531a791331f58d2c055a4a475"
+  },
+  "fmt/VlessFmt.kt": {
+    "mtime": 1781924723.9966843,
+    "ast_hash": "764ed0f4296f8c327973e9d691347dfa",
+    "semantic_hash": "764ed0f4296f8c327973e9d691347dfa"
+  },
+  "fmt/VmessFmt.kt": {
+    "mtime": 1781924723.9966843,
+    "ast_hash": "aab08f6857ae25ff9339fea012f6a630",
+    "semantic_hash": "aab08f6857ae25ff9339fea012f6a630"
+  },
+  "fmt/WireguardFmt.kt": {
+    "mtime": 1781924723.9966843,
+    "ast_hash": "88d542ce10a8dd1319b9288ae489bb1b",
+    "semantic_hash": "88d542ce10a8dd1319b9288ae489bb1b"
+  },
+  "handler/AngConfigManager.kt": {
+    "mtime": 1781924723.9976866,
+    "ast_hash": "1de121b15cfa9702e76d9f13565645f4",
+    "semantic_hash": "1de121b15cfa9702e76d9f13565645f4"
+  },
+  "handler/CertificateFingerprintManager.kt": {
+    "mtime": 1781924723.9986866,
+    "ast_hash": "798bfe1b83e4b08ea36a7b8077cb2993",
+    "semantic_hash": "798bfe1b83e4b08ea36a7b8077cb2993"
+  },
+  "handler/MmkvManager.kt": {
+    "mtime": 1781924723.9986866,
+    "ast_hash": "8184385fd87d4e7991690b7c06e2f62a",
+    "semantic_hash": "8184385fd87d4e7991690b7c06e2f62a"
+  },
+  "handler/NotificationManager.kt": {
+    "mtime": 1782055091.428446,
+    "ast_hash": "b46de5b770f9c7cb7198448db24023e2",
+    "semantic_hash": "b46de5b770f9c7cb7198448db24023e2"
+  },
+  "handler/SettingsChangeManager.kt": {
+    "mtime": 1781924723.999687,
+    "ast_hash": "eb6c5dd4d03b22613969cc82aa21d411",
+    "semantic_hash": "eb6c5dd4d03b22613969cc82aa21d411"
+  },
+  "handler/SettingsManager.kt": {
+    "mtime": 1782017544.6547878,
+    "ast_hash": "c876aacc3c483d4e66ec3decf3607fa8",
+    "semantic_hash": "c876aacc3c483d4e66ec3decf3607fa8"
+  },
+  "handler/SpeedtestManager.kt": {
+    "mtime": 1781924724.0004928,
+    "ast_hash": "6e76804507d07a926fc4b7b886935845",
+    "semantic_hash": "6e76804507d07a926fc4b7b886935845"
+  },
+  "handler/SubscriptionUpdater.kt": {
+    "mtime": 1781924724.0004928,
+    "ast_hash": "fcf04024595decc0fb1808a7d8473ee3",
+    "semantic_hash": "fcf04024595decc0fb1808a7d8473ee3"
+  },
+  "handler/UpdateCheckerManager.kt": {
+    "mtime": 1783170273.4166157,
+    "ast_hash": "49dc2a8ed52ab7f706c1d114141185cf",
+    "semantic_hash": "49dc2a8ed52ab7f706c1d114141185cf"
+  },
+  "handler/WebDavManager.kt": {
+    "mtime": 1781924724.001495,
+    "ast_hash": "befd1404b51957627471aecb68ccb11a",
+    "semantic_hash": "befd1404b51957627471aecb68ccb11a"
+  },
+  "helper/CustomDividerItemDecoration.kt": {
+    "mtime": 1781924724.0024955,
+    "ast_hash": "9c61eb1ed0f149eac52a95fdbb076951",
+    "semantic_hash": "9c61eb1ed0f149eac52a95fdbb076951"
+  },
+  "helper/FileChooserHelper.kt": {
+    "mtime": 1781924724.0024955,
+    "ast_hash": "4769d094864d7e7d92949a54f8902e64",
+    "semantic_hash": "4769d094864d7e7d92949a54f8902e64"
+  },
+  "helper/ItemTouchHelperAdapter.kt": {
+    "mtime": 1781924724.0024955,
+    "ast_hash": "f6ba9475240a12d352311a13b8269a3a",
+    "semantic_hash": "f6ba9475240a12d352311a13b8269a3a"
+  },
+  "helper/ItemTouchHelperViewHolder.kt": {
+    "mtime": 1781924724.0034955,
+    "ast_hash": "e35f30ffa35e421112d849326b1df07a",
+    "semantic_hash": "e35f30ffa35e421112d849326b1df07a"
+  },
+  "helper/MmkvPreferenceDataStore.kt": {
+    "mtime": 1781924724.0034955,
+    "ast_hash": "6bed6ee2cb9ba339dddc0acb8dcb4eb0",
+    "semantic_hash": "6bed6ee2cb9ba339dddc0acb8dcb4eb0"
+  },
+  "helper/PermissionHelper.kt": {
+    "mtime": 1781924724.0044956,
+    "ast_hash": "5d8901a79e4cd90ad32effdfd71e154c",
+    "semantic_hash": "5d8901a79e4cd90ad32effdfd71e154c"
+  },
+  "helper/QRCodeScannerHelper.kt": {
+    "mtime": 1781924724.0044956,
+    "ast_hash": "5daa7ce7a064cec8036e72329a33fbc7",
+    "semantic_hash": "5daa7ce7a064cec8036e72329a33fbc7"
+  },
+  "helper/SimpleItemTouchHelperCallback.kt": {
+    "mtime": 1781924724.0044956,
+    "ast_hash": "ca45a8466ba7be50e574fffc430df57e",
+    "semantic_hash": "ca45a8466ba7be50e574fffc430df57e"
+  },
+  "receiver/BootReceiver.kt": {
+    "mtime": 1781924724.0054958,
+    "ast_hash": "5f9e000eb4145cb37f1c5eb39a901c13",
+    "semantic_hash": "5f9e000eb4145cb37f1c5eb39a901c13"
+  },
+  "receiver/TaskerReceiver.kt": {
+    "mtime": 1781924724.0054958,
+    "ast_hash": "8f56f8eacbe7d266f509bad2a94e62b2",
+    "semantic_hash": "8f56f8eacbe7d266f509bad2a94e62b2"
+  },
+  "receiver/WidgetProvider.kt": {
+    "mtime": 1781924724.006496,
+    "ast_hash": "e19bbd0477e0bab02ac3befc93bbee0f",
+    "semantic_hash": "e19bbd0477e0bab02ac3befc93bbee0f"
+  },
+  "service/CoreProxyOnlyService.kt": {
+    "mtime": 1781924724.006496,
+    "ast_hash": "369a9c9f36512c46692946a1528cffce",
+    "semantic_hash": "369a9c9f36512c46692946a1528cffce"
+  },
+  "service/CoreTestService.kt": {
+    "mtime": 1781924724.0074964,
+    "ast_hash": "cc28d92df5d5f8fbcf68c6eb4fb40cd5",
+    "semantic_hash": "cc28d92df5d5f8fbcf68c6eb4fb40cd5"
+  },
+  "service/CoreVpnService.kt": {
+    "mtime": 1783267226.29626,
+    "ast_hash": "fba563253dfc13755f33debd1803d68f",
+    "semantic_hash": "fba563253dfc13755f33debd1803d68f"
+  },
+  "service/DialerNativeService.kt": {
+    "mtime": 1781924724.0084965,
+    "ast_hash": "04e5bbc99789e3786cf4c3a7575d0f21",
+    "semantic_hash": "04e5bbc99789e3786cf4c3a7575d0f21"
+  },
+  "service/DialerWebviewService.kt": {
+    "mtime": 1781924724.0084965,
+    "ast_hash": "eb8669d8fe4a4c2f2bd59b3f56d9ed88",
+    "semantic_hash": "eb8669d8fe4a4c2f2bd59b3f56d9ed88"
+  },
+  "service/IDialerService.kt": {
+    "mtime": 1781924724.0084965,
+    "ast_hash": "711ed8e1938544a4f93ee6aeb639cf6c",
+    "semantic_hash": "711ed8e1938544a4f93ee6aeb639cf6c"
+  },
+  "service/ProcessService.kt": {
+    "mtime": 1781924724.0094967,
+    "ast_hash": "c12246c2125946fe40ee17cafbc943f0",
+    "semantic_hash": "c12246c2125946fe40ee17cafbc943f0"
+  },
+  "service/QSTileService.kt": {
+    "mtime": 1781924724.0094967,
+    "ast_hash": "b50c5bd97aac12cadba810eabebce519",
+    "semantic_hash": "b50c5bd97aac12cadba810eabebce519"
+  },
+  "service/RealPingWorkerService.kt": {
+    "mtime": 1781924724.0094967,
+    "ast_hash": "6df3702abccf1154d3c65a6809105642",
+    "semantic_hash": "6df3702abccf1154d3c65a6809105642"
+  },
+  "service/TProxyService.kt": {
+    "mtime": 1783300453.8157616,
+    "ast_hash": "a15da85911d8b0eec4f55443369bcd42",
+    "semantic_hash": ""
+  },
+  "ui/AboutActivity.kt": {
+    "mtime": 1781925331.2856264,
+    "ast_hash": "6e1b95b18a02b660748674a0d1a1f647",
+    "semantic_hash": "6e1b95b18a02b660748674a0d1a1f647"
+  },
+  "ui/AppPickerActivity.kt": {
+    "mtime": 1781924724.011497,
+    "ast_hash": "ee2e962c51f4683ba7e4931060e3fea8",
+    "semantic_hash": "ee2e962c51f4683ba7e4931060e3fea8"
+  },
+  "ui/AppSelectorAdapter.kt": {
+    "mtime": 1781924724.011497,
+    "ast_hash": "f2d33a4d4aa7463ef0aa2dea76ba83ab",
+    "semantic_hash": "f2d33a4d4aa7463ef0aa2dea76ba83ab"
+  },
+  "ui/BackupActivity.kt": {
+    "mtime": 1781924724.0124972,
+    "ast_hash": "97a691fb56c6b8181ee195bdb877bc67",
+    "semantic_hash": "97a691fb56c6b8181ee195bdb877bc67"
+  },
+  "ui/BaseActivity.kt": {
+    "mtime": 1781924724.0124972,
+    "ast_hash": "f51d8cafefb37a75844d6d4022553767",
+    "semantic_hash": "f51d8cafefb37a75844d6d4022553767"
+  },
+  "ui/BaseFragment.kt": {
+    "mtime": 1781924724.0134976,
+    "ast_hash": "9e5950a66e169bfb7e954911fa93e078",
+    "semantic_hash": "9e5950a66e169bfb7e954911fa93e078"
+  },
+  "ui/CheckUpdateActivity.kt": {
+    "mtime": 1781924724.0134976,
+    "ast_hash": "11637ae523cc3493f5271c16a6ccd1ae",
+    "semantic_hash": "11637ae523cc3493f5271c16a6ccd1ae"
+  },
+  "ui/GroupPagerAdapter.kt": {
+    "mtime": 1781924724.0134976,
+    "ast_hash": "9e2cc50fefc64d77f105ca4321cccdbd",
+    "semantic_hash": "9e2cc50fefc64d77f105ca4321cccdbd"
+  },
+  "ui/GroupServerFragment.kt": {
+    "mtime": 1781924724.014498,
+    "ast_hash": "d9ceb0e99c3b326a87ff299e2bb043ee",
+    "semantic_hash": "d9ceb0e99c3b326a87ff299e2bb043ee"
+  },
+  "ui/HelperBaseActivity.kt": {
+    "mtime": 1781924724.014498,
+    "ast_hash": "1e56e2166c4738b1e1449f84e699d10a",
+    "semantic_hash": "1e56e2166c4738b1e1449f84e699d10a"
+  },
+  "ui/LanguageActivity.kt": {
+    "mtime": 1782019616.3987188,
+    "ast_hash": "690e3b72b7d9991d172e64ea50acb602",
+    "semantic_hash": "690e3b72b7d9991d172e64ea50acb602"
+  },
+  "ui/LogcatActivity.kt": {
+    "mtime": 1781924724.014498,
+    "ast_hash": "d835a6e11dd8531884a02ac9b8708061",
+    "semantic_hash": "d835a6e11dd8531884a02ac9b8708061"
+  },
+  "ui/LogcatRecyclerAdapter.kt": {
+    "mtime": 1781924724.015498,
+    "ast_hash": "e2c9055b9952c52e2cbf176482be9c97",
+    "semantic_hash": "e2c9055b9952c52e2cbf176482be9c97"
+  },
+  "ui/MainActivity.kt": {
+    "mtime": 1783303325.700639,
+    "ast_hash": "b6c19a97c02c9b7ad0defa36e9d0f4a9",
+    "semantic_hash": ""
+  },
+  "ui/MainRecyclerAdapter.kt": {
+    "mtime": 1781924724.016498,
+    "ast_hash": "6e2b554a83627d8003469acec094fb5a",
+    "semantic_hash": "6e2b554a83627d8003469acec094fb5a"
+  },
+  "ui/NotWorkingActivity.kt": {
+    "mtime": 1781926368.6185267,
+    "ast_hash": "df021171a74832a2f7a724b235f6ffbb",
+    "semantic_hash": "df021171a74832a2f7a724b235f6ffbb"
+  },
+  "ui/PerAppProxyActivity.kt": {
+    "mtime": 1782448864.5557294,
+    "ast_hash": "3afb0bddba5eb7735a525cfb099c4679",
+    "semantic_hash": "3afb0bddba5eb7735a525cfb099c4679"
+  },
+  "ui/PerAppProxyAdapter.kt": {
+    "mtime": 1781924724.016498,
+    "ast_hash": "13f9014a36411f291a53d069bfb6a16c",
+    "semantic_hash": "13f9014a36411f291a53d069bfb6a16c"
+  },
+  "ui/ProfilesActivity.kt": {
+    "mtime": 1782878950.6750875,
+    "ast_hash": "cdc9e71f67b2c4270d8f77b35fa46ca4",
+    "semantic_hash": "cdc9e71f67b2c4270d8f77b35fa46ca4"
+  },
+  "ui/RoutingEditActivity.kt": {
+    "mtime": 1781924724.0174987,
+    "ast_hash": "d8d1eaf25929ed2bdb33db3bade21139",
+    "semantic_hash": "d8d1eaf25929ed2bdb33db3bade21139"
+  },
+  "ui/RoutingSettingActivity.kt": {
+    "mtime": 1781924724.0174987,
+    "ast_hash": "597acaaf69dd0b38b3c49ba9a42c6666",
+    "semantic_hash": "597acaaf69dd0b38b3c49ba9a42c6666"
+  },
+  "ui/RoutingSettingRecyclerAdapter.kt": {
+    "mtime": 1781924724.0184987,
+    "ast_hash": "a4122da81a792cc9ce771d7b0ee240ab",
+    "semantic_hash": "a4122da81a792cc9ce771d7b0ee240ab"
+  },
+  "ui/ScScannerActivity.kt": {
+    "mtime": 1781924724.0184987,
+    "ast_hash": "2469a5e12da64406f6bb84b944817a09",
+    "semantic_hash": "2469a5e12da64406f6bb84b944817a09"
+  },
+  "ui/ScStartActivity.kt": {
+    "mtime": 1781924724.0184987,
+    "ast_hash": "9009e014c9ad52687d95cf4f60a8d900",
+    "semantic_hash": "9009e014c9ad52687d95cf4f60a8d900"
+  },
+  "ui/ScStopActivity.kt": {
+    "mtime": 1781924724.0184987,
+    "ast_hash": "9bc22854f4dbd1945bb2fa852e6a522f",
+    "semantic_hash": "9bc22854f4dbd1945bb2fa852e6a522f"
+  },
+  "ui/ScSwitchActivity.kt": {
+    "mtime": 1781924724.0194988,
+    "ast_hash": "f57f8e773925270d3ec5b1142d112473",
+    "semantic_hash": "f57f8e773925270d3ec5b1142d112473"
+  },
+  "ui/ScannerActivity.kt": {
+    "mtime": 1782036312.5478468,
+    "ast_hash": "51e16e9a51ba036f75d464f1f80503db",
+    "semantic_hash": "51e16e9a51ba036f75d464f1f80503db"
+  },
+  "ui/ServerActivity.kt": {
+    "mtime": 1781924724.0204992,
+    "ast_hash": "361ce3e52bcf91b86d900da6ecb817b4",
+    "semantic_hash": "361ce3e52bcf91b86d900da6ecb817b4"
+  },
+  "ui/ServerCustomConfigActivity.kt": {
+    "mtime": 1781924724.0204992,
+    "ast_hash": "f3e5afd7473232c5eec065e53e459731",
+    "semantic_hash": "f3e5afd7473232c5eec065e53e459731"
+  },
+  "ui/ServerGroupActivity.kt": {
+    "mtime": 1781924724.0214994,
+    "ast_hash": "4a3b264059bb4dae9000630705e8172e",
+    "semantic_hash": "4a3b264059bb4dae9000630705e8172e"
+  },
+  "ui/ServerProxyChainActivity.kt": {
+    "mtime": 1781924724.0214994,
+    "ast_hash": "3569d70fa446b4621c87d601e2cc490d",
+    "semantic_hash": "3569d70fa446b4621c87d601e2cc490d"
+  },
+  "ui/ServerProxyChainMemberAdapter.kt": {
+    "mtime": 1781924724.0214994,
+    "ast_hash": "bc89500e55d1859a950bb25de7d0ed4a",
+    "semantic_hash": "bc89500e55d1859a950bb25de7d0ed4a"
+  },
+  "ui/SettingsActivity.kt": {
+    "mtime": 1783159701.786662,
+    "ast_hash": "e63882cfee34383e24a136f3f0360ee5",
+    "semantic_hash": "e63882cfee34383e24a136f3f0360ee5"
+  },
+  "ui/SubEditActivity.kt": {
+    "mtime": 1781924724.0224996,
+    "ast_hash": "5cfd3502d7e2fee5562d04b8804e2895",
+    "semantic_hash": "5cfd3502d7e2fee5562d04b8804e2895"
+  },
+  "ui/SubSettingActivity.kt": {
+    "mtime": 1781924724.0234997,
+    "ast_hash": "61892e9b73dadad185172f1db71ab098",
+    "semantic_hash": "61892e9b73dadad185172f1db71ab098"
+  },
+  "ui/SubSettingRecyclerAdapter.kt": {
+    "mtime": 1781924724.0234997,
+    "ast_hash": "d9048cdfd1279c15449bde2197fbec17",
+    "semantic_hash": "d9048cdfd1279c15449bde2197fbec17"
+  },
+  "ui/SubscriptionActivity.kt": {
+    "mtime": 1782197637.5730388,
+    "ast_hash": "c54488bc636416cd5e08d1ceac6c92fc",
+    "semantic_hash": "c54488bc636416cd5e08d1ceac6c92fc"
+  },
+  "ui/TaskerActivity.kt": {
+    "mtime": 1781924724.0245001,
+    "ast_hash": "b3c180f485ecdbf9a508c548c6aad7a6",
+    "semantic_hash": "b3c180f485ecdbf9a508c548c6aad7a6"
+  },
+  "ui/UpdateUiHelper.kt": {
+    "mtime": 1783221236.1504698,
+    "ast_hash": "94d1c5ae3cc10cb0caa19ed8bb3b7fda",
+    "semantic_hash": "94d1c5ae3cc10cb0caa19ed8bb3b7fda"
+  },
+  "ui/UrlSchemeActivity.kt": {
+    "mtime": 1782017988.8566518,
+    "ast_hash": "29198c5dab0c5998ed12d1aeae237ef5",
+    "semantic_hash": "29198c5dab0c5998ed12d1aeae237ef5"
+  },
+  "ui/UserAssetActivity.kt": {
+    "mtime": 1781924724.0245001,
+    "ast_hash": "c76315abf3981aaddcbe83afb860e9f8",
+    "semantic_hash": "c76315abf3981aaddcbe83afb860e9f8"
+  },
+  "ui/UserAssetAdapter.kt": {
+    "mtime": 1781924724.0255,
+    "ast_hash": "09d62690443563670bfdcb550da9ef6c",
+    "semantic_hash": "09d62690443563670bfdcb550da9ef6c"
+  },
+  "ui/UserAssetUrlActivity.kt": {
+    "mtime": 1781924724.0255,
+    "ast_hash": "21b968f8684742bb2006daaa680c5b69",
+    "semantic_hash": "21b968f8684742bb2006daaa680c5b69"
+  },
+  "util/AppManagerUtil.kt": {
+    "mtime": 1782448392.7910762,
+    "ast_hash": "2912f3aa313e90031b6b9549ecd3e409",
+    "semantic_hash": "2912f3aa313e90031b6b9549ecd3e409"
+  },
+  "util/HttpUtil.kt": {
+    "mtime": 1781924724.0265007,
+    "ast_hash": "cacc4734afb61d7101362d5b5c1909e8",
+    "semantic_hash": "cacc4734afb61d7101362d5b5c1909e8"
+  },
+  "util/JsonUtil.kt": {
+    "mtime": 1781924724.0275009,
+    "ast_hash": "d1a0727b6d2fc88c1eb545d40f754f12",
+    "semantic_hash": "d1a0727b6d2fc88c1eb545d40f754f12"
+  },
+  "util/LogUtil.kt": {
+    "mtime": 1781924724.0275009,
+    "ast_hash": "19f374b699c0a1d576ea6e45d0b1acc2",
+    "semantic_hash": "19f374b699c0a1d576ea6e45d0b1acc2"
+  },
+  "util/MessageUtil.kt": {
+    "mtime": 1781924724.0275009,
+    "ast_hash": "c404efee8866288ab8d54cb52bb4623e",
+    "semantic_hash": "c404efee8866288ab8d54cb52bb4623e"
+  },
+  "util/MyContextWrapper.kt": {
+    "mtime": 1781924724.028501,
+    "ast_hash": "86992e3f27864300bc35769e9494796a",
+    "semantic_hash": "86992e3f27864300bc35769e9494796a"
+  },
+  "util/NotificationHelper.kt": {
+    "mtime": 1781924724.0291138,
+    "ast_hash": "8a45621fde44c4d98d0a708d1a1e7bcd",
+    "semantic_hash": "8a45621fde44c4d98d0a708d1a1e7bcd"
+  },
+  "util/PackageUidResolver.kt": {
+    "mtime": 1781924724.0291138,
+    "ast_hash": "04d9f5a2cdc3bb366a3f29f480a64fa7",
+    "semantic_hash": "04d9f5a2cdc3bb366a3f29f480a64fa7"
+  },
+  "util/QRCodeDecoder.kt": {
+    "mtime": 1781924724.0291138,
+    "ast_hash": "e51cf5c4ad4805d34e558387fc275a05",
+    "semantic_hash": "e51cf5c4ad4805d34e558387fc275a05"
+  },
+  "util/Utils.kt": {
+    "mtime": 1781924724.0301158,
+    "ast_hash": "9b71f42da1b91cd985d61276584f9932",
+    "semantic_hash": "9b71f42da1b91cd985d61276584f9932"
+  },
+  "util/ZipUtil.kt": {
+    "mtime": 1781924724.0301158,
+    "ast_hash": "44b5a04b5ed25ab923a8423ff87ffc06",
+    "semantic_hash": "44b5a04b5ed25ab923a8423ff87ffc06"
+  },
+  "viewmodel/LogcatViewModel.kt": {
+    "mtime": 1781924724.0311158,
+    "ast_hash": "45611c67f0e8314da2892e75a2009879",
+    "semantic_hash": "45611c67f0e8314da2892e75a2009879"
+  },
+  "viewmodel/MainViewModel.kt": {
+    "mtime": 1781924724.0311158,
+    "ast_hash": "d81d8aaaf680dc71daadad3e2dbc0311",
+    "semantic_hash": "d81d8aaaf680dc71daadad3e2dbc0311"
+  },
+  "viewmodel/PerAppProxyViewModel.kt": {
+    "mtime": 1781924724.0321162,
+    "ast_hash": "18cf03f2ff3450d2e90eba40bfb5cd2c",
+    "semantic_hash": "18cf03f2ff3450d2e90eba40bfb5cd2c"
+  },
+  "viewmodel/RoutingSettingsViewModel.kt": {
+    "mtime": 1781924724.0321162,
+    "ast_hash": "4a99c1099841852606d006cf7873e548",
+    "semantic_hash": "4a99c1099841852606d006cf7873e548"
+  },
+  "viewmodel/SubscriptionsViewModel.kt": {
+    "mtime": 1781924724.0321162,
+    "ast_hash": "ab10008e4e6da77a05268776eb3c8bc6",
+    "semantic_hash": "ab10008e4e6da77a05268776eb3c8bc6"
+  },
+  "viewmodel/UserAssetViewModel.kt": {
+    "mtime": 1781924724.033306,
+    "ast_hash": "fc1ebd99d9577a3c1b3ef890a0a8599f",
+    "semantic_hash": "fc1ebd99d9577a3c1b3ef890a0a8599f"
+  }
+}
