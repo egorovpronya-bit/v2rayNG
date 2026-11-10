@@ -140,7 +140,8 @@ object CoreServiceManager {
     }
 
     /**
-     * Server guids sorted for the auto-select flow: H2 DE(0) -> H2 NL(1) -> WS DE(2) -> WS NL(3) -> other(4).
+     * Server guids for auto-select and the server list.
+     * TCP/WS first (DE, then NL), Hysteria2 last. Home Wi‑Fi and MTS often drop UDP.
      */
     fun sortedServerGuids(): List<String> {
         val guids = MmkvManager.decodeAllServerList()
@@ -150,10 +151,11 @@ object CoreServiceManager {
             val isHysteria2 = cfg?.configType == EConfigType.HYSTERIA2
             val isDE = s.contains("de1")
             when {
-                isHysteria2 && isDE -> 0
-                isHysteria2 -> 1
-                isDE -> 2
-                else -> if (s.contains("nl2")) 3 else 4
+                !isHysteria2 && isDE -> 0
+                !isHysteria2 && s.contains("nl2") -> 1
+                !isHysteria2 -> 2
+                isDE -> 3
+                else -> 4
             }
         }, { guid ->
             MmkvManager.decodeServerConfig(guid)?.remarks ?: ""
@@ -161,9 +163,8 @@ object CoreServiceManager {
     }
 
     /**
-     * Servers eligible for auto-switch. Keep every protocol (H2 and WS/TCP).
-     * Home Wi‑Fi often drops UDP/QUIC, so excluding WS previously forced a dead H2
-     * path and the watchdog tore the VPN down. Order still prefers H2, then TCP.
+     * Servers eligible for auto-switch. Keep every protocol.
+     * Order is TCP/WS first, then Hysteria2, so a dead UDP path is not the first choice.
      */
     @Suppress("UNUSED_PARAMETER")
     fun autoSwitchGuids(context: Context): List<String> {

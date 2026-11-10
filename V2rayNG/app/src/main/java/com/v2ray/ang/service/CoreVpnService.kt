@@ -114,6 +114,9 @@ class CoreVpnService : VpnService(), ServiceControl {
         super.onDestroy()
         LogUtil.i(AppConfig.TAG, "StartCore-VPN: Service destroyed")
         watchdogScope.cancel()
+        // Clear the process-wide hev flag even when this instance never stored the tunnel.
+        TProxyService.stopNative()
+        tun2SocksService = null
 
         // Ensure VPN interface is properly closed when the service is destroyed without
         // going through stopAllService() (e.g. when killed unexpectedly). isRunning is
@@ -212,6 +215,12 @@ class CoreVpnService : VpnService(), ServiceControl {
             stopSelf()
             return
         }
+
+        // Quit hev before the old TUN fd is closed. Otherwise the next start
+        // is ignored and the button stays green with no traffic.
+        tun2SocksService?.stopTun2Socks()
+        tun2SocksService = null
+        TProxyService.stopNative()
 
         if (configureVpnService() != true) {
             LogUtil.e(AppConfig.TAG, "StartCore-VPN: Configuration failed")
@@ -381,18 +390,19 @@ class CoreVpnService : VpnService(), ServiceControl {
      * Starts the tun2socks process with the appropriate parameters.
      */
     private fun runTun2socks() {
-        if (SettingsManager.isUsingHevTun()) {
-            tun2SocksService = TProxyService(
-                context = applicationContext,
-                vpnInterface = mInterface,
-                isRunningProvider = { isRunning },
-                restartCallback = { runTun2socks() }
-            )
-        } else {
-            tun2SocksService = null
-        }
-
-        tun2SocksService?.startTun2Socks()
+        // Drop any previous native tunnel before attaching this interface.
+        // A second start otherwise keeps reading the fd that setup just closed.
+        tun2SocksService?.stopTun2Socks()
+        tun2SocksService = null
+        if (!SettingsManager.isUsingHevTun() || !::mInterface.isInitialized) return
+        val tunnel = TProxyService(
+            context = applicationContext,
+            vpnInterface = mInterface,
+            isRunningProvider = { isRunning },
+            restartCallback = { runTun2socks() }
+        )
+        tun2SocksService = tunnel
+        tunnel.startTun2Socks()
     }
 
     private fun stopAllService(isForced: Boolean = true): Job? {
@@ -451,23 +461,28 @@ class CoreVpnService : VpnService(), ServiceControl {
      * is the foreground component that actually survives that scenario.
      */
     private fun startWatchdog() {
-        if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) return
         tunnelFailCount = 0
         watchdogJob?.cancel()
         watchdogJob = watchdogScope.launch {
             delay(20_000L)
             var loops = 0
-            while (true) {
+            while (isRunning) {
                 delay(15_000L)
-                if (!MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)) break
+                if (!isRunning) break
                 loops++
-                if (loops % 12 == 0) {
+                val auto = MmkvManager.decodeSettingsBool(AppConfig.PREF_AUTO_SELECT)
+                if (auto && loops % 12 == 0) {
                     val result = AngConfigManager.updateConfigViaSubAll()
                     if (result.expiredCount > 0) {
                         LogUtil.i(AppConfig.TAG, "Auto-switch: subscription 401, keeping tunnel")
                     }
                 }
-                checkTunnelAndSwitch()
+                if (!CoreServiceManager.isRunning()) {
+                    recoverDeadCore()
+                    continue
+                }
+                // Server switching stays opt-in. Without auto the same server is kept.
+                if (auto) checkTunnelAndSwitch()
             }
         }
     }
@@ -475,6 +490,27 @@ class CoreVpnService : VpnService(), ServiceControl {
     private fun stopWatchdog() {
         watchdogJob?.cancel()
         watchdogJob = null
+    }
+
+    /**
+     * VPN interface is up but xray is gone, so the button would stay green.
+     * Restart the same server. If that fails, stop the service and the button goes off.
+     */
+    private suspend fun recoverDeadCore() {
+        tunnelFailCount++
+        LogUtil.w(AppConfig.TAG, "Tunnel: core dead behind VPN ($tunnelFailCount)")
+        if (tunnelFailCount < 2 || !::mInterface.isInitialized) {
+            if (tunnelFailCount >= 2) stopAllService(true)
+            return
+        }
+        val started = CoreServiceManager.startCoreLoop(mInterface)
+        if (started) {
+            if (SettingsManager.isUsingHevTun()) runTun2socks()
+            tunnelFailCount = 0
+            return
+        }
+        LogUtil.e(AppConfig.TAG, "Tunnel: restart failed, stopping VPN")
+        stopAllService(true)
     }
 
     /** Swap outbound in place. TUN, notification and watchdog stay up. */

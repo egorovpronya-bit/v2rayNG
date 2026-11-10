@@ -34,6 +34,19 @@ class TProxyService(
         init {
             System.loadLibrary("hev-socks5-tunnel")
         }
+
+        /**
+         * Native hev keeps an `is_working` flag after its thread dies and ignores
+         * the next start, including a new TUN fd. Stop is process-wide, so a new
+         * service instance can still clear the flag left by the previous one.
+         */
+        fun stopNative() {
+            try {
+                TProxyStopService()
+            } catch (e: Exception) {
+                LogUtil.e(AppConfig.TAG, "Failed to stop hev-socks5-tunnel", e)
+            }
+        }
     }
 
     /**
@@ -50,7 +63,9 @@ class TProxyService(
         LogUtil.d(AppConfig.TAG, "HevSocks5Tunnel Config content:\n$configContent")
 
         try {
-//            LogUtil.i(AppConfig.TAG, "TProxyStartService...")
+            // Start is a no-op while the native flag is set, so a live or dead
+            // tunnel must be stopped before this fd is attached.
+            stopNative()
             TProxyStartService(configFile.absolutePath, vpnInterface.fd)
         } catch (e: Exception) {
             LogUtil.e(AppConfig.TAG, "HevSocks5Tunnel exception: ${e.message}")
@@ -101,11 +116,7 @@ class TProxyService(
      * Stops the tun2socks process
      */
     override fun stopTun2Socks() {
-        try {
-            LogUtil.i(AppConfig.TAG, "TProxyStopService...")
-            TProxyStopService()
-        } catch (e: Exception) {
-            LogUtil.e(AppConfig.TAG, "Failed to stop hev-socks5-tunnel", e)
-        }
+        LogUtil.i(AppConfig.TAG, "TProxyStopService...")
+        stopNative()
     }
 }
