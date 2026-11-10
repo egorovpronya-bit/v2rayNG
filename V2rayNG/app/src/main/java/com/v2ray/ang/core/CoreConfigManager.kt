@@ -915,6 +915,20 @@ object CoreConfigManager {
     }
 
     /**
+     * Profiles that decide whether UDP/443 may enter the tunnel.
+     * A policy group blackholes QUIC when any member is TCP-only.
+     */
+    private fun quicProfiles(configContext: CoreConfigContext): List<ProfileItem> {
+        return configContext.resolvedOutbounds.flatMap { outbound ->
+            if (outbound.resolvedType == CoreResolvedType.NORMAL) {
+                listOf(outbound.profile)
+            } else {
+                outbound.resolvedProfiles.ifEmpty { listOf(outbound.profile) }
+            }
+        }
+    }
+
+    /**
      * Configure routing domain strategy and append enabled user rules.
      */
     private fun configureRouting(
@@ -927,16 +941,18 @@ object CoreConfigManager {
             MmkvManager.decodeSettingsString(AppConfig.PREF_ROUTING_DOMAIN_STRATEGY)
                 ?: "AsIs"
 
-        // YouTube/Chrome QUIC is UDP/443. It cannot traverse TCP-only WS. Sending it
-        // "direct" waits 60–90s for the ISP to drop the packet. Mux-reject only helped
-        // Chrome. Blackhole fails immediately so the app retries HTTPS/TCP through the tunnel.
-        v2rayConfig.routing.rules.add(
-            V2rayConfig.RoutingBean.RulesBean(
-                network = "udp",
-                port = "443",
-                outboundTag = AppConfig.TAG_BLOCKED,
+        // YouTube/Chrome QUIC is UDP/443. WS cannot carry it, and sending it direct
+        // waits on the ISP. Blackhole only those profiles so the player retries TCP.
+        // Hysteria2 can carry QUIC; blackholing it there freezes video after the buffer.
+        if (shouldBlackholeUdp443(quicProfiles(configContext))) {
+            v2rayConfig.routing.rules.add(
+                V2rayConfig.RoutingBean.RulesBean(
+                    network = "udp",
+                    port = "443",
+                    outboundTag = AppConfig.TAG_BLOCKED,
+                )
             )
-        )
+        }
 
         val rulesetItems = MmkvManager.decodeRoutingRulesets()
         rulesetItems?.forEach { key ->
